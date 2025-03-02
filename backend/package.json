@@ -1,0 +1,26 @@
+{
+  "name": "geodent-backend-server",
+  "version": "1.0.0",
+  "description": "backend server for geodent web app",
+  "license": "MIT",
+  "author": "William Inyam",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc && node ./src/server.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "express": "^4.21.2",
+    "nodemailer": "^6.10.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node23": "^23.0.0",
+    "@types/node": "^22.13.8",
+    "express-validator": "^7.2.1",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.8.2",
+    "validator": "^13.12.0"
+  }
+}
