@@ -10,8 +10,12 @@
     "dev": "nodemon",
     "build": "tsc && node ./src/server.js"
   },
+  "prisma": {
+    "schema": "./src/db/schema/schema.prisma"
+  },
   "dependencies": {
     "@prisma/client": "^6.4.1",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "nodemailer": "^6.10.0"
   },
@@ -20,6 +24,7 @@
     "@types/node": "^22.13.8",
     "express-validator": "^7.2.1",
     "nodemon": "^3.1.9",
+    "prisma": "^6.4.1",
     "typescript": "^5.8.2",
     "validator": "^13.12.0"
   }
