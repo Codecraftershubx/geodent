@@ -1,29 +1,23 @@
 import { config } from "dotenv";
+import { expand } from "dotenv-expand";
 
-const successfulLoad = config();
+const conf = config();
 
-if (!successfulLoad) {
+if (!conf) {
   console.error("env vars failed to load");
 } else {
   console.log("env vars loaded successfully");
+  expand(conf);
 }
 
-// Construct db url
-
-const BASE =
-  "postgresql://geodent:geodent@localhost:5432/geodent?schema=public&connection_limit=5";
-
-const DB_USER = process.env[`DB_${process.env.MODE}_USER`];
-const DB_NAME = process.env[`DB_${process.env.MODE}_NAME`];
-const DB_PASSWD = process.env[`DB_${process.env.MODE}_PASSWD`];
-const DB_HOST = process.env[`DB_${process.env.MODE}_HOST`];
-const DB_PORT = process.env[`DB_${process.env.MODE}_PORT`];
-
-const DB_URL =
-  `${BASE}://${DB_USER}:${DB_PASSWD}@${DB_HOST}:${DB_PORT}` +
-  `/${DB_NAME}?connection_limit=5`;
-
-process.env.DB_URL = DB_URL;
+let DB_URL;
+if (process.env.MODE === "DEV") {
+  DB_URL = process.env.DB_DEV_URL;
+} else if (process.env.MODE === "TEST") {
+  DB_URL = process.env.DB_TEST_URL;
+} else {
+  DB_URL = process.env.DB_LIVE_URL;
+}
 
 const envs = {
   DB_URL,
