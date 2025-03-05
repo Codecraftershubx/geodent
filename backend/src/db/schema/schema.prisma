@@ -120,3 +120,107 @@ enum UserRole {
   LANDLORD
   USER
 }
+
+
+// Countries
+model Country {
+ id             String          @id @default(uuid())
+ serial         Int             @unique @default(autoincrement())
+ name           String          @unique
+ aka            String          @default('')
+ alpha2Code     String          @unique
+ alpha3Code     String          @unique
+ createdAt      DateTime        @default(now())
+ currency       String
+ currencyCode   String          @unique
+ currencyNumber String          @unique
+ numericCode    String          @unique
+ states         State[]
+ listings       Listing[]
+ updatedAt      DateTime        @updatedAt
+}
+
+// States
+model State {
+  id                String          @id @default(uuid())
+  serial            Int             @unique @default(autoincrement())
+  alpha2Code        String          @unique
+  alpha3Code        String          @unique
+  cities            City[]
+  country           Country         @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  countryId         String
+  createdAt         DateTime        @default(now())
+  name              String
+  numericCode       String          @unique
+  updatedAt         DateTime        @updatedAt
+  @@unique(fields: [countryId, name])
+}
+
+// Cities
+model City {
+  id                String          @id @default(uuid())
+  serial            Int             @unique @default(autoincrement())
+  listings          Listing[]
+  name              String
+  state             State           @relation(fields:[stateId], references: [id], onDelete: Cascade)
+  stateId           String
+  createdAt         DateTime        @default(now())
+  schools           School[]
+  updatedAt         DateTime        @updatedAt
+  @@unique(fields: [name, stateId])
+}
+
+// Schools
+model School {
+  id            String          @id @default(uuid())
+  serial        Int             @default(autoincrement())
+  name          String
+  description   String          @default('')
+  address       String
+  postalCode    String
+  type          SchoolType
+  latitude      Float
+  longitude     Float
+  campuses      Campus[]
+  state         State           @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  country       Country         @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  stateId       String
+  countryId     String
+  isDeleted     Boolean         @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+
+//
+enum SchooType {
+  COLLEGE
+  POLYTECHNIC
+  UNIVERSITY
+}
+
+
+// Campuses
+model Campus {
+  id            String          @id @default(uuid())
+  serial        Int             @unique @default(autoincrement())
+  name          String
+  type          CampusType
+  description   String          @default('')
+  address       String
+  latitude      Float
+  longitude     Float
+  school        School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  schoolId      String
+  isDeleted     Boolean         @default(false)
+  deleteAt      DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+// Campus Type
+enum CampusType {
+  MAIN
+  ANNEX
+}
