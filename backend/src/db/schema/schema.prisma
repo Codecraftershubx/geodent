@@ -1,15 +1,50 @@
 datasource db {
-provider = "postgresql"
-url = env("DB_TEST_URL")
+  provider = "postgresql"
+  url      = env("DB_TEST_URL")
 }
 
 generator client {
-provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
-model user {
-id         Int         @id @default(autoincrement())
-name       String?
-email      String      @unique
-createdAt  DateTime    @default(now())
+
+model User {
+  id                String              @id @default(uuid())
+  serial            Int                 @unique @default(autoincrement())
+  avatar            Document?           @relation(fields: [avatarId], references: [id])
+  avatarId          String?
+  chatRooms         ChatRoom[]
+  createdAt         DateTime            @default(now())
+  email             String              @unique
+  firstName         String
+  lastName          String
+  isVerified        Boolean             @default(false)
+  landlords         Landlord[]
+  likes             Like[]
+  messages          Message[]
+  passwordHash      String
+  passwordSalt      String
+  phone             String
+  recommendations   Recommendations[]
+  rentals           Rental[]
+  reviews           Review[]
+  role              UserRole            @default(USER)
+  updatedAt         DateTime            @updatedAt
+}
+
+
+// User roles
+enum UserRole {
+  ADMIN
+  AGENT
+  LANDLORD
+  USER
+}
+
+// Listing Types
+enum ListingType {
+ STUDIO
+ SELF_CONTAINED
+ FLAT
+ BLOCK
 }
