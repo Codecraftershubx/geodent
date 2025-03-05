@@ -99,13 +99,13 @@ model User {
   deletedAt         DateTime?
   isVerified        Boolean             @default(false)
   landlords         Landlord[]
-  favourites        Like[]
+  likes             Like[]              @relation()
+  likedBy           Like[]              @relation("UserLikesReceived")
   listings          Listing[]
   notifications     Notification[]
   passwordHash      String
   passwordSalt      String
   phone             String
-  recommendations   Recommendation[]
   rentals           Rental[]            @relation("UserRentals", onDelete: Cascade)
   reviews           Review[]
   role              UserRole            @default(USER)
@@ -200,7 +200,6 @@ enum SchooType {
   UNIVERSITY
 }
 
-
 // Campuses
 model Campus {
   id            String          @id @default(uuid())
@@ -223,4 +222,65 @@ model Campus {
 enum CampusType {
   MAIN
   ANNEX
+}
+
+// Listing
+model Listing {
+ id                 String              @id @default(uuid())
+ serial             Int                 @unique @default(autoincrement())
+ address            String
+ createdAt          DateTime            @default(now())
+ latitude           Float
+ shortDescr         String
+ longDescr          String              @default('')
+ longitude          Float
+ name               String
+ type               ListingType
+ isDeleted          Boolean             @default(false)
+ deletedAt          DateTime?
+ createdAt          DateTime            @default(now())
+ updatedAt          DateTime            @updatedAt
+ shares             Int                 @default(0)
+ url                String
+
+ // relationships
+ campus             Campus          @relation(fields: [campusId], references: [id], noDelete: Cascade)
+ city               City            @relation(fields:[cityId], references: [id], onDelete: Cascade)
+ state              State           @relation(fields:[stateId], references: [id], onDelete: Cascade)
+ country            Country         @relation(fields:[countryId], references: [id], onDelete: Cascade)
+ campusId           String
+ cityId             String
+ countryId          String
+ stateId            String
+ likes              Like[]          @relation("LikedListings")
+ reviews            Review[]
+}
+
+// Listing Types
+enum ListingType {
+ STUDIO
+ SELF_CONTAINED
+ FLAT
+ BLOCK
+}
+
+// Likes
+model Like {
+  id                String              @id @default(uuid())
+  serial            Int                 @unique @default(autoincrement())
+  target            LikeTarget
+  likerId           String
+  listingId         String
+  userId            String
+  liker             User                @relation(fields: [likerId], references: [id], onDelete: Cascade)
+  user              User?               @relation("UserLikesReceived", fields: [userId], references: [id], onDelete: Cascade)
+  listing           Listing?            @relation("LikedListings", fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+}
+
+// like target
+enum LikeTarget {
+  LISTING
+  USER
 }
