@@ -44,12 +44,47 @@ enum DocumentType {
   VIDEO
 }
 
+// Chatroom
+model Chatroom {
+  id                String              @id @default(uuid())
+  serial            Int                 @unique @default(autoincrement())
+  createdAt         DateTime            @default(now())
+  name              String
+  messages          Message[]
+  participants      User[]              @relation("ChatroomParticipants")
+  type              ChatroomType        @default(PRIVATE)
+  updatedAt         DateTime            @updatedAt
+  webClientId       String?
+}
+
+
+// Chatroom type
+enum ChatroomType {
+  GROUP
+  PRIVATE
+}
+
+model Message {
+  id                String              @id @default(uuid())
+  serial            Int                 @unique @default(autoincrement())
+  chatroom          Chatroom            @relation(fields: [chatroomId], references: [id])
+  chatroomId        String
+  createdAt         DateTime            @default(now())
+  isDelivered       Boolean             @default(false)
+  isRead            Boolean             @default(false)
+  isSent            Boolean             @default(false)
+  sender            User                @relation(fields: [userId], references:[id])
+  updatedAt         DateTime            @updatedAt
+  userId            String
+}
+
+
 model User {
   id                String              @id @default(uuid())
   serial            Int                 @unique @default(autoincrement())
   avatar            Document?           @relation(fields: [avatarId], references: [id])
   avatarId          String?
-  chatRooms         ChatRoom[]
+  chatRooms         ChatRoom[]          @relation("ChatroomParticipants")
   createdAt         DateTime            @default(now())
   email             String              @unique
   firstName         String
