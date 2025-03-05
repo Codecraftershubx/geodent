@@ -7,6 +7,42 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Document {
+  id                String              @id @default(uuid())
+  serial            Int                 @unique @default(autoincrement())
+  cdnUrl            String
+  createdAt         DateTime            @default(now())
+  fileName          String
+  fileSize          Int
+  localPath         String
+  mimeType          String
+  ownerId           String
+  owner             DocumentOwner
+  status            DocumentStatus      @default(PENDING)
+  type              DocumentType
+  updatedAt         DateTime            @updatedAt
+}
+
+// Document Statuses
+enum DocumentStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+// Document owner type
+enum DocumentOwner {
+  USER
+  LISTING
+  VERIFICATION
+}
+ // Document type
+enum DocumentType {
+  IMAGE
+  DOCX
+  PDF
+  VIDEO
+}
 
 model User {
   id                String              @id @default(uuid())
@@ -21,11 +57,12 @@ model User {
   isVerified        Boolean             @default(false)
   landlords         Landlord[]
   likes             Like[]
+  listings          []
   messages          Message[]
   passwordHash      String
   passwordSalt      String
   phone             String
-  recommendations   Recommendations[]
+  recommendations   Recommendation[]
   rentals           Rental[]
   reviews           Review[]
   role              UserRole            @default(USER)
@@ -39,12 +76,4 @@ enum UserRole {
   AGENT
   LANDLORD
   USER
-}
-
-// Listing Types
-enum ListingType {
- STUDIO
- SELF_CONTAINED
- FLAT
- BLOCK
 }
