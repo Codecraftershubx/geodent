@@ -108,6 +108,7 @@ model User {
   phone             String
   rentals           Rental[]            @relation("UserRentals", onDelete: Cascade)
   reviews           Review[]
+  receivedReviews   Review[]            @relation("ReceivedReviews")
   role              UserRole            @default(USER)
   updatedAt         DateTime            @updatedAt
 }
@@ -283,4 +284,26 @@ model Like {
 enum LikeTarget {
   LISTING
   USER
+}
+
+
+// reviews
+model Review {
+  id                String          @id @default(uuid())
+  serial            Int             @unique @default(autoincrement())
+  rating            Int             @default(1)
+  message           String          @default('')
+  reviewerId        String
+  reviewer          User            @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  target            ReviewTarget
+  userId            String
+  listingId         String
+  user              User?           @relation("ReceivedReviews", fields: [userId], references: [id], onDelete: Cascade)
+  listing           Listing?        @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+enum ReviewTarget {
+  AGENT
+  LANDLORD
+  LISTING
 }
