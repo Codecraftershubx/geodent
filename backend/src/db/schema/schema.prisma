@@ -14,6 +14,8 @@ model Document {
   createdAt         DateTime            @default(now())
   fileName          String
   fileSize          Int
+  isDeleted         Boolean             @default(false)
+  deletedAt         DateTime?
   localPath         String
   mimeType          String
   ownerId           String
@@ -49,9 +51,11 @@ model Chatroom {
   id                String              @id @default(uuid())
   serial            Int                 @unique @default(autoincrement())
   createdAt         DateTime            @default(now())
+  isDeleted         Boolean             @default(false)
+  deletedAt         DateTime?
   name              String
   messages          Message[]
-  participants      User[]              @relation("ChatroomParticipants")
+  participants      User[]              @relation("ChatroomParticipants", onDelete: Cascade)
   type              ChatroomType        @default(PRIVATE)
   updatedAt         DateTime            @updatedAt
   webClientId       String?
@@ -67,12 +71,14 @@ enum ChatroomType {
 model Message {
   id                String              @id @default(uuid())
   serial            Int                 @unique @default(autoincrement())
-  chatroom          Chatroom            @relation(fields: [chatroomId], references: [id])
+  chatroom          Chatroom            @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
   chatroomId        String
   createdAt         DateTime            @default(now())
   isDelivered       Boolean             @default(false)
   isRead            Boolean             @default(false)
   isSent            Boolean             @default(false)
+  isDeleted         Boolean             @default(false)
+  deletedAt         DateTime?
   sender            User                @relation(fields: [userId], references:[id])
   updatedAt         DateTime            @updatedAt
   userId            String
@@ -82,23 +88,25 @@ model Message {
 model User {
   id                String              @id @default(uuid())
   serial            Int                 @unique @default(autoincrement())
-  avatar            Document?           @relation(fields: [avatarId], references: [id])
+  avatar            Document?           @relation(fields: [avatarId], references: [id], onDelete: Cascade)
   avatarId          String?
-  chatRooms         ChatRoom[]          @relation("ChatroomParticipants")
+  chatRooms         ChatRoom[]          @relation("ChatroomParticipants", onDelete: Cascade)
   createdAt         DateTime            @default(now())
   email             String              @unique
   firstName         String
   lastName          String
+  isDeleted         Boolean             @default(false)
+  deletedAt         DateTime?
   isVerified        Boolean             @default(false)
   landlords         Landlord[]
-  likes             Like[]
-  listings          []
-  messages          Message[]
+  favourites        Like[]
+  listings          Listing[]
+  notifications     Notification[]
   passwordHash      String
   passwordSalt      String
   phone             String
   recommendations   Recommendation[]
-  rentals           Rental[]
+  rentals           Rental[]            @relation("UserRentals", onDelete: Cascade)
   reviews           Review[]
   role              UserRole            @default(USER)
   updatedAt         DateTime            @updatedAt
