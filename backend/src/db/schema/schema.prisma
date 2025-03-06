@@ -8,35 +8,38 @@ generator client {
 }
 
 model Document {
-  id                String              @id @default(uuid())
-  serial            Int                 @unique @default(autoincrement())
+  id                String                  @id @default(uuid())
+  serial            Int                     @unique @default(autoincrement())
   cdnUrl            String
-  createdAt         DateTime            @default(now())
+  createdAt         DateTime                @default(now())
   fileName          String
   fileSize          Int
-  isDeleted         Boolean             @default(false)
+  isDeleted         Boolean                 @default(false)
   deletedAt         DateTime?
   localPath         String
   mimeType          String
-  ownerId           String
+  chatroomId        String?
+  listingId         String?
+  userId            String?
+  verificationId    String?
   owner             DocumentOwner
-  status            DocumentStatus      @default(PENDING)
   type              DocumentType
-  updatedAt         DateTime            @updatedAt
-}
-
-// Document Statuses
-enum DocumentStatus {
-  APPROVED
-  PENDING
-  REJECTED
+  chatroom          Chatroom?               @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+  listing           Listing?                @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user              User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verification      Verification?    @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+  updatedAt         DateTime                @updatedAt
 }
 
 // Document owner type
 enum DocumentOwner {
+  CHATROOM
   USER
   LISTING
   VERIFICATION
+  ROOM
+  FLAT
+  BLOCK
 }
  // Document type
 enum DocumentType {
@@ -55,7 +58,8 @@ model Chatroom {
   deletedAt         DateTime?
   name              String
   messages          Message[]
-  participants      User[]              @relation("ChatroomParticipants", onDelete: Cascade)
+  documents         Document[]
+  participants      User[]              @relation("ChatroomParticipants")
   type              ChatroomType        @default(PRIVATE)
   updatedAt         DateTime            @updatedAt
   webClientId       String?
@@ -88,9 +92,9 @@ model Message {
 model User {
   id                String              @id @default(uuid())
   serial            Int                 @unique @default(autoincrement())
-  avatar            Document?           @relation(fields: [avatarId], references: [id], onDelete: Cascade)
-  avatarId          String?
-  chatRooms         ChatRoom[]          @relation("ChatroomParticipants", onDelete: Cascade)
+  documents         Document[]
+  isAdmin           Boolean             @default(false)
+  chatrooms         Chatroom[]          @relation("ChatroomParticipants")
   createdAt         DateTime            @default(now())
   email             String              @unique
   firstName         String
@@ -98,15 +102,15 @@ model User {
   isDeleted         Boolean             @default(false)
   deletedAt         DateTime?
   isVerified        Boolean             @default(false)
-  landlords         Landlord[]
   likes             Like[]              @relation()
   likedBy           Like[]              @relation("UserLikesReceived")
   listings          Listing[]
-  notifications     Notification[]
+  notifications     Notification[]      @relation(onDelete: Cascade)
   passwordHash      String
   passwordSalt      String
   phone             String
-  rentals           Rental[]            @relation("UserRentals", onDelete: Cascade)
+  tenancy           Rental[]            @relation("TenantRentals ")
+  rentals           Rental[]            @relation("LandlordRentals")
   reviews           Review[]
   receivedReviews   Review[]            @relation("ReceivedReviews")
   role              UserRole            @default(USER)
@@ -116,7 +120,6 @@ model User {
 
 // User roles
 enum UserRole {
-  ADMIN
   AGENT
   LANDLORD
   USER
@@ -128,12 +131,12 @@ model Country {
  id             String          @id @default(uuid())
  serial         Int             @unique @default(autoincrement())
  name           String          @unique
- aka            String          @default('')
+ aka            String?
  alpha2Code     String          @unique
  alpha3Code     String          @unique
  createdAt      DateTime        @default(now())
  currency       String
- currencyCode   String          @unique
+ currencyCode   String
  currencyNumber String          @unique
  numericCode    String          @unique
  states         State[]
@@ -176,7 +179,7 @@ model School {
   id            String          @id @default(uuid())
   serial        Int             @default(autoincrement())
   name          String
-  description   String          @default('')
+  description   String?
   address       String
   postalCode    String
   type          SchoolType
@@ -195,7 +198,7 @@ model School {
 
 
 //
-enum SchooType {
+enum SchoolType {
   COLLEGE
   POLYTECHNIC
   UNIVERSITY
@@ -205,9 +208,10 @@ enum SchooType {
 model Campus {
   id            String          @id @default(uuid())
   serial        Int             @unique @default(autoincrement())
+
   name          String
   type          CampusType
-  description   String          @default('')
+  description   String?
   address       String
   latitude      Float
   longitude     Float
@@ -225,27 +229,31 @@ enum CampusType {
   ANNEX
 }
 
+
 // Listing
 model Listing {
  id                 String              @id @default(uuid())
  serial             Int                 @unique @default(autoincrement())
  address            String
- createdAt          DateTime            @default(now())
  latitude           Float
  shortDescr         String
- longDescr          String              @default('')
+ longDescr          String?
  longitude          Float
  name               String
  type               ListingType
+ price              Decimal?            @db.Decimal(20,2)
+ isAvailable        Boolean             @default(false)
  isDeleted          Boolean             @default(false)
  deletedAt          DateTime?
  createdAt          DateTime            @default(now())
  updatedAt          DateTime            @updatedAt
  shares             Int                 @default(0)
- url                String
+ shareUrl           String
+ documents          Document[]
 
  // relationships
- campus             Campus          @relation(fields: [campusId], references: [id], noDelete: Cascade)
+ amenities          Amenity[]       @relation("ListingsAmenities")
+ campus             Campus          @relation(fields: [campusId], references: [id], onDelete: Cascade)
  city               City            @relation(fields:[cityId], references: [id], onDelete: Cascade)
  state              State           @relation(fields:[stateId], references: [id], onDelete: Cascade)
  country            Country         @relation(fields:[countryId], references: [id], onDelete: Cascade)
@@ -255,6 +263,7 @@ model Listing {
  stateId            String
  likes              Like[]          @relation("LikedListings")
  reviews            Review[]
+ tenants            Rental[]
 }
 
 // Listing Types
@@ -292,7 +301,7 @@ model Review {
   id                String          @id @default(uuid())
   serial            Int             @unique @default(autoincrement())
   rating            Int             @default(1)
-  message           String          @default('')
+  message           String
   reviewerId        String
   reviewer          User            @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
   target            ReviewTarget
@@ -300,10 +309,100 @@ model Review {
   listingId         String
   user              User?           @relation("ReceivedReviews", fields: [userId], references: [id], onDelete: Cascade)
   listing           Listing?        @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  isDeleted         Boolean         @default(false)
+  deletedAt         DateTime?
 }
 
 enum ReviewTarget {
   AGENT
   LANDLORD
   LISTING
+}
+
+
+// Amenities
+model Amenity {
+  id                String          @id @default(uuid())
+  serial            Int             @default(autoincrement())
+  name              String
+  description       String?
+  listings          Listing[]       @relation("ListingsAmenities")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  isDeleted         Boolean         @default(false)
+  deletedAt         DateTime?
+}
+
+// Tags
+model  Tag {
+  id            String          @id @default(uuid())
+  serial        Int             @default(autoincrement())
+  name          String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  isDeleted     Boolean         @default(false)
+  deletedAt     DateTime?
+}
+
+
+// Verifications
+model Verification {
+  id            String              @id @default(uuid())
+  serial        Int                 @unique @default(autoincrement())
+  documents     Document[]
+  status        VerificationStatus
+  reason        String?
+  reviewerId    String
+  reviewer      User                @relation(fields: [reviewerId], references: [id])
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  isDeleted     Boolean             @default(false)
+  deletedAt     DateTime?
+}
+
+
+enum VerificationStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+// Rentals
+model Rental {
+  id                String      @id @default(uuid())
+  serial            Int         @unique @default(autoincrement())
+  listingId         String
+  landlordId        String
+  tenantId          String
+  tenants           User[]      @relation("TenantRentals")
+  listing           Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  landlord          User        @relation("LandlordRentals", fields: [landlordId], references: [id], onDelete: Cascade)
+  amountPaid        Decimal     @db.Decimal(10,2)
+  priceIsDiferent   Boolean     @default(false)
+  reason            String?
+  startsAt          DateTime
+  endsAt            DateTime
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+
+// Notifications
+model Notification {
+  id                String          @id @default(uuid())
+  serial            Int             @unique @default(autoincrement())
+  message           String
+  type              ReceiverType
+  receivers         User[]          @relation(onDelete: Cascade)
+  isRead            Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+// ReceiverType
+enum ReceiverType {
+  USER
+  ADMIN
 }
