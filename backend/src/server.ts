@@ -1,26 +1,24 @@
-import { PrismaClient } from "@prisma/client";
-import env from "./config.js";
+import express, { Request, Response } from "express";
+import config from "./config.js";
 
-const DB_URL = env.DB_URL;
-console.log("dburl: ", DB_URL);
-const db = new PrismaClient({
-  datasourceUrl: `${DB_URL}`,
+const app = express();
+const port = config.serverPort;
+
+// types
+
+app.use(express.json());
+app.get("/", (_: Request, res: Response): void => {
+  res.json({ status: "okay" });
+  return;
 });
 
-async function main() {
-  const James = await db.user.create({
-    data: {
-      name: "some 2 user",
-      email: "user_2@gmail.com",
-    },
+app.use("/*", (_, res: Response): void => {
+  res.status(404).json({
+    error: "Resource not found",
   });
-  console.log(James);
+  return;
+});
 
-  // get all users:
-  const res = await db.user.findMany();
-  console.log(res);
-}
-
-main()
-  .then((res) => console.log(res))
-  .catch((err) => console.log(err));
+app.listen(port, () => {
+  console.log("Server listening on port", port);
+});

@@ -10,17 +10,29 @@ if (!conf) {
   expand(conf);
 }
 
-let DB_URL;
+let dbUrl;
+let serverPort;
+let serverHost;
+
 if (process.env.MODE === "DEV") {
-  DB_URL = process.env.DB_DEV_URL;
+  dbUrl = process.env.DB_DEV_URL || undefined;
+  serverPort = process.env.DEV_SERVER_PORT;
+  serverHost = process.env.DEV_SERVER_HOST;
 } else if (process.env.MODE === "TEST") {
-  DB_URL = process.env.DB_TEST_URL;
+  dbUrl = process.env.DB_TEST_URL || undefined;
+  serverPort = process.env.TEST_SERVER_PORT;
+  serverHost = process.env.TEST_SERVER_HOST;
 } else {
-  DB_URL = process.env.DB_LIVE_URL;
+  dbUrl = process.env.DB_LIVE_URL || undefined;
+  serverPort = process.env.LIVE_SERVER_PORT;
+  serverHost = process.env.LIVE_SERVER_HOST;
 }
 
+// exports
 const envs = {
-  DB_URL,
+  serverHost,
+  serverPort,
+  dbUrl,
 };
 
 export default envs;
