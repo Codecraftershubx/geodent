@@ -4,7 +4,8 @@
         "outDir": "dist",
         "noEmitOnError": true,
         "checkJs": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "esModuleInterop": true
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]
