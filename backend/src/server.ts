@@ -1,13 +1,14 @@
 import express, { Request, Response } from "express";
 import config from "./config.js";
+import routers from "./routes/index.js";
 
 const app = express();
 const port = config.serverPort;
 
-// types
-
 app.use(express.json());
-app.get("/", (_: Request, res: Response): void => {
+app.use("/users", routers.users);
+
+app.use("/", (_: Request, res: Response): void => {
   res.json({ status: "okay" });
   return;
 });
