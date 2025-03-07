@@ -8,27 +8,27 @@ generator client {
 }
 
 model Document {
-  id                String                  @id @default(uuid())
-  serial            Int                     @unique @default(autoincrement())
-  cdnUrl            String
-  createdAt         DateTime                @default(now())
-  fileName          String
-  fileSize          Int
-  isDeleted         Boolean                 @default(false)
-  deletedAt         DateTime?
-  localPath         String
-  mimeType          String
-  chatroomId        String?
-  listingId         String?
-  userId            String?
-  verificationId    String?
-  owner             DocumentOwner
-  type              DocumentType
-  chatroom          Chatroom?               @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
-  listing           Listing?                @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  user              User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  verification      Verification?    @relation(fields: [verificationId], references: [id], onDelete: Cascade)
-  updatedAt         DateTime                @updatedAt
+  id             String        @id @default(uuid())
+  serial         Int           @unique @default(autoincrement())
+  cdnUrl         String
+  createdAt      DateTime      @default(now())
+  fileName       String
+  fileSize       Int
+  isDeleted      Boolean       @default(false)
+  deletedAt      DateTime?
+  localPath      String
+  mimeType       String
+  chatroomId     String?
+  listingId      String?
+  userId         String?
+  verificationId String?
+  owner          DocumentOwner
+  type           DocumentType
+  chatroom       Chatroom?     @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+  listing        Listing?      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verification   Verification? @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+  updatedAt      DateTime      @updatedAt
 }
 
 // Document owner type
@@ -41,7 +41,8 @@ enum DocumentOwner {
   FLAT
   BLOCK
 }
- // Document type
+
+// Document type
 enum DocumentType {
   IMAGE
   DOCX
@@ -51,20 +52,19 @@ enum DocumentType {
 
 // Chatroom
 model Chatroom {
-  id                String              @id @default(uuid())
-  serial            Int                 @unique @default(autoincrement())
-  createdAt         DateTime            @default(now())
-  isDeleted         Boolean             @default(false)
-  deletedAt         DateTime?
-  name              String
-  messages          Message[]
-  documents         Document[]
-  participants      User[]              @relation("ChatroomParticipants")
-  type              ChatroomType        @default(PRIVATE)
-  updatedAt         DateTime            @updatedAt
-  webClientId       String?
+  id           String       @id @default(uuid())
+  serial       Int          @unique @default(autoincrement())
+  createdAt    DateTime     @default(now())
+  isDeleted    Boolean      @default(false)
+  deletedAt    DateTime?
+  name         String
+  messages     Message[]
+  documents    Document[]
+  participants User[]       @relation("ChatroomParticipants")
+  type         ChatroomType @default(PRIVATE)
+  updatedAt    DateTime     @updatedAt
+  webClientId  String?
 }
-
 
 // Chatroom type
 enum ChatroomType {
@@ -73,50 +73,52 @@ enum ChatroomType {
 }
 
 model Message {
-  id                String              @id @default(uuid())
-  serial            Int                 @unique @default(autoincrement())
-  chatroom          Chatroom            @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
-  chatroomId        String
-  createdAt         DateTime            @default(now())
-  isDelivered       Boolean             @default(false)
-  isRead            Boolean             @default(false)
-  isSent            Boolean             @default(false)
-  isDeleted         Boolean             @default(false)
-  deletedAt         DateTime?
-  sender            User                @relation(fields: [userId], references:[id])
-  updatedAt         DateTime            @updatedAt
-  userId            String
+  id          String    @id @default(uuid())
+  serial      Int       @unique @default(autoincrement())
+  chatroom    Chatroom  @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+  chatroomId  String
+  createdAt   DateTime  @default(now())
+  isDelivered Boolean   @default(false)
+  isRead      Boolean   @default(false)
+  isSent      Boolean   @default(false)
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+  sender      User      @relation(fields: [userId], references: [id])
+  updatedAt   DateTime  @updatedAt
+  userId      String
 }
-
 
 model User {
-  id                String              @id @default(uuid())
-  serial            Int                 @unique @default(autoincrement())
-  documents         Document[]
-  isAdmin           Boolean             @default(false)
-  chatrooms         Chatroom[]          @relation("ChatroomParticipants")
-  createdAt         DateTime            @default(now())
-  email             String              @unique
-  firstName         String
-  lastName          String
-  isDeleted         Boolean             @default(false)
-  deletedAt         DateTime?
-  isVerified        Boolean             @default(false)
-  likes             Like[]              @relation()
-  likedBy           Like[]              @relation("UserLikesReceived")
-  listings          Listing[]
-  notifications     Notification[]      @relation(onDelete: Cascade)
-  passwordHash      String
-  passwordSalt      String
-  phone             String
-  tenancy           Rental[]            @relation("TenantRentals ")
-  rentals           Rental[]            @relation("LandlordRentals")
-  reviews           Review[]
-  receivedReviews   Review[]            @relation("ReceivedReviews")
-  role              UserRole            @default(USER)
-  updatedAt         DateTime            @updatedAt
+  id              String         @id @default(uuid())
+  serial          Int            @unique @default(autoincrement())
+  documents       Document[]
+  isAdmin         Boolean        @default(false)
+  chatrooms       Chatroom[]     @relation("ChatroomParticipants")
+  createdAt       DateTime       @default(now())
+  email           String         @unique
+  firstName       String
+  lastName        String
+  isDeleted       Boolean        @default(false)
+  deletedAt       DateTime?
+  isVerified      Boolean        @default(false)
+  likes           Like[]         @relation()
+  likedBy         Like[]         @relation("UserLikesReceived")
+  listings        Listing[]
+  notifications   Notification[]
+  passwordHash    String
+  passwordSalt    String
+  phone           String
+  tenancy         Rental[]       @relation("TenantRentals")
+  rentals         Rental[]       @relation("LandlordRentals")
+  reviews         Review[]
+  receivedReviews Review[]       @relation("ReceivedReviews")
+  role            UserRole       @default(USER)
+  updatedAt       DateTime       @updatedAt
+  Message         Message[]
+  Room            Room[]
+  Flat            Flat[]
+  Verification    Verification[]
 }
-
 
 // User roles
 enum UserRole {
@@ -125,77 +127,82 @@ enum UserRole {
   USER
 }
 
-
 // Countries
 model Country {
- id             String          @id @default(uuid())
- serial         Int             @unique @default(autoincrement())
- name           String          @unique
- aka            String?
- alpha2Code     String          @unique
- alpha3Code     String          @unique
- createdAt      DateTime        @default(now())
- currency       String
- currencyCode   String
- currencyNumber String          @unique
- numericCode    String          @unique
- states         State[]
- listings       Listing[]
- updatedAt      DateTime        @updatedAt
+  id             String    @id @default(uuid())
+  serial         Int       @unique @default(autoincrement())
+  name           String    @unique
+  aka            String?
+  alpha2Code     String    @unique
+  alpha3Code     String    @unique
+  createdAt      DateTime  @default(now())
+  currency       String
+  currencyCode   String
+  currencyNumber String    @unique
+  numericCode    String    @unique
+  states         State[]
+  listings       Listing[]
+  updatedAt      DateTime  @updatedAt
+  School         School[]
 }
 
 // States
 model State {
-  id                String          @id @default(uuid())
-  serial            Int             @unique @default(autoincrement())
-  alpha2Code        String          @unique
-  alpha3Code        String          @unique
-  cities            City[]
-  country           Country         @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  countryId         String
-  createdAt         DateTime        @default(now())
-  name              String
-  numericCode       String          @unique
-  updatedAt         DateTime        @updatedAt
+  id          String    @id @default(uuid())
+  serial      Int       @unique @default(autoincrement())
+  alpha2Code  String    @unique
+  alpha3Code  String    @unique
+  cities      City[]
+  country     Country   @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  countryId   String
+  createdAt   DateTime  @default(now())
+  name        String
+  numericCode String    @unique
+  updatedAt   DateTime  @updatedAt
+  School      School[]
+  Listing     Listing[]
+
   @@unique(fields: [countryId, name])
 }
 
 // Cities
 model City {
-  id                String          @id @default(uuid())
-  serial            Int             @unique @default(autoincrement())
-  listings          Listing[]
-  name              String
-  state             State           @relation(fields:[stateId], references: [id], onDelete: Cascade)
-  stateId           String
-  createdAt         DateTime        @default(now())
-  schools           School[]
-  updatedAt         DateTime        @updatedAt
+  id        String    @id @default(uuid())
+  serial    Int       @unique @default(autoincrement())
+  listings  Listing[]
+  name      String
+  state     State     @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  stateId   String
+  createdAt DateTime  @default(now())
+  schools   School[]
+  updatedAt DateTime  @updatedAt
+
   @@unique(fields: [name, stateId])
 }
 
 // Schools
 model School {
-  id            String          @id @default(uuid())
-  serial        Int             @default(autoincrement())
-  name          String
-  description   String?
-  address       String
-  postalCode    String
-  type          SchoolType
-  latitude      Float
-  longitude     Float
-  campuses      Campus[]
-  state         State           @relation(fields: [stateId], references: [id], onDelete: Cascade)
-  country       Country         @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  stateId       String
-  countryId     String
-  isDeleted     Boolean         @default(false)
-  deletedAt     DateTime?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id          String     @id @default(uuid())
+  serial      Int        @default(autoincrement())
+  name        String
+  description String?
+  address     String
+  postalCode  String
+  type        SchoolType
+  latitude    Float
+  longitude   Float
+  campuses    Campus[]
+  state       State      @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  country     Country    @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  stateId     String
+  countryId   String
+  isDeleted   Boolean    @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  City        City?      @relation(fields: [cityId], references: [id])
+  cityId      String?
 }
-
 
 //
 enum SchoolType {
@@ -206,21 +213,22 @@ enum SchoolType {
 
 // Campuses
 model Campus {
-  id            String          @id @default(uuid())
-  serial        Int             @unique @default(autoincrement())
+  id     String @id @default(uuid())
+  serial Int    @unique @default(autoincrement())
 
-  name          String
-  type          CampusType
-  description   String?
-  address       String
-  latitude      Float
-  longitude     Float
-  school        School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  schoolId      String
-  isDeleted     Boolean         @default(false)
-  deleteAt      DateTime?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  name        String
+  type        CampusType
+  description String?
+  address     String
+  latitude    Float
+  longitude   Float
+  school      School     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  schoolId    String
+  isDeleted   Boolean    @default(false)
+  deleteAt    DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  Listing     Listing[]
 }
 
 // Campus Type
@@ -229,64 +237,156 @@ enum CampusType {
   ANNEX
 }
 
+// Room
+model Room {
+  id           String  @id @default(uuid())
+  serial       Int     @unique @default(autoincrement())
+  number       Int     @default(1)
+  width        Decimal @db.Decimal(4, 2)
+  length       Decimal @db.Decimal(4, 2)
+  breadth      Decimal @db.Decimal(4, 2)
+  isLivingArea Boolean @default(false)
+  isStandAlone Boolean @default(true)
+  isAvailable  Boolean @default(true)
+  flatId       String?
+  blockId      String?
+  listingId    String?
+  userId       String
+
+  // relationships
+  amenities Amenity[] @relation("RoomsAmenities")
+  listing   Listing?  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  flat      Flat?     @relation(fields: [flatId], references: [id], onDelete: Cascade)
+  block     Block?    @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  landlord  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags      Tag[]
+
+  // others
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// Flat
+model Flat {
+  id           String   @id @default(uuid())
+  serial       Int      @unique @default(autoincrement())
+  number       Int
+  userId       String
+  blockId      String?
+  listingId    String
+  isStandAlone Boolean  @default(true)
+  isComposite  Boolean  @default(true)
+  isAvailable  Boolean?
+  address      String
+
+  // relationships
+  rooms     Room[]
+  listing   Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  block     Block?    @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  amenities Amenity[] @relation("FlatsAmenities")
+  tags      Tag[]
+  landlord  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // others
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// Block
+model Block {
+  id          String    @id @default(uuid())
+  serial      Int       @unique @default(autoincrement())
+  type        BlockType
+  isComposite Boolean   @default(false)
+  listingId   String?
+  isAvailable Boolean?
+
+  // relationships
+  flats     Flat[]
+  rooms     Room[]
+  amenities Amenity[] @relation("BlocksAmenities")
+  listing   Listing?  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  // others
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// Block Type
+enum BlockType {
+  FLATS
+  MIXED
+  ROOMS
+}
 
 // Listing
 model Listing {
- id                 String              @id @default(uuid())
- serial             Int                 @unique @default(autoincrement())
- address            String
- latitude           Float
- shortDescr         String
- longDescr          String?
- longitude          Float
- name               String
- type               ListingType
- price              Decimal?            @db.Decimal(20,2)
- isAvailable        Boolean             @default(false)
- isDeleted          Boolean             @default(false)
- deletedAt          DateTime?
- createdAt          DateTime            @default(now())
- updatedAt          DateTime            @updatedAt
- shares             Int                 @default(0)
- shareUrl           String
- documents          Document[]
+  id          String      @id @default(uuid())
+  serial      Int         @unique @default(autoincrement())
+  address     String
+  latitude    Float
+  shortDescr  String
+  longDescr   String?
+  longitude   Float
+  name        String
+  type        ListingType
+  price       Decimal?    @db.Decimal(20, 2)
+  isAvailable Boolean     @default(false)
+  isDeleted   Boolean     @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  shares      Int         @default(0)
+  shareUrl    String
+  documents   Document[]
 
- // relationships
- amenities          Amenity[]       @relation("ListingsAmenities")
- campus             Campus          @relation(fields: [campusId], references: [id], onDelete: Cascade)
- city               City            @relation(fields:[cityId], references: [id], onDelete: Cascade)
- state              State           @relation(fields:[stateId], references: [id], onDelete: Cascade)
- country            Country         @relation(fields:[countryId], references: [id], onDelete: Cascade)
- campusId           String
- cityId             String
- countryId          String
- stateId            String
- likes              Like[]          @relation("LikedListings")
- reviews            Review[]
- tenants            Rental[]
+  // relationships
+  amenities Amenity[] @relation("ListingsAmenities")
+  campus    Campus    @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  city      City      @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  state     State     @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  country   Country   @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  campusId  String
+  cityId    String
+  countryId String
+  stateId   String
+  likes     Like[]    @relation("LikedListings")
+  reviews   Review[]
+  tenants   Rental[]
+  User      User?     @relation(fields: [userId], references: [id])
+  userId    String?
+  Room      Room[]
+  Flat      Flat[]
+  Block     Block[]
 }
 
 // Listing Types
 enum ListingType {
- STUDIO
- SELF_CONTAINED
- FLAT
- BLOCK
+  STUDIO
+  SELF_CONTAINED
+  FLAT
+  BLOCK
 }
 
 // Likes
 model Like {
-  id                String              @id @default(uuid())
-  serial            Int                 @unique @default(autoincrement())
-  target            LikeTarget
-  likerId           String
-  listingId         String
-  userId            String
-  liker             User                @relation(fields: [likerId], references: [id], onDelete: Cascade)
-  user              User?               @relation("UserLikesReceived", fields: [userId], references: [id], onDelete: Cascade)
-  listing           Listing?            @relation("LikedListings", fields: [listingId], references: [id], onDelete: Cascade)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id        String     @id @default(uuid())
+  serial    Int        @unique @default(autoincrement())
+  target    LikeTarget
+  likerId   String
+  listingId String
+  userId    String
+  liker     User       @relation(fields: [likerId], references: [id], onDelete: Cascade)
+  user      User?      @relation("UserLikesReceived", fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing?   @relation("LikedListings", fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 // like target
@@ -295,24 +395,23 @@ enum LikeTarget {
   USER
 }
 
-
 // reviews
 model Review {
-  id                String          @id @default(uuid())
-  serial            Int             @unique @default(autoincrement())
-  rating            Int             @default(1)
-  message           String
-  reviewerId        String
-  reviewer          User            @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
-  target            ReviewTarget
-  userId            String
-  listingId         String
-  user              User?           @relation("ReceivedReviews", fields: [userId], references: [id], onDelete: Cascade)
-  listing           Listing?        @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  isDeleted         Boolean         @default(false)
-  deletedAt         DateTime?
+  id         String       @id @default(uuid())
+  serial     Int          @unique @default(autoincrement())
+  rating     Int          @default(1)
+  message    String
+  reviewerId String
+  reviewer   User         @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  target     ReviewTarget
+  userId     String
+  listingId  String
+  user       User?        @relation("ReceivedReviews", fields: [userId], references: [id], onDelete: Cascade)
+  listing    Listing?     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  isDeleted  Boolean      @default(false)
+  deletedAt  DateTime?
 }
 
 enum ReviewTarget {
@@ -321,47 +420,54 @@ enum ReviewTarget {
   LISTING
 }
 
-
 // Amenities
 model Amenity {
-  id                String          @id @default(uuid())
-  serial            Int             @default(autoincrement())
-  name              String
-  description       String?
-  listings          Listing[]       @relation("ListingsAmenities")
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  isDeleted         Boolean         @default(false)
-  deletedAt         DateTime?
+  id          String    @id @default(uuid())
+  serial      Int       @default(autoincrement())
+  name        String
+  description String?
+  listings    Listing[] @relation("ListingsAmenities")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+
+  // relationships
+  flats  Flat[]  @relation("FlatsAmenities")
+  blocks Block[] @relation("BlocksAmenities")
+  rooms  Room[]  @relation("RoomsAmenities")
 }
 
 // Tags
-model  Tag {
-  id            String          @id @default(uuid())
-  serial        Int             @default(autoincrement())
-  name          String
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  isDeleted     Boolean         @default(false)
-  deletedAt     DateTime?
+model Tag {
+  id          String    @id @default(uuid())
+  serial      Int       @default(autoincrement())
+  name        String
+  description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+  Room        Room?     @relation(fields: [roomId], references: [id])
+  roomId      String?
+  Flat        Flat?     @relation(fields: [flatId], references: [id])
+  flatId      String?
 }
-
 
 // Verifications
 model Verification {
-  id            String              @id @default(uuid())
-  serial        Int                 @unique @default(autoincrement())
-  documents     Document[]
-  status        VerificationStatus
-  reason        String?
-  reviewerId    String
-  reviewer      User                @relation(fields: [reviewerId], references: [id])
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  isDeleted     Boolean             @default(false)
-  deletedAt     DateTime?
+  id         String             @id @default(uuid())
+  serial     Int                @unique @default(autoincrement())
+  documents  Document[]
+  status     VerificationStatus
+  reason     String?
+  reviewerId String
+  reviewer   User               @relation(fields: [reviewerId], references: [id])
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  isDeleted  Boolean            @default(false)
+  deletedAt  DateTime?
 }
-
 
 enum VerificationStatus {
   APPROVED
@@ -371,34 +477,33 @@ enum VerificationStatus {
 
 // Rentals
 model Rental {
-  id                String      @id @default(uuid())
-  serial            Int         @unique @default(autoincrement())
-  listingId         String
-  landlordId        String
-  tenantId          String
-  tenants           User[]      @relation("TenantRentals")
-  listing           Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  landlord          User        @relation("LandlordRentals", fields: [landlordId], references: [id], onDelete: Cascade)
-  amountPaid        Decimal     @db.Decimal(10,2)
-  priceIsDiferent   Boolean     @default(false)
-  reason            String?
-  startsAt          DateTime
-  endsAt            DateTime
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  id              String   @id @default(uuid())
+  serial          Int      @unique @default(autoincrement())
+  listingId       String
+  landlordId      String
+  tenants         User[]   @relation("TenantRentals")
+  listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  landlord        User     @relation("LandlordRentals", fields: [landlordId], references: [id], onDelete: Cascade)
+  amountPaid      Decimal  @db.Decimal(10, 2)
+  priceIsDiferent Boolean  @default(false)
+  reason          String?
+  startsAt        DateTime
+  endsAt          DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
-
 
 // Notifications
 model Notification {
-  id                String          @id @default(uuid())
-  serial            Int             @unique @default(autoincrement())
-  message           String
-  type              ReceiverType
-  receivers         User[]          @relation(onDelete: Cascade)
-  isRead            Boolean         @default(false)
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  id         String       @id @default(uuid())
+  serial     Int          @unique @default(autoincrement())
+  receiverId String
+  message    String
+  type       ReceiverType
+  receiver   User         @relation(fields: [receiverId], references: [id])
+  isRead     Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 }
 
 // ReceiverType
