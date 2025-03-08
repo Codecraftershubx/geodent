@@ -7,6 +7,27 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Address {
+  id        String    @id @default(uuid())
+  serial    Int       @unique @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  number    Int?
+  poBox     Int?
+  zip       String
+  street    String
+  latitude  Float?
+  longitude Float?
+  Flat      Flat[]
+  User      User[]
+  School    School[]
+  Campus    Campus[]
+  Room      Room[]
+  Block     Block[]
+}
+
 model Document {
   id             String        @id @default(uuid())
   serial         Int           @unique @default(autoincrement())
@@ -65,10 +86,10 @@ enum DocumentOwner {
 
 // Document type
 enum DocumentType {
-  IMAGE
   DOCX
   PDF
   VIDEO
+  IMAGE
 }
 
 model Chatroom {
@@ -116,18 +137,19 @@ model User {
   chatrooms       Chatroom[]     @relation("ChatroomParticipants")
   createdAt       DateTime       @default(now())
   email           String         @unique
+  addressId       String?
+  address         Address?       @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   firstName       String
   lastName        String
   isDeleted       Boolean        @default(false)
   deletedAt       DateTime?
-  isVerified      Boolean        @default(false)
+  emailVerified   Boolean        @default(false)
   likes           Like[]         @relation()
   likedBy         Like[]         @relation("UserLikesReceived")
   listings        Listing[]
   notifications   Notification[]
-  passwordHash    String
-  passwordSalt    String
-  phone           String
+  password        String
+  phone           String?
   tenancy         Rental[]       @relation("TenantRentals")
   rentals         Rental[]       @relation("LandlordRentals")
   reviews         Review[]
@@ -209,11 +231,10 @@ model School {
   serial      Int        @default(autoincrement())
   name        String
   description String?
-  address     String
-  postalCode  String
+  zip         String
   type        SchoolType
-  latitude    Float
-  longitude   Float
+  addressId   String
+  address     Address    @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   campuses    Campus[]
   documents   Document[]
   state       State      @relation(fields: [stateId], references: [id], onDelete: Cascade)
@@ -242,10 +263,11 @@ model Campus {
 
   name        String
   type        CampusType
+  addressId   String
+  address     Address    @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   description String?
-  address     String
-  latitude    Float
-  longitude   Float
+  latitude    Float?
+  longitude   Float?
   school      School     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   schoolId    String
   isDeleted   Boolean    @default(false)
@@ -277,6 +299,7 @@ model Room {
   blockId      String?
   listingId    String?
   userId       String
+  addressId    String?
 
   // relationships
   amenities Amenity[] @relation("RoomsAmenities")
@@ -285,6 +308,7 @@ model Room {
   block     Block?    @relation(fields: [blockId], references: [id], onDelete: Cascade)
   landlord  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   tags      Tag[]
+  address   Address?  @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   // others
   isDeleted Boolean    @default(false)
@@ -300,14 +324,15 @@ model Flat {
   serial       Int      @unique @default(autoincrement())
   number       Int
   userId       String
+  addressId    String?
   blockId      String?
   listingId    String
   isStandAlone Boolean  @default(true)
   isComposite  Boolean  @default(true)
   isAvailable  Boolean?
-  address      String
 
   // relationships
+  address   Address?   @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   rooms     Room[]
   listing   Listing    @relation(fields: [listingId], references: [id], onDelete: Cascade)
   block     Block?     @relation(fields: [blockId], references: [id], onDelete: Cascade)
@@ -331,8 +356,10 @@ model Block {
   isComposite Boolean   @default(false)
   listingId   String?
   isAvailable Boolean?
+  addressId   String
 
   // relationships
+  address   Address    @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   flats     Flat[]
   rooms     Room[]
   amenities Amenity[]  @relation("BlocksAmenities")
@@ -357,11 +384,8 @@ enum BlockType {
 model Listing {
   id          String      @id @default(uuid())
   serial      Int         @unique @default(autoincrement())
-  address     String
-  latitude    Float
   shortDescr  String
   longDescr   String?
-  longitude   Float
   name        String
   type        ListingType
   price       Decimal?    @db.Decimal(20, 2)
