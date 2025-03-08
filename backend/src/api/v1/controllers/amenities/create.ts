@@ -1,7 +1,13 @@
 import { Response, Request } from "express";
 
-const createAmenities = (_: Request, res: Response): void => {
-  res.json({ controller: "create amenities", message: "success" });
+const createAmenities = (req: Request, res: Response): void => {
+  console.log(
+    "create amenities called.",
+    req.path,
+    req.baseUrl,
+    req.originalUrl,
+  );
+  res.status(201).json({ controller: "create amenities", message: "success" });
   return;
 };
 

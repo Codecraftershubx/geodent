@@ -3,10 +3,11 @@ import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
 
+router.delete("/:id", controllers.amenities.delete);
 router.post("/", controllers.amenities.create);
 router.get("/", controllers.amenities.read);
-router.post("/:id/delete", controllers.amenities.delete);
-router.put("/:id/update", controllers.amenities.update);
+router.get("/:id", controllers.amenities.read);
+router.put("/:id", controllers.amenities.update);
 
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This amenities resource doesn't exist" });

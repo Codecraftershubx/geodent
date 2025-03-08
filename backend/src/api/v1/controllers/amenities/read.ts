@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 
-const readAmenities = (_: Request, res: Response): void => {
+const readAmenities = (req: Request, res: Response): void => {
+  console.log("read amenities called.", req.path, req.baseUrl, req.originalUrl);
   res.json({ controller: "read amenities", message: "success" });
   return;
 };
