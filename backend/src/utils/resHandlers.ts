@@ -60,7 +60,7 @@ const error = (
       message,
       ...options,
     },
-    data,
+    errors: data,
   };
   res.status(statusCode).json(payload);
   return;

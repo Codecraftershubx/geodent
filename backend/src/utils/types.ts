@@ -14,5 +14,6 @@ type THandlerOptions = {
   status?: number;
   data?: Array<object>;
   message?: String;
+  [key: string]: any;
 };
 export type { TErrNumber, TErrNumbers, THandlerOptions };
