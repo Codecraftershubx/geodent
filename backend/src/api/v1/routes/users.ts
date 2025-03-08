@@ -1,10 +1,30 @@
 import express, { Response, Request, Router } from "express";
+import { body } from "express-validator";
 import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
 
 router.delete("/:id", controllers.users.delete);
-router.post("/", controllers.users.create);
+router.post(
+  "/",
+  [
+    body("data")
+      .notEmpty()
+      .withMessage("data is required")
+      .isObject()
+      .withMessage("expects an object"),
+    body([
+      "data.firstName",
+      "data.lastName",
+      "data.password",
+      "data.phone",
+      "data.email",
+    ])
+      .notEmpty()
+      .withMessage("required field"),
+  ],
+  controllers.users.create,
+);
 router.get("/", controllers.users.read);
 router.get("/:id", controllers.users.read);
 router.put("/:id", controllers.users.update);
