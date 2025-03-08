@@ -1,9 +1,5 @@
-import mgr from "./manager.js";
-
-console.log(mgr);
-console.log(mgr.isReady);
-console.log(mgr.client);
+import client from "./manager.js";
 
 export default {
-  mgr,
+  client,
 };
