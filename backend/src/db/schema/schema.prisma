@@ -1,6 +1,6 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DB_TEST_URL")
+  url      = env("DB_DEV_URL")
 }
 
 generator client {
@@ -19,15 +19,31 @@ model Document {
   localPath      String
   mimeType       String
   chatroomId     String?
-  listingId      String?
   userId         String?
+  listingId      String?
   verificationId String?
+  roomId         String?
+  flatId         String?
+  blockId        String?
+  schoolId       String?
+  campusId       String?
+  cityId         String?
+  countryId      String?
+  stateId        String?
   owner          DocumentOwner
   type           DocumentType
   chatroom       Chatroom?     @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
   listing        Listing?      @relation(fields: [listingId], references: [id], onDelete: Cascade)
   user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   verification   Verification? @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+  room           Room?         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  flat           Flat?         @relation(fields: [flatId], references: [id], onDelete: Cascade)
+  block          Block?        @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  school         School?       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  campus         Campus?       @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  city           City?         @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  country        Country?      @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  state          State?        @relation(fields: [stateId], references: [id], onDelete: Cascade)
   updatedAt      DateTime      @updatedAt
 }
 
@@ -40,6 +56,11 @@ enum DocumentOwner {
   ROOM
   FLAT
   BLOCK
+  SCHOOL
+  CAMPUS
+  CITY
+  COUNTRY
+  STATE
 }
 
 // Document type
@@ -50,7 +71,6 @@ enum DocumentType {
   VIDEO
 }
 
-// Chatroom
 model Chatroom {
   id           String       @id @default(uuid())
   serial       Int          @unique @default(autoincrement())
@@ -129,53 +149,56 @@ enum UserRole {
 
 // Countries
 model Country {
-  id             String    @id @default(uuid())
-  serial         Int       @unique @default(autoincrement())
-  name           String    @unique
+  id             String     @id @default(uuid())
+  serial         Int        @unique @default(autoincrement())
+  name           String     @unique
   aka            String?
-  alpha2Code     String    @unique
-  alpha3Code     String    @unique
-  createdAt      DateTime  @default(now())
+  alpha2Code     String     @unique
+  alpha3Code     String     @unique
+  createdAt      DateTime   @default(now())
   currency       String
   currencyCode   String
-  currencyNumber String    @unique
-  numericCode    String    @unique
+  currencyNumber String     @unique
+  numericCode    String     @unique
   states         State[]
   listings       Listing[]
-  updatedAt      DateTime  @updatedAt
+  document       Document[]
+  updatedAt      DateTime   @updatedAt
   School         School[]
 }
 
 // States
 model State {
-  id          String    @id @default(uuid())
-  serial      Int       @unique @default(autoincrement())
-  alpha2Code  String    @unique
-  alpha3Code  String    @unique
+  id          String     @id @default(uuid())
+  serial      Int        @unique @default(autoincrement())
+  alpha2Code  String     @unique
+  alpha3Code  String     @unique
   cities      City[]
-  country     Country   @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  country     Country    @relation(fields: [countryId], references: [id], onDelete: Cascade)
   countryId   String
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime   @default(now())
   name        String
-  numericCode String    @unique
-  updatedAt   DateTime  @updatedAt
-  School      School[]
-  Listing     Listing[]
+  numericCode String     @unique
+  updatedAt   DateTime   @updatedAt
+  schools     School[]
+  documents   Document[]
+  listings    Listing[]
 
   @@unique(fields: [countryId, name])
 }
 
 // Cities
 model City {
-  id        String    @id @default(uuid())
-  serial    Int       @unique @default(autoincrement())
+  id        String     @id @default(uuid())
+  serial    Int        @unique @default(autoincrement())
   listings  Listing[]
   name      String
-  state     State     @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  state     State      @relation(fields: [stateId], references: [id], onDelete: Cascade)
   stateId   String
-  createdAt DateTime  @default(now())
+  createdAt DateTime   @default(now())
   schools   School[]
-  updatedAt DateTime  @updatedAt
+  documents Document[]
+  updatedAt DateTime   @updatedAt
 
   @@unique(fields: [name, stateId])
 }
@@ -192,6 +215,7 @@ model School {
   latitude    Float
   longitude   Float
   campuses    Campus[]
+  documents   Document[]
   state       State      @relation(fields: [stateId], references: [id], onDelete: Cascade)
   country     Country    @relation(fields: [countryId], references: [id], onDelete: Cascade)
   stateId     String
@@ -228,7 +252,8 @@ model Campus {
   deleteAt    DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  Listing     Listing[]
+  listings    Listing[]
+  documents   Document[]
 }
 
 // Campus Type
@@ -262,10 +287,11 @@ model Room {
   tags      Tag[]
 
   // others
-  isDeleted Boolean   @default(false)
+  isDeleted Boolean    @default(false)
   deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Document  Document[]
 }
 
 // Flat
@@ -283,11 +309,12 @@ model Flat {
 
   // relationships
   rooms     Room[]
-  listing   Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  block     Block?    @relation(fields: [blockId], references: [id], onDelete: Cascade)
-  amenities Amenity[] @relation("FlatsAmenities")
+  listing   Listing    @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  block     Block?     @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  amenities Amenity[]  @relation("FlatsAmenities")
   tags      Tag[]
-  landlord  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents Document[]
+  landlord  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // others
   isDeleted Boolean   @default(false)
@@ -308,8 +335,9 @@ model Block {
   // relationships
   flats     Flat[]
   rooms     Room[]
-  amenities Amenity[] @relation("BlocksAmenities")
-  listing   Listing?  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  amenities Amenity[]  @relation("BlocksAmenities")
+  listing   Listing?   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  document  Document[]
 
   // others
   isDeleted Boolean   @default(false)
