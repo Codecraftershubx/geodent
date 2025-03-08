@@ -8,7 +8,7 @@ const port = config.serverPort;
 app.use(express.json());
 app.use("/api/v1", apis.v1);
 
-app.use("/*", (_, res: Response): void => {
+app.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({
     error: "Resource not found",
   });
