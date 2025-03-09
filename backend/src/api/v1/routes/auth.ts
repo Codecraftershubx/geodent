@@ -26,7 +26,7 @@ router.post(
 );
 
 router.use("/*", (_: Request, res: Response): void => {
-  res.status(404).json({ error: "This amenities resource doesn't exist" });
+  res.status(404).json({ error: "This auth resource doesn't exist" });
   return;
 });
 
