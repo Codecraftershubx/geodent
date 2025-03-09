@@ -55,6 +55,9 @@ export default {
         const payload = jwt.verify(token, config.refreshSecret) as TPayload;
         return { payload, expired: false };
       } catch (err) {
+        if (err instanceof jwt.TokenExpiredError) {
+          return { payload: null, expired: true };
+        }
         throw err;
       }
     },
