@@ -62,7 +62,7 @@ const email = process.env.EMAIL;
 const emailPwd = process.env.EMAIL_PWD;
 const authSecret = process.env.AUTH_SECRET;
 const refreshSecret = process.env.REFRESH_SECRET;
-
+const refreshMaxAge = 60 * 60 * 24 * 7 * 1000; // 7 days
 // exports
 const envs = {
   authSecret,
@@ -71,6 +71,7 @@ const envs = {
   email,
   emailPwd,
   mode,
+  refreshMaxAge,
   refreshSecret,
   serverHost,
   serverPort,

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import db from "../../../../db/utils/index.js";
 import { matchedData, validationResult } from "express-validator";
 import utils from "../../../../utils/index.js";
+import config from "../../../../config.js";
 import type { THandlerOptions, TUserData } from "../../../../utils/types.js";
 
 const createNewUser = async (req: Request, res: Response): Promise<void> => {
@@ -61,6 +62,14 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
           return [newUser, updatedUser];
         },
       );
+      // set refreshToken cookie
+      res.cookie("refreshToken", updateUserTx.refreshToken, {
+        httpOnly: true,
+        maxAge: config.refreshMaxAge,
+        secure: config.mode === "LIVE",
+        sameSite: "strict",
+        path: "/api/v1",
+      });
       // return success
       return utils.handlers.success(res, {
         data: [
