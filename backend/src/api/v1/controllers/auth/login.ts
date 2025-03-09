@@ -1,7 +1,16 @@
 import { Request, Response } from "express";
-import type { TPayload } from "../../../../utils/types.js";
+import type { TPayload, TUserModel } from "../../../../utils/types.js";
+import config from "../../../../config.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
+
+const getUserProfile = (userModel: TUserModel) => {
+  return Object.fromEntries(
+    Object.entries(userModel).filter(
+      ([key]) => !db.client.modelFilters.users.exclude.includes(key),
+    ),
+  );
+};
 
 const login = async (req: Request, res: Response): Promise<void> => {
   // extract access token
@@ -17,9 +26,15 @@ const login = async (req: Request, res: Response): Promise<void> => {
       }
       // login authenticated User
       const payload = data.payload as TPayload;
-      // get payload and authenticate
+      // get user profile
+      const userModel: TUserModel = (await db.client.client.user.findFirst({
+        where: { id: payload.id },
+        include: db.client.modelFilters.users.include,
+      })) as TUserModel;
+      // filter hidden values
+      const userProfile = getUserProfile(userModel);
       return utils.handlers.success(res, {
-        data: [{ id: payload.id }],
+        data: [userProfile],
         message: "user authenticated",
       });
     } catch (err) {
@@ -61,11 +76,35 @@ const login = async (req: Request, res: Response): Promise<void> => {
       message: "invalid credentials provided",
     });
   }
-  // auth success
-  return utils.handlers.success(res, {
-    message: "user authenticated",
-    data: [{ id: user.id }],
-  });
+  // auth success: generate tokens for user
+  try {
+    const newAccessToken = utils.tokens.generate.accessToken({ id: user.id });
+    const newRefreshToken = utils.tokens.generate.refreshToken({ id: user.id });
+    const updatedUser: TUserModel = await db.client.client.user.update({
+      where: { id: user.id },
+      data: { refreshToken: newRefreshToken },
+      include: db.client.modelFilters.users.include,
+    });
+
+    // filter out fields to hide
+    const filteredUser = getUserProfile(updatedUser);
+    filteredUser.accessToken = newAccessToken;
+
+    // set cookie
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      maxAge: config.refreshMaxAge,
+      secure: config.mode === "LIVE",
+      sameSite: "strict",
+      path: "/api/v1",
+    });
+
+    // return user profile
+    return utils.handlers.success(res, {
+      message: "user authenticated",
+      data: [filteredUser],
+    });
+  } catch (err) {}
 };
 
 export default login;
