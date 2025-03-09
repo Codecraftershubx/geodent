@@ -1,5 +1,10 @@
 // error numbers object type
+import { JwtPayload } from "jsonwebtoken";
 
+type TDecomposeResult = {
+  payload: TPayload | null;
+  expired: Boolean;
+};
 type TErrNumber = {
   code: number;
   desc: string;
@@ -17,7 +22,7 @@ type THandlerOptions = {
   [key: string]: any;
 };
 
-type TAccessTokenPayload = {
+type TPayload = {
   id: string;
 };
 
@@ -30,7 +35,8 @@ type TUserData = {
 };
 
 export type {
-  TAccessTokenPayload,
+  TDecomposeResult,
+  TPayload,
   TErrNumber,
   TErrNumbers,
   THandlerOptions,
