@@ -33,9 +33,13 @@ const login = async (req: Request, res: Response): Promise<void> => {
               data: [{ accessToken: newToken, id: temp.id }],
             });
           }
-        } catch (_) {
           return utils.handlers.error(res, "authentication", {
             message: "expired credentials",
+          });
+        } catch (err: any) {
+          return utils.handlers.error(res, "authentication", {
+            message: `${err?.message ?? "an error occured"}`,
+            data: [{ details: err }],
           });
         }
       }
