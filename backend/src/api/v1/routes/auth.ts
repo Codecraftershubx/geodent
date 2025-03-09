@@ -4,6 +4,7 @@ import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
 
+router.post(/^\/(signin|login)\/?$/, controllers.auth.login);
 router.post(
   "/signup",
   [
