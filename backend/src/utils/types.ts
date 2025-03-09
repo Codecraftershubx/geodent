@@ -1,5 +1,4 @@
 // error numbers object type
-import { JwtPayload } from "jsonwebtoken";
 
 type TDecomposeResult = {
   payload: TPayload | null;
@@ -34,6 +33,40 @@ type TUserData = {
   [key: string]: Array<any> | boolean | string;
 };
 
+type TUserModel = {
+  id: String;
+  serial: Number;
+  documents?: Array<any>;
+  refreshtoken?: String | null;
+  isAdmin: Boolean;
+  chatrooms: Array<any>;
+  createdAt: Date;
+  email: String;
+  addressId?: String | null;
+  address?: any | null;
+  firstName: String;
+  lastName: String;
+  isDeleted: Boolean;
+  deletedAt?: Date | null;
+  emailVerified: Boolean;
+  likes: Array<any>;
+  likedBy: Array<any>;
+  listings: Array<any>;
+  notifications: Array<any>;
+  password: String;
+  phone?: String | null;
+  tenancy: Array<any>;
+  rentals: Array<any>;
+  reviews: Array<any>;
+  receivedReviews: Array<any>;
+  role: any;
+  updatedAt: Date;
+  messages: Array<any>;
+  rooms: Array<any>;
+  flats: Array<any>;
+  verifications: Array<any>;
+};
+
 export type {
   TDecomposeResult,
   TPayload,
@@ -41,4 +74,5 @@ export type {
   TErrNumbers,
   THandlerOptions,
   TUserData,
+  TUserModel,
 };

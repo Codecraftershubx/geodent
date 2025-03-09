@@ -13,6 +13,36 @@ class DbClient implements Client {
   client: PrismaClient;
   isReady: Boolean;
 
+  modelFilters = {
+    users: {
+      include: {
+        chatrooms: true,
+        documents: true,
+        flats: true,
+        likes: true,
+        likedBy: true,
+        listings: true,
+        messages: true,
+        notifications: true,
+        tenancy: true,
+        rentals: true,
+        reviews: true,
+        receivedReviews: true,
+        rooms: true,
+        verifications: true,
+      },
+      exclude: [
+        "serial",
+        "addressId",
+        "role",
+        "isDeleted",
+        "deletedAt",
+        "password",
+        "refreshToken",
+      ],
+    },
+  };
+
   constructor() {
     this.url = config.dbUrl;
     this.isReady = false;
