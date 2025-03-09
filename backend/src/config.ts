@@ -33,6 +33,11 @@ if (mode === "DEV") {
 // Error numbers
 
 const errnos: TErrNumbers = {
+  authentication: {
+    code: 2,
+    desc: "authentication error",
+    statusCode: 401,
+  },
   general: {
     code: 1,
     desc: "general error",
