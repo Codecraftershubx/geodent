@@ -11,37 +11,9 @@ const login = async (req: Request, res: Response): Promise<void> => {
     try {
       let data = utils.tokens.decompose.accessToken(accessToken);
       if (data.expired) {
-        const refreshToken = req.cookies.refreshToken;
-        // if found, and not expired, refresh user accessToken
-        if (!refreshToken) {
-          return utils.handlers.error(res, "authentication", {
-            message: "invalid credentials provided",
-          });
-        }
-        try {
-          // extract userId from refreshToken
-          data = utils.tokens.decompose.refreshToken(refreshToken);
-          if (!data.expired) {
-            // refresh access token
-            const temp = data.payload as TPayload;
-
-            let newToken = utils.tokens.generate.accessToken({
-              id: temp.id,
-            });
-            return utils.handlers.success(res, {
-              message: "login successful",
-              data: [{ accessToken: newToken, id: temp.id }],
-            });
-          }
-          return utils.handlers.error(res, "authentication", {
-            message: "expired credentials",
-          });
-        } catch (err: any) {
-          return utils.handlers.error(res, "authentication", {
-            message: `${err?.message ?? "an error occured"}`,
-            data: [{ details: err }],
-          });
-        }
+        return utils.handlers.error(res, "authentication", {
+          message: "access token expired",
+        });
       }
       // login authenticated User
       const payload = data.payload as TPayload;
@@ -56,7 +28,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
         return utils.handlers.error(res, "general", {
           message: "user authentication failed",
           status: 500,
-          data: [{ details: err.toString() }],
+          data: [{ details: err }],
         });
       }
       // invalid access token
