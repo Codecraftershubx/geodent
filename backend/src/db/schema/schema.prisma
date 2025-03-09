@@ -157,10 +157,10 @@ model User {
   receivedReviews Review[]       @relation("ReceivedReviews")
   role            UserRole       @default(USER)
   updatedAt       DateTime       @updatedAt
-  Message         Message[]
-  Room            Room[]
-  Flat            Flat[]
-  Verification    Verification[]
+  messages        Message[]
+  rooms           Room[]
+  flats           Flat[]
+  verifications   Verification[]
 }
 
 // User roles
