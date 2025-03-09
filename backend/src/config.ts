@@ -55,14 +55,18 @@ const errnos: TErrNumbers = {
 // email info
 const email = process.env.EMAIL;
 const emailPwd = process.env.EMAIL_PWD;
+const authSecret = process.env.AUTH_SECRET;
+const refreshSecret = process.env.REFRESH_SECRET;
 
 // exports
 const envs = {
+  authSecret,
   dbUrl,
   errnos,
   email,
   emailPwd,
   mode,
+  refreshSecret,
   serverHost,
   serverPort,
 };

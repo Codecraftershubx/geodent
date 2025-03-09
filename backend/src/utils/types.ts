@@ -16,4 +16,23 @@ type THandlerOptions = {
   message?: String;
   [key: string]: any;
 };
-export type { TErrNumber, TErrNumbers, THandlerOptions };
+
+type TAccessTokenPayload = {
+  id: string;
+};
+
+type TUserData = {
+  firstName: string;
+  lastName: string;
+  password: string;
+  email: string;
+  [key: string]: Array<any> | boolean | string;
+};
+
+export type {
+  TAccessTokenPayload,
+  TErrNumber,
+  TErrNumbers,
+  THandlerOptions,
+  TUserData,
+};

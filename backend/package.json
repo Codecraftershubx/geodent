@@ -18,11 +18,13 @@
     "argon2": "^0.41.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.10.0"
   },
   "devDependencies": {
     "@tsconfig/node23": "^23.0.0",
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.8",
     "dotenv-expand": "^12.0.1",
     "express-validator": "^7.2.1",

@@ -133,6 +133,7 @@ model User {
   id              String         @id @default(uuid())
   serial          Int            @unique @default(autoincrement())
   documents       Document[]
+  refreshToken    String?
   isAdmin         Boolean        @default(false)
   chatrooms       Chatroom[]     @relation("ChatroomParticipants")
   createdAt       DateTime       @default(now())

@@ -1,7 +1,9 @@
-import password from "./passwordManager.js";
+import passwords from "./passwordManager.js";
 import resHandlers from "./resHandlers.js";
+import tokens from "./tokens.js";
 
 export default {
-  password,
   handlers: resHandlers,
+  passwords,
+  tokens,
 };
