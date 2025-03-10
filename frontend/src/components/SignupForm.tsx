@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, FieldPath, useForm } from "react-hook-form";
 import { Button } from "./ui/button";
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
+import api from "../utils/api";
 
 // form schema
 const formSchema = z.object({
@@ -31,9 +33,34 @@ const SignUpForm = () => {
       password: "",
     },
   });
+  const [formValues, setFormValues] = useState({});
+  const [toSubmit, setToSubmit] = useState(false);
+
+  useEffect(() => {
+    // submit form values
+    const submitForm = async () => {
+      console.log("form values:", formValues);
+      const res = await api.post("/auth/signup", {
+        data: { data: { ...formValues } },
+      });
+      console.log(res);
+      if (res.error) {
+        console.log("signup error", res.data);
+      } else {
+        console.log("signup successful", res.data);
+      }
+      setToSubmit(false);
+    };
+    // call handler function
+    if (toSubmit) {
+      console.log(formValues);
+      submitForm();
+    }
+  }, [formValues, toSubmit]);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    setFormValues({ ...values });
+    setToSubmit(true);
   };
 
   return (
