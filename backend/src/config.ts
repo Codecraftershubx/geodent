@@ -30,6 +30,12 @@ if (mode === "DEV") {
   serverHost = process.env.LIVE_SERVER_HOST;
 }
 
+if (serverPort) {
+  serverPort = parseInt(serverPort);
+} else {
+  serverPort = 5000;
+}
+
 // Error numbers
 
 const errnos: TErrNumbers = {

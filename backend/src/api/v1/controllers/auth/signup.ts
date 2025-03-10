@@ -67,7 +67,6 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
         httpOnly: true,
         maxAge: config.refreshMaxAge,
         secure: config.mode === "LIVE",
-        sameSite: "strict",
         path: "/api/v1",
       });
       // return success
