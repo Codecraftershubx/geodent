@@ -33,6 +33,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
         ...data,
         alpha2Code: data.alpha2Code.toUpperCase(),
         alpha3Code: data.alpha3Code.toUpperCase(),
+        name: utils.text.titleCase(data.name),
       },
     });
     return utils.handlers.success(res, {

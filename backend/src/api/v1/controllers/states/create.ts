@@ -14,8 +14,20 @@ const create = async (req: Request, res: Response): Promise<void> => {
       count: validationErrors.length,
     });
   }
-  // avoid duplicate entries
   const { data } = matchedData(req);
+  // validate country
+  const country = await db.client.client.country.findMany({
+    where: { id: data.countryId },
+  });
+
+  if (!country.length) {
+    return utils.handlers.error(res, "validation", {
+      message: `country ${data.countryId} not found`,
+      status: 404,
+    });
+  }
+
+  // avoid duplicate entries
   const existingState = await db.client.client.state.findMany({
     where: {
       countryId: data.countryId,
@@ -36,6 +48,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
         ...data,
         alpha2Code: data.alpha2Code.toUpperCase(),
         alpha3Code: data.alpha3Code.toUpperCase(),
+        name: utils.text.titleCase(data.name),
       },
     });
     return utils.handlers.success(res, {

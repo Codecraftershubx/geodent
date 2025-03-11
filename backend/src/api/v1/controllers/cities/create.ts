@@ -45,7 +45,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   // proced to create;
   try {
     const city = await db.client.client.city.create({
-      data: { ...data },
+      data: { ...data, name: utils.text.titleCase(data.name) },
     });
     return utils.handlers.success(res, {
       message: "city created successfully",
