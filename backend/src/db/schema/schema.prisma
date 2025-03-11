@@ -214,7 +214,7 @@ model City {
   id        String     @id @default(uuid())
   serial    Int        @unique @default(autoincrement())
   listings  Listing[]
-  name      String
+  name      String     @unique
   state     State      @relation(fields: [stateId], references: [id], onDelete: Cascade)
   stateId   String
   createdAt DateTime   @default(now())
