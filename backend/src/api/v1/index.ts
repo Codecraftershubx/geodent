@@ -9,6 +9,7 @@ router.use("/status", (_: Request, res: Response) => {
 router.use("/amenities", routes.amenities);
 router.use("/auth", routes.auth);
 router.use("/countries", routes.countries);
+router.use("/states", routes.states);
 router.use("/users", routes.users);
 router.use("/*", (_, res: Response): void => {
   res.status(404).json({
