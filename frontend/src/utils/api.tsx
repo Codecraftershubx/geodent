@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 const api = axios.create({
   baseURL: "http://0.0.0.0:8081/api/v1/",
@@ -28,8 +28,11 @@ export default {
         ...options,
       });
       return { error: false, data: res.data };
-    } catch (err) {
-      return { error: true, data: err };
+    } catch (err: any) {
+      return {
+        error: true,
+        data: err?.response?.data,
+      };
     }
   },
 };

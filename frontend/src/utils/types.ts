@@ -1,3 +1,5 @@
+import { AxiosError } from "axios";
+
 type TBEDataHeader = {
   errno: Number;
   status: String;
@@ -6,7 +8,7 @@ type TBEDataHeader = {
 };
 
 type TBEData = {
-  data: Array<Record<string, any>>;
+  data?: Array<Record<string, any>>;
   header: TBEDataHeader;
 };
 

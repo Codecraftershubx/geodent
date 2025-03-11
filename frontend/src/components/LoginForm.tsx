@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, FieldPath, useForm } from "react-hook-form";
 import {
@@ -17,48 +18,75 @@ import toast from "react-hot-toast";
 import api from "../utils/api";
 import type { TBEResponse } from "../utils/types";
 
+// Types
+type TRequestData = {
+  [key: string]: any;
+};
+
+type TLoginFormProps = {
+  accessToken: string | null;
+  tokenSuccess: boolean;
+  setAccessToken: React.Dispatch<React.SetStateAction<string | null>>;
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  setTokenSuccess: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+// form schema
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
 
-type TRequestData = {
-  [key: string]: any;
-};
-
-const LoginForm = () => {
+const LoginForm: React.FC<TLoginFormProps> = ({
+  accessToken,
+  tokenSuccess,
+  setAccessToken,
+  setIsLoggedIn,
+  setTokenSuccess,
+}) => {
   // states and effect handlers
   const [credentials, setCredentials] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  useEffect(() => {
-    // login request hander
-    const handleLogin = async () => {
-      const accessToken = window.localStorage.getItem("accessToken");
-      const requestData: TRequestData = { data: credentials };
-      if (accessToken) {
-        console.log("returning user...using token");
-        requestData["headers"] = { Authorization: `Bearer ${accessToken}` };
-      }
-      const res: TBEResponse = await api.post("/auth/login", requestData);
-      if (res.error) {
-        console.log(res.data);
-        toast.error(`Failed: ${res.data.header.message}`);
-      } else {
-        console.log(res);
-        window.localStorage.setItem(
-          "accessToken",
-          res.data.data[0].accessToken,
-        );
-        toast.success("Login succesful");
-      }
-    };
+  const navigate = useNavigate();
 
-    if (isSubmitted) {
-      handleLogin();
-      setIsSubmitted(false);
+  const handleLogin = async () => {
+    const requestData: TRequestData = { data: credentials };
+    if (accessToken) {
+      console.log("logging user in...using token");
+      requestData["headers"] = { Authorization: `Bearer ${accessToken}` };
     }
-  }, [credentials, isSubmitted]);
+    const res: TBEResponse = await api.post("/auth/login", requestData);
+    if (res.error) {
+      console.log(res.data);
+      if (res.data.header.message === "access token expired") {
+        window.localStorage.removeItem("accessToken");
+        setTokenSuccess(false);
+      } else {
+        toast.error(`Failed: ${res.data.header.message}`);
+      }
+    } else {
+      console.log(res);
+      setIsLoggedIn(true);
+      if (res.data.data) {
+        const token = res.data.data[0].accessToken;
+        if (!accessToken) {
+          window.localStorage.setItem("accessToken", token);
+          setAccessToken(token);
+        }
+      }
+      toast.success("Logging you in");
+      navigate("/listings");
+    }
+  };
+
+  useEffect(() => {
+    console.log("useEffect: isloggedin:", isSubmitted);
+    // login request hander
+    if (isSubmitted || accessToken) {
+      handleLogin();
+    }
+  }, [isSubmitted, tokenSuccess]);
 
   // Form Definition
   const loginForm = useForm<z.infer<typeof formSchema>>({
@@ -74,7 +102,9 @@ const LoginForm = () => {
     setCredentials({ ...values });
     setIsSubmitted(true);
   };
-
+  if (accessToken && tokenSuccess) {
+    return <></>;
+  }
   return (
     <Form {...loginForm}>
       <form
