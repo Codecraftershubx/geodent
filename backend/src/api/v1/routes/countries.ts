@@ -4,6 +4,8 @@ import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
 
+router.get("/", controllers.countries.get);
+router.get("/:id", controllers.countries.get);
 router.post(
   "/create",
   [
