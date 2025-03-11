@@ -5,6 +5,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/listings" element={<pages.Listings />} />
         <Route path="/login" element={<pages.Login />} />
         <Route path="/" element={<pages.Signup />} />
       </Routes>
