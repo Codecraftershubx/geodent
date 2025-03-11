@@ -197,7 +197,7 @@ model State {
   alpha3Code  String     @unique
   cities      City[]
   country     Country    @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  countryId   String     @unique
+  countryId   String
   createdAt   DateTime   @default(now())
   name        String
   numericCode String     @unique
