@@ -184,7 +184,7 @@ model Country {
   numericCode    String     @unique
   states         State[]
   listings       Listing[]
-  document       Document[]
+  documents      Document[]
   updatedAt      DateTime   @updatedAt
   schools        School[]
 }
@@ -197,7 +197,7 @@ model State {
   alpha3Code  String     @unique
   cities      City[]
   country     Country    @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  countryId   String
+  countryId   String     @unique
   createdAt   DateTime   @default(now())
   name        String
   numericCode String     @unique

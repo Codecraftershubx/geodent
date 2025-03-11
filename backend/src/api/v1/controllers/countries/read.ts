@@ -7,7 +7,15 @@ const read = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   let count;
   if (id) {
-    const country = await db.client.client.country.findMany({ where: { id } });
+    const country = await db.client.client.country.findMany({
+      where: { id },
+      include: {
+        states: true,
+        documents: true,
+        listings: true,
+        schools: true,
+      },
+    });
     count = country.length;
     if (count) {
       return utils.handlers.success(res, {
@@ -22,7 +30,14 @@ const read = async (req: Request, res: Response): Promise<void> => {
     });
   }
   // get all countries
-  const countries = await db.client.client.country.findMany();
+  const countries = await db.client.client.country.findMany({
+    include: {
+      states: true,
+      documents: true,
+      listings: true,
+      schools: true,
+    },
+  });
   count = countries.length;
   if (count) {
     return utils.handlers.success(res, {
