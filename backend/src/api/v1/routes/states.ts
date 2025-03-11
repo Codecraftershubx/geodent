@@ -7,7 +7,7 @@ const router: Router = express.Router();
 router.get("/", controllers.states.get);
 router.get("/:id", controllers.states.get);
 router.post(
-  "/create",
+  "/",
   [
     body("data")
       .notEmpty()
