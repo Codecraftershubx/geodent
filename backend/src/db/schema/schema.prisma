@@ -181,7 +181,6 @@ model Country {
   createdAt      DateTime   @default(now())
   currency       String
   currencyCode   String
-  currencyNumber String     @unique
   numericCode    String     @unique
   states         State[]
   listings       Listing[]

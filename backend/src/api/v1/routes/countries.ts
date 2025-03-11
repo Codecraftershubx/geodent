@@ -20,7 +20,6 @@ router.post(
       "data.alpha3Code",
       "data.currency",
       "data.currencyCode",
-      "data.currencyNumber",
       "data.numericCode",
     ])
       .notEmpty()

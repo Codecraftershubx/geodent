@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
-import type { TPayload, TUserModel } from "../../../../utils/types.js";
-import config from "../../../../config.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
@@ -16,10 +14,37 @@ const create = async (req: Request, res: Response): Promise<void> => {
       count: validationErrors.length,
     });
   }
+  // avoid duplicate entries
+  const { data } = matchedData(req);
+  const existingCountry = await db.client.client.country.findMany({
+    where: { numericCode: data.numericCode },
+  });
+  if (existingCountry.length) {
+    return utils.handlers.error(res, "general", {
+      message: "country already exists",
+      status: 400,
+    });
+  }
 
-  const data = matchedData(req);
-  res.json(data);
-  return;
+  // proced to create;
+  try {
+    const country = await db.client.client.country.create({
+      data: {
+        ...data,
+        alpha2Code: data.alpha2Code.toUpperCase(),
+        alpha3Code: data.alpha3Code.toUpperCase(),
+      },
+    });
+    return utils.handlers.success(res, {
+      message: "country created successfully",
+      data: [{ id: country.id }],
+    });
+  } catch (err: any) {
+    return utils.handlers.error(res, "general", {
+      message: err?.message ?? "some error occured",
+      data: [{ details: err }],
+    });
+  }
 };
 
 export default create;
