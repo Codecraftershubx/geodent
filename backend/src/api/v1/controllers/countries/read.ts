@@ -5,12 +5,15 @@ import utils from "../../../../utils/index.js";
 const read = async (req: Request, res: Response): Promise<void> => {
   // get one country by id
   const { id } = req.params;
+  let count;
   if (id) {
     const country = await db.client.client.country.findMany({ where: { id } });
-    if (country.length) {
+    count = country.length;
+    if (count) {
       return utils.handlers.success(res, {
         message: "query successful",
         data: country,
+        count,
       });
     }
     return utils.handlers.error(res, "general", {
@@ -20,15 +23,19 @@ const read = async (req: Request, res: Response): Promise<void> => {
   }
   // get all countries
   const countries = await db.client.client.country.findMany();
-  if (countries.length) {
+  count = countries.length;
+  if (count) {
     return utils.handlers.success(res, {
       message: "query success",
       data: countries,
+      count,
     });
   }
   return utils.handlers.error(res, "general", {
     message: "no country created yet",
     status: 404,
+    count: 0,
+    data: [],
   });
 };
 
