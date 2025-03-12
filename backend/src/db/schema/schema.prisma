@@ -231,12 +231,12 @@ model School {
   serial      Int        @default(autoincrement())
   name        String
   description String?
-  zip         String
   type        SchoolType
   addressId   String
   address     Address    @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   campuses    Campus[]
   documents   Document[]
+  listings    Listing[]
   state       State      @relation(fields: [stateId], references: [id], onDelete: Cascade)
   country     Country    @relation(fields: [countryId], references: [id], onDelete: Cascade)
   stateId     String
@@ -245,7 +245,7 @@ model School {
   deletedAt   DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  City        City?      @relation(fields: [cityId], references: [id])
+  city        City?      @relation(fields: [cityId], references: [id])
   cityId      String?
 }
 
@@ -397,6 +397,7 @@ model Listing {
   shares      Int         @default(0)
   shareUrl    String
   documents   Document[]
+  proximity   ProximityType @default(IN)
 
   // relationships
   amenities Amenity[] @relation("ListingsAmenities")
@@ -413,9 +414,17 @@ model Listing {
   tenants   Rental[]
   User      User?     @relation(fields: [userId], references: [id])
   userId    String?
+  schoolId  String
+  school    School    @relation(fields: [schoolId], references: [id])
   rooms     Room[]
   flats     Flat[]
   blocks    Block[]
+}
+
+// ProximityType:
+enum ProximityType {
+  IN
+  NEAR
 }
 
 // Listing Types
