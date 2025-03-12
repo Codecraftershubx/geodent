@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, FieldPath, useForm } from "react-hook-form";
+import toast, { Toaster } from "react-hot-toast";
 import { Button } from "./ui/button";
 import {
   Form,
@@ -35,6 +37,7 @@ const SignUpForm = () => {
   });
   const [formValues, setFormValues] = useState({});
   const [toSubmit, setToSubmit] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // submit form values
@@ -45,9 +48,10 @@ const SignUpForm = () => {
       });
       console.log(res);
       if (res.error) {
-        console.log("signup error", res.data);
+        toast.error(`Failed: ${res.data.header.message}`);
       } else {
-        console.log("signup successful", res.data);
+        toast.success(`Account created`);
+        navigate("/login");
       }
       setToSubmit(false);
     };
@@ -65,6 +69,7 @@ const SignUpForm = () => {
 
   return (
     <Form {...form}>
+      <Toaster />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         <div className="flex flex-col md:flex-row gap-3 items-start">
           <SignUpFormField

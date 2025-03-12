@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import api from "../utils/api";
 import type { TBEResponse } from "../utils/types";
 
@@ -64,6 +64,7 @@ const LoginForm: React.FC<TLoginFormProps> = ({
         setTokenSuccess(false);
       } else {
         toast.error(`Failed: ${res.data.header.message}`);
+        //window.location.reload();
       }
     } else {
       console.log(res);
@@ -110,6 +111,7 @@ const LoginForm: React.FC<TLoginFormProps> = ({
   }
   return (
     <Form {...loginForm}>
+      <Toaster />
       <form
         onSubmit={loginForm.handleSubmit(formOnSubmit)}
         className="space-y-5"

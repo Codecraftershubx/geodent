@@ -56,6 +56,7 @@ const NavBar: React.FC<TNavBarProps> = ({ isLoggedIn, setIsLoggedIn }) => {
               onClick={(e) => {
                 console.log(e.currentTarget.textContent);
                 if (e.currentTarget.textContent === "Logout") {
+                  window.localStorage.removeItem("accessToken");
                   setIsLoggedIn(false);
                   navigate("/");
                 }
