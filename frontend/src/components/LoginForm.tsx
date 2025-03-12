@@ -68,6 +68,9 @@ const LoginForm: React.FC<TLoginFormProps> = ({
     } else {
       console.log(res);
       setIsLoggedIn(true);
+      if (accessToken) {
+        setTokenSuccess(true);
+      }
       if (res.data.data) {
         const token = res.data.data[0].accessToken;
         if (!accessToken) {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import components from "./components/index";
 import pages from "./pages/index";
 
 function App() {
@@ -12,19 +13,32 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/listings" element={<pages.Listings />} />
         <Route
-          path="/login"
+          path="/"
           element={
-            <pages.Login
+            <components.Layout
               isLoggedIn={isLoggedIn}
               setIsLoggedIn={setIsLoggedIn}
-              accessToken={accessToken}
-              setAccessToken={setAccessToken}
             />
           }
-        />
-        <Route path="/" element={<pages.Signup />} />
+        >
+          <Route index element={<pages.Listings />} />
+          <Route path="/listings" index element={<pages.Listings />} />
+          <Route
+            path="/login"
+            element={
+              <pages.Login
+                isLoggedIn={isLoggedIn}
+                setIsLoggedIn={setIsLoggedIn}
+                accessToken={accessToken}
+                setAccessToken={setAccessToken}
+              />
+            }
+          />
+          <Route path="/signup" element={<pages.Signup />} />
+          <Route path="/home" element={<pages.Home />} />
+          <Route path="/about" element={<pages.About />} />
+        </Route>
       </Routes>
     </Router>
   );
