@@ -6,5 +6,5 @@ export default {
   lowerCase: (input: string, options = {}): string => noCase(input, options),
   sentenceCase: (input: string, options = {}): string =>
     sentenceCase(input, options),
-  upperCase: (input: string): string => input.toUpperCase,
+  upperCase: (input: string): string => input.toUpperCase(),
 };
