@@ -61,6 +61,16 @@ class DbClient implements Client {
       console.error(err);
     }
   }
+
+  // filter out model values
+  filterModels(objectsArray: Array<object>, filter: Array<string>) {
+    const cleaned = objectsArray.map((arrayValue) =>
+      Object.fromEntries(
+        Object.entries(arrayValue).filter(([key]) => !filter.includes(key)),
+      ),
+    );
+    return cleaned;
+  }
 }
 
 const client = new DbClient();
