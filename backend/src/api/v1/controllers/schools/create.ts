@@ -5,6 +5,7 @@ import utils from "../../../../utils/index.js";
 
 const create = async (req: Request, res: Response): Promise<void> => {
   // validate sent data
+  console.log("create schools controller called");
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
@@ -14,7 +15,6 @@ const create = async (req: Request, res: Response): Promise<void> => {
       count: validationErrors.length,
     });
   }
-
   const { data } = matchedData(req);
   // verify country
   const country = await db.client.client.country.findMany({
@@ -51,13 +51,14 @@ const create = async (req: Request, res: Response): Promise<void> => {
       status: 404,
     });
   }
-
   const name = utils.text.titleCase(data.name);
   // avoid duplicate entries
-  const existingSchool = await db.client.client.city.findMany({
+  const existingSchool = await db.client.client.school.findMany({
     where: {
       name,
       stateId: data.stateId,
+      cityId: data.cityId,
+      countryId: data.countryId,
     },
   });
   if (existingSchool.length) {
@@ -67,16 +68,33 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
   }
 
-  // proced to create;
+  // proceed to create;
+  data.type = utils.text.upperCase(data.type);
   try {
     const school = await db.client.client.school.create({
-      data: { ...data, name },
+      data: {
+        name: data.name,
+        type: data.type,
+        description: data.description || null,
+        state: { connect: { id: data.stateId } },
+        city: { connect: { id: data.cityId } },
+        country: { connect: { id: data.countryId } },
+        address: {
+          create: {
+            street: data.street,
+            number: data.number || null,
+            poBox: data.poBox || null,
+            zip: data.zip,
+          },
+        },
+      },
     });
     return utils.handlers.success(res, {
       message: "school created successfully",
       data: [{ id: school.id }],
     });
   } catch (err: any) {
+    console.error(err);
     return utils.handlers.error(res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
