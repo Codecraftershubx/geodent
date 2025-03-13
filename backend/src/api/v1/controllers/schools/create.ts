@@ -29,7 +29,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
 
   // verify state
   const state = await db.client.client.state.findMany({
-    where: { id: data.stateId },
+    where: { id: data.stateId, isDeleted: false },
   });
 
   if (!state.length) {
@@ -41,7 +41,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
 
   // verify city
   const city = await db.client.client.city.findMany({
-    where: { id: data.cityId },
+    where: { id: data.cityId, isDeleted: false },
   });
 
   if (!city.length) {
@@ -58,6 +58,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
       stateId: data.stateId,
       cityId: data.cityId,
       countryId: data.countryId,
+      isDeleted: false,
     },
   });
   if (existingSchool.length) {
