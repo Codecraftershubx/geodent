@@ -4,7 +4,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 model Address {
@@ -173,21 +174,23 @@ enum UserRole {
 
 // Countries
 model Country {
-  id             String     @id @default(uuid())
-  serial         Int        @unique @default(autoincrement())
-  name           String     @unique
-  aka            String?
-  alpha2Code     String     @unique
-  alpha3Code     String     @unique
-  createdAt      DateTime   @default(now())
-  currency       String
-  currencyCode   String
-  numericCode    String     @unique
-  states         State[]
-  listings       Listing[]
-  documents      Document[]
-  updatedAt      DateTime   @updatedAt
-  schools        School[]
+  id           String     @id @default(uuid())
+  serial       Int        @unique @default(autoincrement())
+  name         String     @unique
+  aka          String?
+  alpha2Code   String     @unique
+  alpha3Code   String     @unique
+  createdAt    DateTime   @default(now())
+  currency     String
+  currencyCode String
+  numericCode  String     @unique
+  states       State[]
+  listings     Listing[]
+  documents    Document[]
+  updatedAt    DateTime   @updatedAt
+  schools      School[]
+  isDeleted    Boolean    @default(false)
+  deletedAt    DateTime?
 }
 
 // States
@@ -206,6 +209,8 @@ model State {
   schools     School[]
   documents   Document[]
   listings    Listing[]
+  isDeleted   Boolean    @default(false)
+  deletedAt   DateTime?
 
   @@unique(fields: [countryId, name])
 }
@@ -222,6 +227,8 @@ model City {
   schools   School[]
   documents Document[]
   updatedAt DateTime   @updatedAt
+  isDeleted Boolean    @default(false)
+  deletedAt DateTime?
 
   @@unique(fields: [name, stateId])
 }
@@ -233,8 +240,8 @@ model School {
   name        String
   description String?
   type        SchoolType
-  addressId   String?   @unique
-  address     Address?  @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  addressId   String?    @unique
+  address     Address?   @relation(fields: [addressId], references: [id], onDelete: Cascade)
   campuses    Campus[]
   documents   Document[]
   listings    Listing[]
@@ -246,7 +253,7 @@ model School {
   deletedAt   DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  city        City      @relation(fields: [cityId], references: [id])
+  city        City       @relation(fields: [cityId], references: [id])
   cityId      String
 }
 
@@ -264,13 +271,13 @@ model Campus {
 
   name        String
   type        CampusType
-  addressId   String?     @unique
-  address     Address?    @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  addressId   String?    @unique
+  address     Address?   @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   description String?
   school      School     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   schoolId    String
   isDeleted   Boolean    @default(false)
-  deleteAt    DateTime?
+  deletedAt   DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   listings    Listing[]
@@ -358,7 +365,7 @@ model Block {
   addressId   String?   @unique
 
   // relationships
-  address   Address?    @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  address   Address?   @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   flats     Flat[]
   rooms     Room[]
   amenities Amenity[]  @relation("BlocksAmenities")
@@ -381,19 +388,19 @@ enum BlockType {
 
 // Listing
 model Listing {
-  id          String      @id @default(uuid())
-  serial      Int         @unique @default(autoincrement())
+  id          String        @id @default(uuid())
+  serial      Int           @unique @default(autoincrement())
   shortDescr  String
   longDescr   String?
   name        String
   type        ListingType
-  price       Decimal?    @db.Decimal(20, 2)
-  isAvailable Boolean     @default(false)
-  isDeleted   Boolean     @default(false)
+  price       Decimal?      @db.Decimal(20, 2)
+  isAvailable Boolean       @default(false)
+  isDeleted   Boolean       @default(false)
   deletedAt   DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  shares      Int         @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  shares      Int           @default(0)
   shareUrl    String
   documents   Document[]
   proximity   ProximityType @default(IN)
@@ -537,20 +544,20 @@ enum VerificationStatus {
 
 // Rentals
 model Rental {
-  id              String   @id @default(uuid())
-  serial          Int      @unique @default(autoincrement())
-  listingId       String
-  landlordId      String
-  tenants         User[]   @relation("TenantRentals")
-  listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  landlord        User     @relation("LandlordRentals", fields: [landlordId], references: [id], onDelete: Cascade)
-  amountPaid      Decimal  @db.Decimal(10, 2)
+  id               String   @id @default(uuid())
+  serial           Int      @unique @default(autoincrement())
+  listingId        String
+  landlordId       String
+  tenants          User[]   @relation("TenantRentals")
+  listing          Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  landlord         User     @relation("LandlordRentals", fields: [landlordId], references: [id], onDelete: Cascade)
+  amountPaid       Decimal  @db.Decimal(10, 2)
   priceIsDifferent Boolean  @default(false)
-  reason          String?
-  startsAt        DateTime
-  endsAt          DateTime
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  reason           String?
+  startsAt         DateTime
+  endsAt           DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 // Notifications
