@@ -5,7 +5,6 @@ import utils from "../../../../utils/index.js";
 
 const create = async (req: Request, res: Response): Promise<void> => {
   // validate sent data
-  console.log("create schools controller called");
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
