@@ -2,31 +2,28 @@ import { Request, Response } from "express";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
-const filter = ["isDeleted", "deleteAt", "serial"];
-
 const read = async (req: Request, res: Response): Promise<void> => {
   // get one city by id
   const { id } = req.params;
   let count;
   if (id) {
-    const dbCity = await db.client.client.school.findMany({
+    const school = await db.client.client.school.findMany({
       where: { id, isDeleted: false },
       include: {
-        address: true,
-        documents: true,
-        listings: true,
-        campuses: true,
-        state: true,
-        country: true,
-        city: true,
+        address: { omit: db.client.omit.address },
+        campuses: { omit: db.client.omit.campus },
+        documents: { omit: db.client.omit.document },
+        listings: { omit: db.client.omit.listing },
+        state: { omit: db.client.omit.state },
+        country: { omit: db.client.omit.country },
       },
+      omit: db.client.omit.school,
     });
-    const city = db.client.filterModels(dbCity, filter);
-    count = city.length;
+    count = school.length;
     if (count) {
       return utils.handlers.success(res, {
         message: "query successful",
-        data: city,
+        data: school,
         count,
       });
     }
@@ -36,23 +33,24 @@ const read = async (req: Request, res: Response): Promise<void> => {
     });
   }
   // get all cities
-  const dbCities = await db.client.client.school.findMany({
+  const schools = await db.client.client.school.findMany({
     include: {
-      address: true,
-      documents: true,
-      listings: true,
-      campuses: true,
-      state: true,
-      country: true,
-      city: true,
+      address: { omit: db.client.omit.address },
+      campuses: { omit: db.client.omit.campus },
+      documents: { omit: db.client.omit.document },
+      listings: { omit: db.client.omit.listing },
+      state: { omit: db.client.omit.state },
+      country: { omit: db.client.omit.country },
     },
+    omit: db.client.omit.school,
   });
-  const cities = db.client.filterModels(dbCities, filter);
-  count = cities.length;
+
+  // const schools = await db.client.filterModels(dbSchools);
+  count = schools.length;
   if (count) {
     return utils.handlers.success(res, {
       message: "query success",
-      data: cities,
+      data: schools,
       count,
     });
   }
