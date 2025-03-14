@@ -40,6 +40,18 @@ router.post(
   controllers.schools.create,
 );
 
+router.put(
+  "/:id",
+  [
+    body("data")
+      .notEmpty()
+      .withMessage("data is required")
+      .isObject()
+      .withMessage("expects an object"),
+  ],
+  controllers.schools.update,
+);
+
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This city resource doesn't exist" });
   return;
