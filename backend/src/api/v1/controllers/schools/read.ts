@@ -6,18 +6,19 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get one city by id
   const { id } = req.params;
   let count;
+  const include = {
+    address: { omit: db.client.omit.default },
+    campuses: { omit: db.client.omit.default },
+    documents: { omit: db.client.omit.default },
+    listings: { omit: db.client.omit.default },
+    state: { omit: db.client.omit.default },
+    country: { omit: db.client.omit.default },
+  };
   if (id) {
     const school = await db.client.client.school.findMany({
       where: { id, isDeleted: false },
-      include: {
-        address: { omit: db.client.omit.address },
-        campuses: { omit: db.client.omit.campus },
-        documents: { omit: db.client.omit.document },
-        listings: { omit: db.client.omit.listing },
-        state: { omit: db.client.omit.state },
-        country: { omit: db.client.omit.country },
-      },
-      omit: db.client.omit.school,
+      include,
+      omit: db.client.omit.default,
     });
     count = school.length;
     if (count) {
@@ -28,28 +29,21 @@ const read = async (req: Request, res: Response): Promise<void> => {
       });
     }
     return utils.handlers.error(res, "general", {
-      message: `school ${id} not found`,
+      message: `school not found`,
       status: 404,
     });
   }
   // get all cities
   const schools = await db.client.client.school.findMany({
     where: { isDeleted: false },
-    include: {
-      address: { omit: db.client.omit.address },
-      campuses: { omit: db.client.omit.campus },
-      documents: { omit: db.client.omit.document },
-      listings: { omit: db.client.omit.listing },
-      state: { omit: db.client.omit.state },
-      country: { omit: db.client.omit.country },
-    },
-    omit: db.client.omit.school,
+    include,
+    omit: db.client.omit.default,
   });
 
   count = schools.length;
   if (count) {
     return utils.handlers.success(res, {
-      message: "query success",
+      message: "query successful",
       data: schools,
       count,
     });

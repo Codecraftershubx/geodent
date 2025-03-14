@@ -52,71 +52,17 @@ class DbClient implements Client {
 
   // define omitted fields as per model
   #omit = {
-    address: {
+    default: {
       isDeleted: true,
       serial: true,
       deletedAt: true,
     },
-    amenity: {
-      isDeleted: true,
+    like: {
       serial: true,
-      deletedAt: true,
-    },
-
-    campus: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
-    },
-    chatroom: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
-    },
-    country: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
-    },
-    document: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
-    },
-    flat: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
-    },
-    listing: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
-    },
-    message: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
-    },
-    city: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
-    },
-    school: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
-    },
-    state: {
-      isDeleted: true,
-      serial: true,
-      deletedAt: true,
     },
     user: {
       refreshToken: true,
       deletedAt: true,
-      localPath: true,
       serial: true,
       isDeleted: true,
     },
