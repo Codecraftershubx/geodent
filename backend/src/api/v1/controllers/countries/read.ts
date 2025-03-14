@@ -6,15 +6,16 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get one country by id
   const { id } = req.params;
   let count;
+  const include = {
+    states: { omit: db.client.omit.default },
+    documents: { omit: db.client.omit.default },
+    listings: { omit: db.client.omit.default },
+    schools: { omit: db.client.omit.default },
+  };
   if (id) {
     const country = await db.client.client.country.findMany({
-      where: { id },
-      include: {
-        states: true,
-        documents: true,
-        listings: true,
-        schools: true,
-      },
+      where: { id, isDeleted: false },
+      include,
     });
     count = country.length;
     if (count) {
@@ -25,18 +26,14 @@ const read = async (req: Request, res: Response): Promise<void> => {
       });
     }
     return utils.handlers.error(res, "general", {
-      message: `country ${id} not found`,
+      message: `country not found`,
       status: 404,
     });
   }
   // get all countries
   const countries = await db.client.client.country.findMany({
-    include: {
-      states: true,
-      documents: true,
-      listings: true,
-      schools: true,
-    },
+    where: { isDeleted: false },
+    include,
   });
   count = countries.length;
   if (count) {
