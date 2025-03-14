@@ -17,12 +17,12 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const { data } = matchedData(req);
   // verify country
   const country = await db.client.client.country.findMany({
-    where: { id: data.countryId },
+    where: { id: data.countryId, isDeleted: false },
   });
 
   if (!country.length) {
     return utils.handlers.error(res, "validation", {
-      message: `country ${data.countryId} not found`,
+      message: `country not found`,
       status: 404,
     });
   }
@@ -34,7 +34,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
 
   if (!state.length) {
     return utils.handlers.error(res, "validation", {
-      message: `state ${data.stateId} not found`,
+      message: `state not found`,
       status: 404,
     });
   }
@@ -46,7 +46,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
 
   if (!city.length) {
     return utils.handlers.error(res, "validation", {
-      message: `city ${data.cityId} not found`,
+      message: `city not found`,
       status: 404,
     });
   }
