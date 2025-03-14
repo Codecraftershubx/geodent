@@ -34,6 +34,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   }
   // get all cities
   const schools = await db.client.client.school.findMany({
+    where: { isDeleted: false },
     include: {
       address: { omit: db.client.omit.address },
       campuses: { omit: db.client.omit.campus },
@@ -45,7 +46,6 @@ const read = async (req: Request, res: Response): Promise<void> => {
     omit: db.client.omit.school,
   });
 
-  // const schools = await db.client.filterModels(dbSchools);
   count = schools.length;
   if (count) {
     return utils.handlers.success(res, {
