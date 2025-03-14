@@ -25,7 +25,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
   if (!school.length) {
     return utils.handlers.error(res, "validation", {
       status: 404,
-      message: `school ${id} not found`,
+      message: `school not found`,
     });
   }
   // update school
