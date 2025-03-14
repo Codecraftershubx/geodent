@@ -52,6 +52,8 @@ router.put(
   controllers.schools.update,
 );
 
+router.delete("/:id", controllers.schools.delete);
+
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This city resource doesn't exist" });
   return;
