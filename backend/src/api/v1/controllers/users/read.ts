@@ -3,18 +3,19 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const read = async (req: Request, res: Response): Promise<void> => {
-  // get one user by id
+  // get one city by id
   const { id } = req.params;
   let count;
   const include = {
     address: { omit: db.client.omit.default },
     documents: { omit: db.client.omit.default },
+    listings: { omit: db.client.omit.default },
     chatrooms: { omit: db.client.omit.default },
     likes: { omit: db.client.omit.like },
-    listings: { omit: db.client.omit.default },
+    likedBy: { omit: db.client.omit.like },
     notifications: { omit: db.client.omit.like },
     tenancy: { omit: db.client.omit.default },
-    rentals: { omit: db.client.omit.default },
+    rentals: { omit: db.client.omit.like },
     reviews: { omit: db.client.omit.default },
     receivedReviews: { omit: db.client.omit.default },
     messages: { omit: db.client.omit.default },
@@ -22,8 +23,6 @@ const read = async (req: Request, res: Response): Promise<void> => {
     flats: { omit: db.client.omit.default },
     verifications: { omit: db.client.omit.default },
   };
-
-  // if param is sent
   if (id) {
     const user = await db.client.client.user.findMany({
       where: { id, isDeleted: false },
@@ -34,13 +33,12 @@ const read = async (req: Request, res: Response): Promise<void> => {
     if (count) {
       return utils.handlers.success(res, {
         message: "query successful",
-        data: user,
+        data: [user],
         count,
       });
     }
     return utils.handlers.error(res, "general", {
       message: `user not found`,
-      include,
       status: 404,
     });
   }
@@ -54,13 +52,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
   count = users.length;
   if (count) {
     return utils.handlers.success(res, {
-      message: "query successful",
+      message: "query success",
       data: users,
       count,
     });
   }
   return utils.handlers.error(res, "general", {
-    message: "no user created yet",
+    message: "no users created yet",
     status: 404,
     count: 0,
     data: [],
