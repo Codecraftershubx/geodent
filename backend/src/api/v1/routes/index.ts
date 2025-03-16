@@ -1,3 +1,4 @@
+import addressRouter from "./addresses.js";
 import authRouter from "./auth.js";
 import amenitiesRouter from "./amenities.js";
 import citiesRouter from "./cities.js";
@@ -7,6 +8,7 @@ import statesRouter from "./states.js";
 import usersRouter from "./users.js";
 
 export default {
+  address: addressRouter,
   auth: authRouter,
   amenities: amenitiesRouter,
   cities: citiesRouter,

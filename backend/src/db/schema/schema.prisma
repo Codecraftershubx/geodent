@@ -128,7 +128,7 @@ model Message {
   deletedAt   DateTime?
   sender      User      @relation(fields: [userId], references: [id])
   updatedAt   DateTime  @updatedAt
-  userId      String
+ userId      String
 }
 
 model User {
@@ -137,7 +137,7 @@ model User {
   documents       Document[]
   refreshToken    String?
   isAdmin         Boolean        @default(false)
-  chatrooms       Chatroom[]     @relation("ChatroomParticipants")
+  chatrooms       Chatroom[]     @relation("ChatroomParticipants ")
   createdAt       DateTime       @default(now())
   email           String         @unique
   addressId       String?        @unique
