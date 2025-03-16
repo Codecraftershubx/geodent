@@ -1,0 +1,60 @@
+import { Request, Response } from "express";
+import db from "../../../../db/utils/index.js";
+import utils from "../../../../utils/index.js";
+
+const read = async (req: Request, res: Response): Promise<void> => {
+  console.log("address read called");
+  // get one country by id
+  const { id } = req.params;
+  let count;
+  let filtered;
+  const include = {
+    block: { omit: db.client.omit.default },
+    flat: { omit: db.client.omit.default },
+    room: { omit: db.client.omit.default },
+    user: { omit: db.client.omit.user },
+    school: { omit: db.client.omit.default },
+    campus: { omit: db.client.omit.default },
+  };
+  if (id) {
+    const address = await db.client.client.address.findMany({
+      where: { id, isDeleted: false },
+      include,
+    });
+    count = address.length;
+    if (count) {
+      filtered = await db.client.filterModels(address);
+      return utils.handlers.success(res, {
+        message: "query successful",
+        data: filtered,
+        count,
+      });
+    }
+    return utils.handlers.error(res, "general", {
+      message: `address not found`,
+      status: 404,
+    });
+  }
+  // get all countries
+  const addresses = await db.client.client.address.findMany({
+    where: { isDeleted: false },
+    include,
+  });
+  filtered = await db.client.filterModels(addresses);
+  count = addresses.length;
+  if (count) {
+    return utils.handlers.success(res, {
+      message: "query success",
+      data: filtered,
+      count,
+    });
+  }
+  return utils.handlers.error(res, "general", {
+    message: "no amenity created yet",
+    status: 404,
+    count: 0,
+    data: [],
+  });
+};
+
+export default read;

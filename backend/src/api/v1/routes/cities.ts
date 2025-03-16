@@ -22,6 +22,20 @@ router.post(
   controllers.cities.create,
 );
 
+router.put(
+  "/:id",
+  [
+    body("data")
+      .notEmpty()
+      .withMessage("data is required")
+      .isObject()
+      .withMessage("expects an object"),
+  ],
+  controllers.cities.update,
+);
+
+router.delete("/:id", controllers.cities.delete);
+
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This city resource doesn't exist" });
   return;
