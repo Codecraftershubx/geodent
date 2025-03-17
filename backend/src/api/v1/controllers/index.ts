@@ -3,6 +3,7 @@ import authControllers from "./auth/index.js";
 import amenitiesControllers from "./amenities/index.js";
 import citiesControllers from "./cities/index.js";
 import countriesControllers from "./countries/index.js";
+import documentsControllers from "./documents/index.js";
 import roomsControllers from "./rooms/index.js";
 import schoolsControllers from "./schools/index.js";
 import statesControllers from "./states/index.js";
@@ -14,6 +15,7 @@ export default {
   amenities: amenitiesControllers,
   cities: citiesControllers,
   countries: countriesControllers,
+  documents: documentsControllers,
   rooms: roomsControllers,
   schools: schoolsControllers,
   states: statesControllers,
