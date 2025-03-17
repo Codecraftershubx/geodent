@@ -4,16 +4,11 @@ import config from "../../../../config.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
-const getUserProfile = (userModel: TUserModel) => {
-  return Object.fromEntries(
-    Object.entries(userModel).filter(
-      ([key]) => !db.client.modelFilters.users.exclude.includes(key),
-    ),
-  );
-};
-
 const login = async (req: Request, res: Response): Promise<void> => {
   // extract access token
+  res.send({ message: "under maintenance" });
+  return;
+  /*
   let authHeader = req.headers.authorization;
   if (authHeader) {
     const [_, accessToken] = authHeader.split(" ");
@@ -29,7 +24,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       // get user profile
       const userModel: TUserModel = (await db.client.client.user.findFirst({
         where: { id: payload.id },
-        include: db.client.modelFilters.users.include,
+        include: db.client.modelFilters.users.select,
       })) as TUserModel;
       // filter hidden values
       const userProfile = getUserProfile(userModel);
@@ -104,6 +99,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       data: [filteredUser],
     });
   } catch (err) {}
+  */
 };
 
 export default login;
