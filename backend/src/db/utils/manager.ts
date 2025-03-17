@@ -39,7 +39,12 @@ class DbClient implements Client {
       const filtered: Record<string, any> = {};
       for (let [key, value] of Object.entries(modelObject)) {
         const valueType = typeof value;
-        if (valueType === "object" && value !== null) {
+        if (
+          key != "createdAt" &&
+          key != "updatedAt" &&
+          valueType === "object" &&
+          value !== null
+        ) {
           filtered[key] = filterHelper(value);
         } else if (!this.#modelFilters.includes(key)) {
           filtered[key] = value;
