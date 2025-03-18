@@ -12,10 +12,17 @@ const NavBar: React.FC<TNavBarProps> = ({ isLoggedIn, setIsLoggedIn }) => {
   const navigate = useNavigate();
   return (
     <nav className="px-20 py-5 shadow-xs">
-      <div className="flex justify-between">
-        <h2 className="font-bold max-w-[100px] cursor-pointer text-red-600">
-          <NavLink to="/home">Geodent</NavLink>
-        </h2>
+      <div className="flex justify-between cursor-pointer">
+        <div className="flex gap-2">
+          <img
+            src="../public/logo-red.png"
+            alt="logo-img"
+            className="w-[20px]"
+          />
+          <h2 className="font-bold max-w-[100px] cursor-pointer text-red-600">
+            <NavLink to="/home">Geodent</NavLink>
+          </h2>
+        </div>
         {/*Nav items*/}
         <ul className="flex gap-5 font-medium text-md">
           <NavLink
