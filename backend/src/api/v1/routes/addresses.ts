@@ -67,7 +67,7 @@ router.put(
 router.delete("/:id", controllers.address.delete);
 
 router.use("/*", (_: Request, res: Response): void => {
-  res.status(404).json({ error: "This amenity resource doesn't exist" });
+  res.status(404).json({ error: "This address resource doesn't exist" });
   return;
 });
 

@@ -3,7 +3,6 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const read = async (req: Request, res: Response): Promise<void> => {
-  console.log("address read called");
   // get one country by id
   const { id } = req.params;
   let count;
@@ -50,7 +49,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
     });
   }
   return utils.handlers.error(res, "general", {
-    message: "no amenity created yet",
+    message: "no address created yet",
     status: 404,
     count: 0,
     data: [],

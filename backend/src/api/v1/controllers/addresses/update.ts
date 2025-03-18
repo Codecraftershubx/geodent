@@ -42,7 +42,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (err: any) {
     return utils.handlers.error(res, "general", {
-      message: "address updat failed",
+      message: "address update failed",
       data: [{ details: err.toString() }],
     });
   }
