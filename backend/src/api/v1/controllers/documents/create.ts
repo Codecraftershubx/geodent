@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { matchedData, validationResult } from "express-validator";
+import { validationResult } from "express-validator";
 import { Prisma } from "@prisma/client";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
@@ -16,7 +16,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
   }
   const array = req?.files || null;
-  if (!Array.isArray(array) || !array.length) {
+  if (!array || !Array.isArray(array) || !array.length) {
     return utils.handlers.error(res, "validation", {
       message: "no file uploaded",
     });
@@ -24,6 +24,8 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const files = array as Express.Multer.File[];
   const { owner } = req.body;
   const data = req.body;
+
+  // validate owner exists
   const chatroom = data.chatroomId
     ? await db.client.client.chatroom.findUnique({
         where: { id: data.chatroomId },
@@ -77,7 +79,6 @@ const create = async (req: Request, res: Response): Promise<void> => {
       })
     : null;
 
-  // verify at least one is provided
   if (
     !chatroom &&
     !listing &&
@@ -93,21 +94,20 @@ const create = async (req: Request, res: Response): Promise<void> => {
     !state
   ) {
     return utils.handlers.error(res, "validation", {
-      message:
-        "document needs one of chatroom listing, user verification, room, flat, block, school, campus,, city or state",
+      message: `owner ${owner} not found`,
     });
   }
+  // try creating files
   try {
     const createdDocs = await db.client.client.$transaction(async () => {
       const created = [];
+      // iterate through files and create each one
       for (let file of files) {
         const fileName = file?.originalname;
         const mimeType = file?.mimetype;
         const localPath = file?.path;
         const fileSize = file?.size;
-        // verify needed items are sent
-        // read from db
-        // obtain the db entries from db arrays
+        // verify file doesn't already exist
         const existingDocument = await db.client.client.document.findMany({
           where: {
             fileName,
@@ -120,6 +120,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
         if (existingDocument.length) {
           throw new Error("document already exists");
         }
+        // define connection based on ownerId
         const connect = chatroom
           ? { chatroom: { connect: { id: data.chatroomId } } }
           : listing
@@ -163,10 +164,12 @@ const create = async (req: Request, res: Response): Promise<void> => {
       }
       return created;
     });
+    const count = files.length;
     return utils.handlers.success(res, {
-      message: `document${files.length > 1 ? "s" : ""} created successfully`,
+      message: `document${count > 1 ? "s" : ""} created successfully`,
       status: 201,
       data: createdDocs,
+      count,
     });
   } catch (err: any) {
     return utils.handlers.error(res, "general", {

@@ -7,9 +7,7 @@ import tokens from "./tokens.js";
 export default {
   handlers: resHandlers,
   passwords,
-  storage: {
-    upload: storage,
-  },
+  storage,
   text,
   tokens,
 };

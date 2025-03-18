@@ -1,14 +1,13 @@
-import createAddress from "./create.js";
-/*
-import deleteAddress from "./delete.js";
-import readAddress from "./read.js";
-import updateAddress from "./update.js";
-*/
+import createDocument from "./create.js";
+import deleteDocument from "./delete.js";
+import readDocument from "./read.js";
+import restoreDocument from "./restore.js";
+import updateDocument from "./update.js";
+
 export default {
-  create: createAddress,
-  /*
-  delete: deleteAddress,
-  get: readAddress,
-  update: updateAddress,
-  */
+  create: createDocument,
+  delete: deleteDocument,
+  get: readDocument,
+  restore: restoreDocument,
+  update: updateDocument,
 };

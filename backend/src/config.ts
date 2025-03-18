@@ -74,6 +74,7 @@ const refreshMaxAge = 60 * 60 * 24 * 7 * 1000; // 7 days
 const envs = {
   authSecret,
   dbUrl,
+  basePath: "/tmp/geodent",
   errnos,
   email,
   emailPwd,
@@ -82,6 +83,7 @@ const envs = {
   refreshSecret,
   serverHost,
   serverPort,
+  trashPath: "/tmp/geodent/.trash",
 };
 
 export default envs;
