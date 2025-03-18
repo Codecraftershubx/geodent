@@ -29,6 +29,20 @@ router.post(
   controllers.countries.create,
 );
 
+router.put(
+  "/:id",
+  [
+    body("data")
+      .notEmpty()
+      .withMessage("data is required")
+      .isObject()
+      .withMessage("expects an object"),
+  ],
+  controllers.countries.update,
+);
+
+router.delete("/:id", controllers.countries.delete);
+
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This country resource doesn't exist" });
   return;
