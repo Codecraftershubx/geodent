@@ -1,11 +1,11 @@
 import createAmenities from "./create.js";
- import deleteAmenities from "./delete.js";
- import readAmenities from "./read.js";
- import updateAmenities from "./update.js";
+import deleteAmenities from "./delete.js";
+import readAmenities from "./read.js";
+import updateAmenities from "./update.js";
 
- export default {
-   create: createAmenities,
-   delete: deleteAmenities,                                                                                                                                                               
-   read: readAmenities,
-   update: updateAmenities,
- };
+export default {
+  create: createAmenities,
+  delete: deleteAmenities,
+  get: readAmenities,
+  update: updateAmenities,
+};
