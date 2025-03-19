@@ -288,7 +288,7 @@ model Room {
   number       Int     @default(1)
   width        Decimal @db.Decimal(4, 2)
   length       Decimal @db.Decimal(4, 2)
-  breadth      Decimal @db.Decimal(4, 2)
+  height       Decimal @db.Decimal(4, 2)
   isLivingArea Boolean @default(false)
   isStandAlone Boolean @default(true)
   isAvailable  Boolean @default(true)
@@ -362,6 +362,7 @@ model Block {
   amenities Amenity[]  @relation("BlocksAmenities")
   listing   Listing?   @relation(fields: [listingId], references: [id], onDelete: Cascade)
   document  Document[]
+  tags      Tag[]
 
   // others
   isDeleted Boolean   @default(false)
@@ -409,6 +410,7 @@ model Listing {
   likes     Like[]    @relation("LikedListings")
   reviews   Review[]
   tenants   Rental[]
+  tags      Tag[]
   user      User?     @relation(fields: [userId], references: [id])
   userId    String?
   schoolId  String
@@ -508,6 +510,8 @@ model Tag {
   deletedAt   DateTime?
   rooms        Room[]
   flats        Flat[]
+  blocks       Block[]
+  listings     Listing[]
 }
 
 // Verifications

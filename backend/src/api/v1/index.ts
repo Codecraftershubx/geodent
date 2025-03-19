@@ -12,8 +12,10 @@ router.use("/auth", routes.auth);
 router.use("/cities", routes.cities);
 router.use("/countries", routes.countries);
 router.use("/documents", routes.document);
+router.use("/rooms", routes.rooms);
 router.use("/schools", routes.schools);
 router.use("/states", routes.states);
+router.use("/tags", routes.tags);
 router.use("/users", routes.users);
 router.use("/*", (_, res: Response): void => {
   res.status(404).json({

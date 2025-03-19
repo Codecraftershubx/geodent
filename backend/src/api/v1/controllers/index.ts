@@ -7,6 +7,7 @@ import documentsControllers from "./documents/index.js";
 import roomsControllers from "./rooms/index.js";
 import schoolsControllers from "./schools/index.js";
 import statesControllers from "./states/index.js";
+import tagsControllers from "./tags/index.js";
 import usersControllers from "./users/index.js";
 
 export default {
@@ -19,5 +20,6 @@ export default {
   rooms: roomsControllers,
   schools: schoolsControllers,
   states: statesControllers,
+  tags: tagsControllers,
   users: usersControllers,
 };
