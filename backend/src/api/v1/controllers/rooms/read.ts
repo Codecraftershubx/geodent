@@ -8,19 +8,18 @@ const read = async (req: Request, res: Response): Promise<void> => {
   let count;
   let filtered;
   const include = {
-    blocks: { omit: db.client.omit.default },
-    flats: { omit: db.client.omit.default },
-    listings: { omit: db.client.omit.default },
-    rooms: { omit: db.client.omit.default },
+    amenities: { omit: db.client.omit.default },
+    tags: { omit: db.client.omit.default },
+    documents: { omit: db.client.omit.default },
   };
   if (id) {
-    const amenity = await db.client.client.amenity.findMany({
+    const room = await db.client.client.room.findMany({
       where: { id, isDeleted: false },
       include,
     });
-    count = amenity.length;
+    count = room.length;
     if (count) {
-      filtered = await db.client.filterModels(amenity);
+      filtered = await db.client.filterModels(room);
       return utils.handlers.success(res, {
         message: "query successful",
         data: filtered,
@@ -28,17 +27,17 @@ const read = async (req: Request, res: Response): Promise<void> => {
       });
     }
     return utils.handlers.error(res, "general", {
-      message: `amenity not found`,
+      message: `room not found`,
       status: 404,
     });
   }
   // get all countries
-  const amenities = await db.client.client.amenity.findMany({
+  const rooms = await db.client.client.room.findMany({
     where: { isDeleted: false },
     include,
   });
-  filtered = await db.client.filterModels(amenities);
-  count = amenities.length;
+  filtered = await db.client.filterModels(rooms);
+  count = rooms.length;
   if (count) {
     return utils.handlers.success(res, {
       message: "query success",
@@ -47,7 +46,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
     });
   }
   return utils.handlers.error(res, "general", {
-    message: "no amenity created yet",
+    message: "no room created yet",
     status: 404,
     count: 0,
     data: [],

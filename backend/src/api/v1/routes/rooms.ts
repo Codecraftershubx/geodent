@@ -41,19 +41,19 @@ router.post(
       .notEmpty()
       .withMessage("cannot be empty field"),
     body("data.userId").optional().notEmpty().withMessage("cannot be empty"),
-    body(["body.tags"])
+    body(["data.tags"])
       .notEmpty()
       .withMessage("required")
       .isArray()
       .withMessage("expects an array"),
-    body(["body.tags.*"]).isString().withMessage("expects a string"),
-    body(["body.amenities", "body.documents"])
+    body(["data.tags.*"]).isString().withMessage("expects a string"),
+    body(["data.amenities", "data.documents"])
       .optional()
       .notEmpty()
       .withMessage("cannot be empty")
       .isArray()
       .withMessage("expects an array"),
-    body(["body.amenities.*", "body.documents.*"])
+    body(["data.amenities.*", "data.documents.*"])
       .notEmpty()
       .withMessage("cannot be empty")
       .isString()
@@ -73,7 +73,7 @@ router.put(
   ],
   controllers.rooms.update,
 );
-
+router.put("/:id/restore", controllers.rooms.restore);
 router.delete("/:id", controllers.rooms.delete);
 
 router.use("/*", (_: Request, res: Response): void => {

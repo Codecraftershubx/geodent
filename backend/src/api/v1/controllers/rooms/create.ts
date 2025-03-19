@@ -16,34 +16,61 @@ const create = async (req: Request, res: Response): Promise<void> => {
   }
 
   const { data } = matchedData(req);
-  res.json(data);
-  return;
-  const name = utils.text.titleCase(data.name);
   // avoid duplicate entries
-  const existingAmenity = await db.client.client.amenity.findMany({
+  const width = parseFloat(parseFloat(data.width).toFixed(2));
+  const height = parseFloat(parseFloat(data.height).toFixed(2));
+  const length = parseFloat(parseFloat(data.length).toFixed(2));
+  const number = parseInt(data.number);
+  const userId = data.userId;
+  const connectionKeys = ["amenities", "documents", "tags"];
+  const connection = {} as Record<string, any>;
+  for (let key of connectionKeys) {
+    if (data[key] && data[key].length) {
+      const temp = {
+        [key]: {
+          connect: data[key].map((id: string) => {
+            return { id };
+          }),
+        },
+      };
+      Object.assign(connection, temp);
+    }
+  }
+  const existingRoom = await db.client.client.room.findMany({
     where: {
-      name,
+      width,
+      height,
+      length,
+      number,
+      userId,
       isDeleted: false,
     },
   });
-  if (existingAmenity.length) {
+  if (existingRoom.length) {
     return utils.handlers.error(res, "general", {
-      message: "amenity already exists",
+      message: "room already exists",
       status: 400,
     });
   }
 
   // proceed to create;
   try {
-    const amenity = await db.client.client.amenity.create({
-      data: { ...data, name },
+    const room = await db.client.client.room.create({
+      data: { width, height, length, number, userId, ...connection },
+      include: {
+        amenities: true,
+        documents: true,
+        tags: true,
+      },
     });
+    const filtered = await db.client.filterModels([room]);
     return utils.handlers.success(res, {
-      message: "amenity created successfully",
-      data: [{ id: amenity.id }],
+      message: "room created successfully",
+      data: [filtered],
       status: 201,
     });
   } catch (err: any) {
+    console.error(err);
     return utils.handlers.error(res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
