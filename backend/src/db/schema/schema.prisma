@@ -506,10 +506,8 @@ model Tag {
   updatedAt   DateTime  @updatedAt
   isDeleted   Boolean   @default(false)
   deletedAt   DateTime?
-  room        Room?     @relation(fields: [roomId], references: [id])
-  roomId      String?
-  flat        Flat?     @relation(fields: [flatId], references: [id])
-  flatId      String?
+  rooms        Room[]
+  flats        Flat[]
 }
 
 // Verifications

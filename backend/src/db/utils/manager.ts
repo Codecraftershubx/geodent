@@ -35,7 +35,7 @@ class DbClient implements Client {
   // filter out model values
   async filterModels(objectsArray: Array<object>) {
     // helper to handle filteration
-    const filterHelper = (modelObject: Record<string, any>) => {
+    const filterHelper = async (modelObject: Record<string, any>) => {
       const filtered: Record<string, any> = {};
       for (let [key, value] of Object.entries(modelObject)) {
         const valueType = typeof value;
@@ -45,14 +45,25 @@ class DbClient implements Client {
           valueType === "object" &&
           value !== null
         ) {
-          filtered[key] = filterHelper(value);
+          if (Array.isArray(value)) {
+            filtered[key] = await this.filterModels(value);
+          } else {
+            filtered[key] = await filterHelper(value);
+          }
         } else if (!this.#modelFilters.includes(key)) {
           filtered[key] = value;
         }
       }
       return filtered;
     };
-    return objectsArray.map((model) => filterHelper(model));
+    const resPromises = objectsArray.map(async (model) => {
+      const result = await filterHelper(model);
+      return result;
+    });
+    let results = await Promise.allSettled(resPromises);
+    return results.map((result) => {
+      return result.status === "fulfilled" ? result.value : result.reason;
+    });
   }
 
   // define omitted fields as per model
