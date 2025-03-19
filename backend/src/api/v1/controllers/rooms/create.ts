@@ -60,6 +60,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
       include: {
         amenities: true,
         documents: true,
+        landlord: true,
         tags: true,
       },
     });
