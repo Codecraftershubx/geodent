@@ -51,7 +51,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   }
   try {
     const tag = await db.client.client.tag.create({
-      data: { name, description },
+      data: { name, description, ...connect },
       include: {
         rooms: true,
         flats: true,

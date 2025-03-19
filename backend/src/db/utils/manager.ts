@@ -40,8 +40,7 @@ class DbClient implements Client {
       for (let [key, value] of Object.entries(modelObject)) {
         const valueType = typeof value;
         if (
-          key != "createdAt" &&
-          key != "updatedAt" &&
+          !this.#exempted.includes(key) &&
           valueType === "object" &&
           value !== null
         ) {
@@ -51,6 +50,9 @@ class DbClient implements Client {
             filtered[key] = await filterHelper(value);
           }
         } else if (!this.#modelFilters.includes(key)) {
+          if (key === "length" || key === "width" || key === "height") {
+            value = parseFloat(value);
+          }
           filtered[key] = value;
         }
       }
@@ -93,6 +95,8 @@ class DbClient implements Client {
     "isDeleted",
     "localPath",
   ];
+
+  #exempted = ["createdAt", "updatedAt", "length", "width", "height"];
 
   get omit() {
     return this.#omit;
