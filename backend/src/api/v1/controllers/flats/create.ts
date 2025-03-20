@@ -25,7 +25,6 @@ const create = async (req: Request, res: Response): Promise<void> => {
     "blockId",
     "isStandAlone",
     "isComposite",
-    "isAvailable",
   ];
   const dataFields = Object.keys(data);
   const whereData = {} as Record<string, any>;

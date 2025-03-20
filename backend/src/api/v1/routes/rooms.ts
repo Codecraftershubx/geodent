@@ -24,7 +24,7 @@ router.post(
       .withMessage("required field")
       .isFloat()
       .withMessage("expects float"),
-    body(["data.isStandAlone", "isAvailable"])
+    body(["data.isStandAlone"])
       .default(true)
       .notEmpty()
       .withMessage("required field")

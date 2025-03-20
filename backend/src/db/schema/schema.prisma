@@ -325,7 +325,6 @@ model Flat {
   listingId    String?
   isStandAlone Boolean  @default(true)
   isComposite  Boolean  @default(true)
-  isAvailable  Boolean?
 
   // relationships
   address   Address?   @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -349,9 +348,7 @@ model Block {
   id          String    @id @default(uuid())
   serial      Int       @unique @default(autoincrement())
   type        BlockType
-  isComposite Boolean   @default(false)
   listingId   String?
-  isAvailable Boolean?
   addressId   String?   @unique
 
   // relationships
