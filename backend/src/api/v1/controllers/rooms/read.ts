@@ -12,6 +12,10 @@ const read = async (req: Request, res: Response): Promise<void> => {
     tags: { omit: db.client.omit.default },
     documents: { omit: db.client.omit.default },
     landlord: { omit: db.client.omit.user },
+    address: { omit: db.client.omit.default },
+    block: { omit: db.client.omit.default },
+    flat: { omit: db.client.omit.default },
+    listing: { omit: db.client.omit.default },
   };
   if (id) {
     const room = await db.client.client.room.findMany({

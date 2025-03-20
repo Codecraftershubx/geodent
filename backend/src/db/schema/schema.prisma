@@ -279,10 +279,10 @@ model Campus {
 enum CampusType {
   MAIN
   ANNEX
-}
+ }
 
-// Room
-model Room {
+ // Room
+ model Room {
   id           String  @id @default(uuid())
   serial       Int     @unique @default(autoincrement())
   number       Int     @default(1)
@@ -323,7 +323,7 @@ model Flat {
   userId       String
   addressId    String?  @unique
   blockId      String?
-  listingId    String
+  listingId    String?
   isStandAlone Boolean  @default(true)
   isComposite  Boolean  @default(true)
   isAvailable  Boolean?
@@ -331,7 +331,7 @@ model Flat {
   // relationships
   address   Address?   @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   rooms     Room[]
-  listing   Listing    @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listing   Listing?    @relation(fields: [listingId], references: [id], onDelete: Cascade)
   block     Block?     @relation(fields: [blockId], references: [id], onDelete: Cascade)
   amenities Amenity[]  @relation("FlatsAmenities")
   tags      Tag[]

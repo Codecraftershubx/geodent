@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
+import { Prisma } from "@prisma/client";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
@@ -23,7 +24,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const number = parseInt(data.number);
   const userId = data.userId;
   const connectionKeys = ["amenities", "documents", "tags"];
-  const connection = {} as Record<string, any>;
+  const connection = {} as Prisma.RoomCreateInput;
   for (let key of connectionKeys) {
     if (data[key] && data[key].length) {
       const temp = {
@@ -36,6 +37,21 @@ const create = async (req: Request, res: Response): Promise<void> => {
       Object.assign(connection, temp);
     }
   }
+  const roomData: Prisma.RoomCreateInput = {
+    width,
+    height,
+    length,
+    number,
+    landlord: { connect: { id: userId } },
+  };
+  const optionalFields = ["addressId", "listingId", "flatId", "blockId"];
+  const whereData = {} as Record<string, any>;
+  for (let field of optionalFields) {
+    if (data[field]) {
+      Object.assign(roomData, { [field]: data[field] });
+      Object.assign(whereData, { [field]: data[field] });
+    }
+  }
   const existingRoom = await db.client.client.room.findMany({
     where: {
       width,
@@ -43,6 +59,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
       length,
       number,
       userId,
+      ...whereData,
       isDeleted: false,
     },
   });
@@ -56,18 +73,22 @@ const create = async (req: Request, res: Response): Promise<void> => {
   // proceed to create;
   try {
     const room = await db.client.client.room.create({
-      data: { width, height, length, number, userId, ...connection },
+      data: { ...roomData, ...connection },
       include: {
         amenities: true,
         documents: true,
         landlord: true,
         tags: true,
+        listing: true,
+        flat: true,
+        block: true,
+        address: true,
       },
     });
     const filtered = await db.client.filterModels([room]);
     return utils.handlers.success(res, {
       message: "room created successfully",
-      data: [filtered],
+      data: filtered,
       status: 201,
     });
   } catch (err: any) {
