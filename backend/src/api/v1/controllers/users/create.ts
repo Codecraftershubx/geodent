@@ -33,9 +33,9 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
         password,
       },
     });
-
+    const filtered = await db.client.filterModels([newUser]);
     return utils.handlers.success(res, {
-      data: [{ id: newUser.id, email: newUser.email }],
+      data: filtered,
       message: "user created successfully",
       status: 201,
     });

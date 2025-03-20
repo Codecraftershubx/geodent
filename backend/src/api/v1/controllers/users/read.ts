@@ -33,7 +33,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
     if (count) {
       return utils.handlers.success(res, {
         message: "query successful",
-        data: [user],
+        data: await db.client.filterModels(user),
         count,
       });
     }
@@ -53,7 +53,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   if (count) {
     return utils.handlers.success(res, {
       message: "query success",
-      data: users,
+      data: await db.client.filterModels(users),
       count,
     });
   }
