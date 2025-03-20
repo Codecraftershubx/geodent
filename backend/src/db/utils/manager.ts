@@ -94,6 +94,12 @@ class DbClient implements Client {
     "deletedAt",
     "isDeleted",
     "localPath",
+    "flatId",
+    "blockId",
+    "listingId",
+    "userId",
+    "addressId",
+    "chatroomId",
   ];
 
   #exempted = ["createdAt", "updatedAt", "length", "width", "height"];
