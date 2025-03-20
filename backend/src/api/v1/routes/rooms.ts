@@ -40,7 +40,7 @@ router.post(
       .optional()
       .notEmpty()
       .withMessage("cannot be empty field"),
-    body("data.userId").optional().notEmpty().withMessage("cannot be empty"),
+    body("data.userId").notEmpty().withMessage("cannot be empty"),
     body(["data.tags"])
       .notEmpty()
       .withMessage("required")
