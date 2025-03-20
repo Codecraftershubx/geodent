@@ -12,6 +12,7 @@ router.use("/auth", routes.auth);
 router.use("/cities", routes.cities);
 router.use("/countries", routes.countries);
 router.use("/documents", routes.document);
+router.use("/flats", routes.flats);
 router.use("/rooms", routes.rooms);
 router.use("/schools", routes.schools);
 router.use("/states", routes.states);

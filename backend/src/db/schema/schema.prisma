@@ -319,7 +319,6 @@ enum CampusType {
 model Flat {
   id           String   @id @default(uuid())
   serial       Int      @unique @default(autoincrement())
-  number       Int
   userId       String
   addressId    String?  @unique
   blockId      String?

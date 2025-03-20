@@ -4,6 +4,7 @@ import amenitiesControllers from "./amenities/index.js";
 import citiesControllers from "./cities/index.js";
 import countriesControllers from "./countries/index.js";
 import documentsControllers from "./documents/index.js";
+import flatsControllers from "./flats/index.js";
 import roomsControllers from "./rooms/index.js";
 import schoolsControllers from "./schools/index.js";
 import statesControllers from "./states/index.js";
@@ -17,6 +18,7 @@ export default {
   cities: citiesControllers,
   countries: countriesControllers,
   documents: documentsControllers,
+  flats: flatsControllers,
   rooms: roomsControllers,
   schools: schoolsControllers,
   states: statesControllers,
