@@ -9,6 +9,7 @@ router.use("/status", (_: Request, res: Response) => {
 router.use("/address", routes.address);
 router.use("/amenities", routes.amenities);
 router.use("/auth", routes.auth);
+router.use("/blocks", routes.blocks);
 router.use("/cities", routes.cities);
 router.use("/countries", routes.countries);
 router.use("/documents", routes.document);

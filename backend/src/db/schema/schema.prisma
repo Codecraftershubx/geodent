@@ -153,6 +153,7 @@ model User {
   messages        Message[]
   rooms           Room[]
   flats           Flat[]
+  blocks          Block[]
   verifications   Verification[]
 }
 
@@ -291,7 +292,6 @@ enum CampusType {
   height       Decimal @db.Decimal(4, 2)
   isLivingArea Boolean @default(false)
   isStandAlone Boolean @default(true)
-  isAvailable  Boolean @default(true)
   flatId       String?
   blockId      String?
   listingId    String?
@@ -350,14 +350,17 @@ model Block {
   type        BlockType
   listingId   String?
   addressId   String?   @unique
+  userId      String
+  isComposite Boolean   @default(false)
 
   // relationships
   address   Address?   @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   flats     Flat[]
   rooms     Room[]
   amenities Amenity[]  @relation("BlocksAmenities")
+  landlord  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing   Listing?   @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  document  Document[]
+  documents  Document[]
   tags      Tag[]
 
   // others

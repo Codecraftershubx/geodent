@@ -1,6 +1,7 @@
 import addressControllers from "./addresses/index.js";
 import authControllers from "./auth/index.js";
 import amenitiesControllers from "./amenities/index.js";
+import blocksControllers from "./blocks/index.js";
 import citiesControllers from "./cities/index.js";
 import countriesControllers from "./countries/index.js";
 import documentsControllers from "./documents/index.js";
@@ -15,6 +16,7 @@ export default {
   address: addressControllers,
   auth: authControllers,
   amenities: amenitiesControllers,
+  blocks: blocksControllers,
   cities: citiesControllers,
   countries: countriesControllers,
   documents: documentsControllers,
