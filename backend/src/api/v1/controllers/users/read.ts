@@ -6,27 +6,10 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get one city by id
   const { id } = req.params;
   let count;
-  const include = {
-    address: { omit: db.client.omit.default },
-    documents: { omit: db.client.omit.default },
-    listings: { omit: db.client.omit.default },
-    chatrooms: { omit: db.client.omit.default },
-    likes: { omit: db.client.omit.like },
-    likedBy: { omit: db.client.omit.like },
-    notifications: { omit: db.client.omit.like },
-    tenancy: { omit: db.client.omit.default },
-    rentals: { omit: db.client.omit.like },
-    reviews: { omit: db.client.omit.default },
-    receivedReviews: { omit: db.client.omit.default },
-    messages: { omit: db.client.omit.default },
-    rooms: { omit: db.client.omit.default },
-    flats: { omit: db.client.omit.default },
-    verifications: { omit: db.client.omit.default },
-  };
   if (id) {
     const user = await db.client.client.user.findMany({
       where: { id, isDeleted: false },
-      include,
+      include: db.client.include.user,
       omit: db.client.omit.user,
     });
     count = user.length;
@@ -45,7 +28,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get all cities
   const users = await db.client.client.user.findMany({
     where: { isDeleted: false },
-    include,
+    include: db.client.include.user,
     omit: db.client.omit.user,
   });
 

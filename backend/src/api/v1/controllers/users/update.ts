@@ -4,7 +4,6 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const update = async (req: Request, res: Response): Promise<void> => {
-  // get one city by id
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
@@ -18,7 +17,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { data } = matchedData(req);
 
-  // verify school exists
+  // verify user exists
   const user = await db.client.client.user.findMany({
     where: { id, isDeleted: false },
   });
@@ -28,7 +27,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
       message: `user not found`,
     });
   }
-  // update school
+  // update user
   let updatedUser = await db.client.client.user.update({
     where: { id },
     data,
