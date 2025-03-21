@@ -1,5 +1,5 @@
 import express, { Response, Request, Router } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
@@ -52,10 +52,37 @@ router.put(
   controllers.schools.update,
 );
 
+router.put(
+  "/:id/connections",
+  [
+    query("extend")
+      .default(true)
+      .notEmpty()
+      .toBoolean()
+      .withMessage("cannot be empty")
+      .isBoolean({ strict: true })
+      .withMessage("expects true/false"),
+    body(["data"])
+      .notEmpty()
+      .withMessage("required")
+      .isObject()
+      .withMessage("expects an object")
+      .custom((value) => {
+        const { campuses, documents, listings, tags } = value || {};
+        if (!campuses && !documents && !listings && !tags) {
+          throw new Error("campuses, documents, listings and tags missing");
+        }
+        return true;
+      })
+      .withMessage("one of campuses, documents, listings or tags required"),
+  ],
+  controllers.schools.connections,
+);
+router.put("/:id/restore", controllers.schools.restore);
 router.delete("/:id", controllers.schools.delete);
 
 router.use("/*", (_: Request, res: Response): void => {
-  res.status(404).json({ error: "This city resource doesn't exist" });
+  res.status(404).json({ error: "This School resource doesn't exist" });
   return;
 });
 

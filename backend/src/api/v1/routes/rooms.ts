@@ -1,5 +1,5 @@
 import express, { Response, Request, Router } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
@@ -72,6 +72,32 @@ router.put(
       .withMessage("expects an object"),
   ],
   controllers.rooms.update,
+);
+router.put(
+  "/:id/connections",
+  [
+    query("extend")
+      .default(true)
+      .notEmpty()
+      .toBoolean()
+      .withMessage("cannot be empty")
+      .isBoolean({ strict: true })
+      .withMessage("expects true/false"),
+    body(["data"])
+      .notEmpty()
+      .withMessage("required")
+      .isObject()
+      .withMessage("expects an object")
+      .custom((value) => {
+        const { amenities, documents, tags } = value || {};
+        if (!amenities && !documents && !tags) {
+          throw new Error("documents and tags data missing");
+        }
+        return true;
+      })
+      .withMessage("one of amenities, documents or tags required"),
+  ],
+  controllers.rooms.connections,
 );
 router.put("/:id/restore", controllers.rooms.restore);
 router.delete("/:id", controllers.rooms.delete);
