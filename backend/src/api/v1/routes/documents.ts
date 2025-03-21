@@ -19,7 +19,60 @@ router.put(
       .notEmpty()
       .withMessage("data is required")
       .isObject()
-      .withMessage("expects an object"),
+      .withMessage("expects an object")
+      .custom((value) => {
+        const {
+          chatroomId,
+          userId,
+          listingId,
+          verificationId,
+          roomId,
+          flatId,
+          blockId,
+          schoolId,
+          campusId,
+          cityId,
+          countryId,
+          stateId,
+        } = value;
+        // verify at least one is provided
+        if (
+          !chatroomId &&
+          !userId &&
+          !listingId &&
+          !verificationId &&
+          !roomId &&
+          !flatId &&
+          !blockId &&
+          !schoolId &&
+          !campusId &&
+          !cityId &&
+          !countryId &&
+          !stateId
+        ) {
+          throw new Error("no owner Id provided");
+        }
+        return true;
+      })
+      .withMessage("expects ownerId"),
+    body("data.owner")
+      .notEmpty()
+      .withMessage("required")
+      .isIn([
+        "CHATROOM",
+        "USER",
+        "LISTING",
+        "VERIFICATION",
+        "ROOM",
+        "FLAT",
+        "BLOCK",
+        "SCHOOL",
+        "CAMPUS",
+        "CITY",
+        "COUNTRY",
+        "STATE",
+      ])
+      .withMessage("invalid owner passed"),
   ],
   controllers.documents.update,
 );
