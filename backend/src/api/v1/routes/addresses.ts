@@ -19,6 +19,11 @@ router.post(
       .withMessage("required field")
       .isInt({ min: 1 })
       .withMessage("expects an int >=1"),
+    body(["data.cityId", "data.stateId", "data.countryId"])
+      .notEmpty()
+      .withMessage("required")
+      .isUUID()
+      .withMessage("expects uuid"),
     body(["data.poBox"])
       .optional()
       .notEmpty()

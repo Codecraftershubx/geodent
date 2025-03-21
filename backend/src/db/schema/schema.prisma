@@ -17,6 +17,9 @@ model Address {
   deletedAt DateTime?
   number    Int?
   poBox     Int?
+  cityId    String?
+  stateId   String?
+  countryId String?
   zip       String
   street    String
   latitude  Float?
@@ -27,6 +30,9 @@ model Address {
   campus    Campus?
   room      Room?
   block     Block?
+  city      City?       @relation(fields:[cityId], references: [id], onDelete: Cascade)
+  state     State?      @relation(fields:[stateId], references: [id], onDelete: Cascade)
+  country   Country?    @relation(fields:[countryId], references: [id], onDelete: Cascade)
 }
 
 model Document {
@@ -180,6 +186,7 @@ model Country {
   listings     Listing[]
   documents    Document[]
   tags         Tag[]
+  addresses    Address[]
   updatedAt    DateTime   @updatedAt
   schools      School[]
   isDeleted    Boolean    @default(false)
@@ -203,6 +210,7 @@ model State {
   documents   Document[]
   listings    Listing[]
   tags        Tag[]
+  addresses   Address[]
   isDeleted   Boolean    @default(false)
   deletedAt   DateTime?
 
@@ -221,6 +229,7 @@ model City {
   schools   School[]
   documents Document[]
   tags      Tag[]
+  addresses Address[]
   updatedAt DateTime   @updatedAt
   isDeleted Boolean    @default(false)
   deletedAt DateTime?
@@ -578,6 +587,8 @@ model Notification {
   isRead     Boolean      @default(false)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
+  isDeleted         Boolean @default(false)
+  deletedAt         DateTime?
 }
 
 // ReceiverType

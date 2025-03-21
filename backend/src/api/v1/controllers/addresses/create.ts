@@ -16,7 +16,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   }
 
   const { data } = matchedData(req);
-  const { zip, street } = data;
+  const { number, zip, street } = data;
 
   // verify flat, user, school, campus, room, block
   // read from db
@@ -46,43 +46,29 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const room = dbRoom && dbRoom.length ? dbRoom[0] : null;
   const block = dbBlock && dbBlock.length ? dbBlock[0] : null;
 
-  // verify at least one is provided
-  if (!flat && !user && !school && !campus && !room && !block) {
+  if (
+    (data.flatId && !flat) ||
+    (data.userId && !user) ||
+    (data.schoolId && !school) ||
+    (data.campusId && !campus) ||
+    (data.roomId && !room) ||
+    (data.blockId && !block)
+  ) {
     return utils.handlers.error(res, "validation", {
-      message: "address needs one of flat, user, school, campus, room or block",
+      message: "owner not found",
+      status: 404,
     });
   }
-
-  let addressId = flat
-    ? flat.addressId
-    : user
-      ? user.addressId
-      : school
-        ? school.addressId
-        : campus
-          ? campus.addressId
-          : room
-            ? room.addressId
-            : block
-              ? block.addressId
-              : null;
-
-  if (!addressId) {
-    return utils.handlers.error(res, "validation", {
-      message: "address needs one of flat, user, school, campus, room or block",
-    });
-  }
-
   // obtain the db entries from db arrays
   const existingAddress = await db.client.client.address.findMany({
     where: {
       zip,
+      number,
       street,
       poBox: data?.poBox ?? null,
       latitude: data?.latitude ?? null,
       longitude: data?.longitude ?? null,
       isDeleted: false,
-      id: addressId,
     },
   });
   if (existingAddress.length) {
@@ -92,6 +78,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
   }
 
+  // define connection
   const connect = data.flatId
     ? { flat: { connect: { id: data.flatId } } }
     : data.userId
@@ -108,6 +95,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
 
   const createData = {
     zip,
+    number,
     street,
     poBox: data?.poBox ?? null,
     latitude: data?.latitude ?? null,
@@ -115,7 +103,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   };
 
   if (connect) {
-    data.connect = connect;
+    Object.assign(createData, connect);
   }
 
   // proceed to create;
@@ -123,9 +111,10 @@ const create = async (req: Request, res: Response): Promise<void> => {
     const address = await db.client.client.address.create({
       data: createData,
     });
+    const filtered = await db.client.filterModels([address]);
     return utils.handlers.success(res, {
       message: "address created successfully",
-      data: [{ id: address.id }],
+      data: filtered,
       status: 201,
     });
   } catch (err: any) {
