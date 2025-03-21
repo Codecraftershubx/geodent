@@ -1,5 +1,5 @@
 import express, { Response, Request, Router } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
@@ -65,6 +65,7 @@ router.put(
 );
 
 router.delete("/:id", controllers.address.delete);
+router.put("/:id/restore", controllers.address.restore);
 
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This address resource doesn't exist" });
