@@ -18,18 +18,18 @@ const update = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { data } = matchedData(req);
 
-  // verify school exists
-  const amenity = await db.client.client.amenity.findMany({
+  // verify room exists
+  const room = await db.client.client.room.findMany({
     where: { id, isDeleted: false },
   });
-  if (!amenity.length) {
+  if (!room.length) {
     return utils.handlers.error(res, "validation", {
       status: 404,
-      message: `amenity not found`,
+      message: `room not found`,
     });
   }
-  // update school
-  let updated = await db.client.client.amenity.update({
+  // update room
+  let updated = await db.client.client.room.update({
     where: { id },
     data,
   });
