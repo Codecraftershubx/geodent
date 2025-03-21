@@ -1,5 +1,5 @@
 import express, { Response, Request, Router } from "express";
-import { body, query } from "express-validator";
+import { body } from "express-validator";
 import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
@@ -17,37 +17,25 @@ router.post(
     body("data.number")
       .notEmpty()
       .withMessage("required field")
-      .isInt()
-      .withMessage("expects an integer"),
-    body(["data.width", "data.length", "data.breadth"])
-      .notEmpty()
-      .withMessage("required field")
-      .isFloat()
-      .withMessage("expects float"),
-    body(["data.isStandAlone", "isAvailable"])
-      .default(true)
-      .notEmpty()
-      .withMessage("required field")
-      .isBoolean({ strict: true })
-      .withMessage("expects true/false"),
-    body(["isLivingArea"])
-      .default(false)
-      .notEmpty()
-      .withMessage("required field")
-      .isBoolean({ strict: true })
-      .withMessage("expects true/false"),
-    body(["data.flatId", "data.blockId", "data.listingId", "data.addressId"])
+      .isInt({ min: 1 })
+      .withMessage("expects an int >=1"),
+    body(["data.poBox"])
       .optional()
       .notEmpty()
-      .withMessage("cannot be empty field"),
-    body(["body.documents", "body.tags"])
+      .withMessage("cannot be empty")
+      .isInt()
+      .withMessage("expects an integer"),
+    body(["data.zip", "data.street"])
       .notEmpty()
-      .withMessage("required")
-      .isArray()
-      .withMessage("expects an array"),
-    body(["body.documents.*", "body.tags.*"])
+      .withMessage("required field")
       .isString()
       .withMessage("expects a string"),
+    body(["data.latitude", "data.longitude"])
+      .optional()
+      .notEmpty()
+      .withMessage("cannot be empty")
+      .isFloat()
+      .withMessage("expects true/false"),
   ],
   controllers.address.create,
 );
