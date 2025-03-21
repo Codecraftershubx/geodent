@@ -179,6 +179,7 @@ model Country {
   states       State[]
   listings     Listing[]
   documents    Document[]
+  tags         Tag[]
   updatedAt    DateTime   @updatedAt
   schools      School[]
   isDeleted    Boolean    @default(false)
@@ -201,6 +202,7 @@ model State {
   schools     School[]
   documents   Document[]
   listings    Listing[]
+  tags        Tag[]
   isDeleted   Boolean    @default(false)
   deletedAt   DateTime?
 
@@ -218,6 +220,7 @@ model City {
   createdAt DateTime   @default(now())
   schools   School[]
   documents Document[]
+  tags      Tag[]
   updatedAt DateTime   @updatedAt
   isDeleted Boolean    @default(false)
   deletedAt DateTime?
@@ -247,6 +250,7 @@ model School {
   updatedAt   DateTime   @updatedAt
   city        City       @relation(fields: [cityId], references: [id])
   cityId      String
+  tags        Tag[]
 }
 
 //
@@ -274,6 +278,7 @@ model Campus {
   updatedAt   DateTime   @updatedAt
   listings    Listing[]
   documents   Document[]
+  tags        Tag[]
 }
 
 // Campus Type
@@ -495,6 +500,7 @@ model Amenity {
   flats  Flat[]  @relation("FlatsAmenities")
   blocks Block[] @relation("BlocksAmenities")
   rooms  Room[]  @relation("RoomsAmenities")
+  tags   Tag[]
 }
 
 // Tags
@@ -511,6 +517,13 @@ model Tag {
   flats        Flat[]
   blocks       Block[]
   listings     Listing[]
+  schools      School[]
+  campuses     Campus[]
+  cities       City[]
+  states       State[]
+  countries    Country[]
+  amenities    Amenity[]
+
 }
 
 // Verifications
