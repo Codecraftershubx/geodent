@@ -1,5 +1,5 @@
 import express, { Response, Request, Router } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
@@ -27,6 +27,50 @@ router.post(
   ],
   controllers.states.create,
 );
+router.put(
+  "/:id",
+  [
+    body("data")
+      .notEmpty()
+      .withMessage("data is required")
+      .isObject()
+      .withMessage("expects an object"),
+  ],
+  controllers.states.update,
+);
+
+router.delete("/:id", controllers.states.delete);
+router.put(
+  "/:id/connections",
+  [
+    query("extend")
+      .default(true)
+      .notEmpty()
+      .toBoolean()
+      .withMessage("cannot be empty")
+      .isBoolean({ strict: true })
+      .withMessage("expects true/false"),
+    body(["data"])
+      .notEmpty()
+      .withMessage("required")
+      .isObject()
+      .withMessage("expects an object")
+      .custom((value) => {
+        const { cities, schools, documents, listings, tags } = value || {};
+        if (!cities && !schools && !documents && !listings && !tags) {
+          throw new Error(
+            "cities, schools, documents, listings and tags missing",
+          );
+        }
+        return true;
+      })
+      .withMessage(
+        "one of cities, schools, documents, listings or tags required",
+      ),
+  ],
+  controllers.states.connections,
+);
+router.put("/:id/restore", controllers.states.restore);
 
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This state resource doesn't exist" });
