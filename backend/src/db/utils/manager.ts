@@ -12,6 +12,7 @@ class DbClient implements Client {
   readonly url: string | undefined;
   client: PrismaClient;
   isReady: Boolean;
+
   //nothing
   constructor() {
     this.url = config.dbUrl;
@@ -103,7 +104,30 @@ class DbClient implements Client {
   ];
 
   #exempted = ["createdAt", "updatedAt", "length", "width", "height"];
+  #include = {
+    user: {
+      address: { omit: this.omit.default },
+      documents: { omit: this.omit.default },
+      chatrooms: { omit: this.omit.default },
+      likes: { omit: this.omit.like },
+      likedBy: { omit: this.omit.like },
+      listings: { omit: this.omit.default },
+      notifications: { omit: this.omit.default },
+      tenancy: { omit: this.omit.default },
+      rentals: { omit: this.omit.default },
+      reviews: { omit: this.omit.default },
+      receivedReviews: { omit: this.omit.default },
+      messages: { omit: this.omit.default },
+      rooms: { omit: this.omit.default },
+      flats: { omit: this.omit.default },
+      blocks: { omit: this.omit.default },
+      verifications: { omit: this.omit.default },
+    },
+  };
 
+  get include() {
+    return this.#include;
+  }
   get omit() {
     return this.#omit;
   }
