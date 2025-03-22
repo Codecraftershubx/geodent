@@ -6,20 +6,18 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get one city by id
   const { id } = req.params;
   let count;
+  let filtered;
   if (id) {
     const city = await db.client.client.city.findMany({
-      where: { id },
-      include: {
-        schools: true,
-        documents: true,
-        listings: true,
-      },
+      where: { id, isDeleted: false },
+      include: db.client.include.city,
     });
     count = city.length;
     if (count) {
+      filtered = await db.client.filterModels(city);
       return utils.handlers.success(res, {
         message: "query successful",
-        data: city,
+        data: filtered,
         count,
       });
     }
@@ -30,17 +28,15 @@ const read = async (req: Request, res: Response): Promise<void> => {
   }
   // get all cities
   const cities = await db.client.client.city.findMany({
-    include: {
-      schools: true,
-      documents: true,
-      listings: true,
-    },
+    where: { isDeleted: false },
+    include: db.client.include.city,
   });
   count = cities.length;
   if (count) {
+    filtered = await db.client.filterModels(cities);
     return utils.handlers.success(res, {
       message: "query success",
-      data: cities,
+      data: filtered,
       count,
     });
   }

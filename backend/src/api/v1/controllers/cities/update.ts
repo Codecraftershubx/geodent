@@ -32,6 +32,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
   let updatedCity = await db.client.client.city.update({
     where: { id },
     data,
+    include: db.client.include.city,
   });
   const filtered = await db.client.filterModels([updatedCity]);
   return utils.handlers.success(res, {

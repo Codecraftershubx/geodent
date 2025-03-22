@@ -56,8 +56,22 @@ router.put(
           throw new Error("listings, schools, documents and tags missing");
         }
         return true;
-      })
-      .withMessage("one of listings, schools, documents or tags required"),
+      }),
+    body(["data.listings", "data.schools", "data.documents", "data.tags"])
+      .optional()
+      .notEmpty()
+      .isArray({ min: 1 })
+      .withMessage("expects array"),
+    body([
+      "data.listings.*",
+      "data.schools.*",
+      "data.documents.*",
+      "data.tags.*",
+    ])
+      .notEmpty()
+      .withMessage("cannot be empty")
+      .isUUID()
+      .withMessage("expects uuid"),
   ],
   controllers.cities.connections,
 );

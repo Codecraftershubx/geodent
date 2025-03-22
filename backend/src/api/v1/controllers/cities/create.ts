@@ -19,7 +19,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
 
   // ensure it's a valid state
   const state = await db.client.client.state.findMany({
-    where: { id: data.stateId },
+    where: { id: data.stateId, isDeleted: false },
   });
 
   if (!state.length) {
@@ -33,6 +33,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     where: {
       name: data.name,
       stateId: data.stateId,
+      isDeleted: false,
     },
   });
   if (existingCity.length) {
@@ -46,10 +47,12 @@ const create = async (req: Request, res: Response): Promise<void> => {
   try {
     const city = await db.client.client.city.create({
       data: { ...data, name: utils.text.titleCase(data.name) },
+      include: db.client.include.city,
     });
+    const filtered = await db.client.filterModels([city]);
     return utils.handlers.success(res, {
       message: "city created successfully",
-      data: [{ id: city.id }],
+      data: filtered,
     });
   } catch (err: any) {
     return utils.handlers.error(res, "general", {
