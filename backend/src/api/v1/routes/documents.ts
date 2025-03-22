@@ -1,5 +1,5 @@
 import express, { Response, Request, Router } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import utils from "../../../utils/index.js";
 import controllers from "../controllers/index.js";
 
@@ -9,6 +9,26 @@ router.get("/", controllers.documents.get);
 router.get("/:id", controllers.documents.get);
 router.post(
   "/",
+  [
+    body("data.owner")
+      .notEmpty()
+      .withMessage("required")
+      .isIn([
+        "CHATROOM",
+        "USER",
+        "LISTING",
+        "VERIFICATION",
+        "ROOM",
+        "FLAT",
+        "BLOCK",
+        "SCHOOL",
+        "CAMPUS",
+        "CITY",
+        "COUNTRY",
+        "STATE",
+      ])
+      .withMessage("invalid owner passed"),
+  ],
   utils.storage.upload.array("files"),
   controllers.documents.create,
 );
@@ -55,30 +75,97 @@ router.put(
         return true;
       })
       .withMessage("expects ownerId"),
-    body("data.owner")
-      .notEmpty()
-      .withMessage("required")
-      .isIn([
-        "CHATROOM",
-        "USER",
-        "LISTING",
-        "VERIFICATION",
-        "ROOM",
-        "FLAT",
-        "BLOCK",
-        "SCHOOL",
-        "CAMPUS",
-        "CITY",
-        "COUNTRY",
-        "STATE",
-      ])
-      .withMessage("invalid owner passed"),
   ],
   controllers.documents.update,
 );
+router.put(
+  "/:id/connections",
+  [
+    query("extend")
+      .default(true)
+      .notEmpty()
+      .toBoolean()
+      .withMessage("cannot be empty")
+      .isBoolean({ strict: true })
+      .withMessage("expects true/false"),
+    body(["data"])
+      .notEmpty()
+      .withMessage("required")
+      .isObject()
+      .withMessage("expects an object")
+      .custom((value) => {
+        const {
+          chatroom,
+          listing,
+          user,
+          verification,
+          room,
+          flat,
+          block,
+          school,
+          campus,
+          city,
+          country,
+          state,
+        } = value || {};
 
+        // verify at least one is provided
+        if (
+          !chatroom &&
+          !listing &&
+          !user &&
+          !verification &&
+          !room &&
+          !flat &&
+          !block &&
+          !school &&
+          !campus &&
+          !city &&
+          !country &&
+          !state
+        ) {
+          throw new Error("no relation provided");
+        }
+        return true;
+      })
+      .withMessage("at least one relation needed for connection"),
+    body([
+      "data.chatroom",
+      "data.listing",
+      "data.user",
+      "data.verification",
+      "data.room",
+      "data.flat",
+      "data.block",
+      "data.school",
+      "data.campus",
+      "data.city",
+      "data.country",
+      "data.state",
+    ])
+      .optional()
+      .isArray({ min: 1 })
+      .withMessage("expects an array"),
+    body([
+      "data.chatroom.*",
+      "data.listing.*",
+      "data.user.*",
+      "data.verification.*",
+      "data.room.*",
+      "data.flat.*",
+      "data.block.*",
+      "data.school.*",
+      "data.campus.*",
+      "data.city.*",
+      "data.country.*",
+      "data.state.*",
+    ])
+      .isUUID()
+      .withMessage("expects uuid"),
+  ],
+  controllers.documents.connections,
+);
 router.put("/:id/restore", controllers.documents.restore);
-
 router.delete("/:id", controllers.documents.delete);
 
 router.use("/*", (_: Request, res: Response): void => {

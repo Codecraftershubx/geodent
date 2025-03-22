@@ -26,56 +26,56 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const data = req.body;
 
   // validate owner exists
-  const chatroom = data.chatroomId
+  const chatroom = data.chatroom
     ? await db.client.client.chatroom.findUnique({
-        where: { id: data.chatroomId },
+        where: { id: data.chatroom[0] },
       })
     : null;
-  const listing = data.listingId
+  const listing = data.listing
     ? await db.client.client.listing.findUnique({
-        where: { id: data.listingId },
+        where: { id: data.listing[0] },
       })
     : null;
-  const user = data.userId
-    ? await db.client.client.user.findUnique({ where: { id: data.userId } })
+  const user = data.user
+    ? await db.client.client.user.findUnique({ where: { id: data.user[0] } })
     : null;
-  const verification = data.verificationId
+  const verification = data.verification
     ? await db.client.client.verification.findUnique({
-        where: { id: data.verificationId },
+        where: { id: data.verification[0] },
       })
     : null;
-  const room = data.roomId
-    ? await db.client.client.room.findUnique({ where: { id: data.roomId } })
+  const room = data.room
+    ? await db.client.client.room.findUnique({ where: { id: data.room[0] } })
     : null;
-  const flat = data.flatId
-    ? await db.client.client.flat.findUnique({ where: { id: data.flat } })
+  const flat = data.flat
+    ? await db.client.client.flat.findUnique({ where: { id: data.flat[0] } })
     : null;
-  const block = data.blockId
+  const block = data.block
     ? await db.client.client.block.findUnique({
-        where: { id: data.blockId },
+        where: { id: data.block[0] },
       })
     : null;
-  const school = data.schoolId
+  const school = data.school
     ? await db.client.client.school.findUnique({
-        where: { id: data.schoolId },
+        where: { id: data.school[0] },
       })
     : null;
-  const campus = data.campusId
+  const campus = data.campus
     ? await db.client.client.campus.findUnique({
-        where: { id: data.campusId },
+        where: { id: data.campus[0] },
       })
     : null;
-  const city = data.cityId
-    ? await db.client.client.city.findUnique({ where: { id: data.cityId } })
+  const city = data.city
+    ? await db.client.client.city.findUnique({ where: { id: data.city[0] } })
     : null;
-  const country = data.countryId
+  const country = data.country
     ? await db.client.client.country.findUnique({
-        where: { id: data.countryId },
+        where: { id: data.country[0] },
       })
     : null;
-  const state = data.stateId
+  const state = data.state
     ? await db.client.client.state.findUnique({
-        where: { id: data.stateId },
+        where: { id: data.state[0] },
       })
     : null;
 

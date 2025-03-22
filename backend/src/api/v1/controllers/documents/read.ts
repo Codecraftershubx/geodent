@@ -10,6 +10,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   if (id) {
     const document = await db.client.client.document.findMany({
       where: { id, isDeleted: false },
+      include: db.client.include.document,
     });
     count = document.length;
     if (count) {
@@ -28,6 +29,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get all countries
   const documents = await db.client.client.document.findMany({
     where: { isDeleted: false },
+    include: db.client.include.document,
   });
   filtered = await db.client.filterModels(documents);
   count = documents.length;

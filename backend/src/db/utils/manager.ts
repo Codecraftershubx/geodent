@@ -101,6 +101,12 @@ class DbClient implements Client {
     "userId",
     "addressId",
     "chatroomId",
+    "roomId",
+    "schoolId",
+    "campusId",
+    "cityId",
+    "countryId",
+    "stateId",
   ];
 
   #exempted = ["createdAt", "updatedAt", "length", "width", "height"];
@@ -123,6 +129,20 @@ class DbClient implements Client {
       blocks: { omit: this.omit.default },
       verifications: { omit: this.omit.default },
     },
+    document: {
+      chatroom: { omit: this.omit.default },
+      listing: { omit: this.omit.default },
+      user: { omit: this.omit.user },
+      verification: { omit: this.omit.default },
+      room: { omit: this.omit.default },
+      flat: { omit: this.omit.default },
+      block: { omit: this.omit.default },
+      school: { omit: this.omit.default },
+      campus: { omit: this.omit.default },
+      city: { omit: this.omit.default },
+      country: { omit: this.omit.default },
+      state: { omit: this.omit.default },
+    },
   };
 
   get include() {
@@ -133,7 +153,6 @@ class DbClient implements Client {
   }
 }
 const client = new DbClient();
-
 // initialise client
 (async () => {
   console.log("running necessary migrations...");
