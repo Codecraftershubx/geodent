@@ -87,8 +87,23 @@ router.put(
         if (!schools && !documents && !listings && !tags) {
           throw new Error("schools, documents, listings and tags missing");
         }
+        for (let [key, val] of Object.entries(value)) {
+          if (!Array.isArray(val)) {
+            throw new Error(`${key} must be array`);
+          }
+        }
         return true;
       }),
+    body([
+      "data.schools.*",
+      "data.documents.*",
+      "data.listings.*",
+      "data.tags.*",
+    ])
+      .notEmpty()
+      .withMessage("cannot be empty")
+      .isUUID()
+      .withMessage("expects uuid"),
   ],
   controllers.states.connections,
 );
