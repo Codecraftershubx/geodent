@@ -50,10 +50,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
         alpha3Code: data.alpha3Code.toUpperCase(),
         name: utils.text.titleCase(data.name),
       },
+      include: db.client.include.state,
     });
+    const filtered = await db.client.filterModels([state]);
     return utils.handlers.success(res, {
       message: "state created successfully",
-      data: [{ id: state.id }],
+      data: filtered,
+      count: 1,
     });
   } catch (err: any) {
     return utils.handlers.error(res, "general", {

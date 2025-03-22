@@ -6,22 +6,18 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get one country by id
   const { id } = req.params;
   let count;
-  const include = {
-    states: { omit: db.client.omit.default },
-    documents: { omit: db.client.omit.default },
-    listings: { omit: db.client.omit.default },
-    schools: { omit: db.client.omit.default },
-  };
+  let filtered;
   if (id) {
     const country = await db.client.client.country.findMany({
       where: { id, isDeleted: false },
-      include,
+      include: db.client.include.country,
     });
     count = country.length;
     if (count) {
+      filtered = await db.client.filterModels(country);
       return utils.handlers.success(res, {
         message: "query successful",
-        data: country,
+        data: filtered,
         count,
       });
     }
@@ -33,13 +29,14 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get all countries
   const countries = await db.client.client.country.findMany({
     where: { isDeleted: false },
-    include,
+    include: db.client.include.country,
   });
   count = countries.length;
   if (count) {
+    filtered = await db.client.filterModels(countries);
     return utils.handlers.success(res, {
       message: "query success",
-      data: countries,
+      data: filtered,
       count,
     });
   }

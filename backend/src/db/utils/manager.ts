@@ -111,6 +111,21 @@ class DbClient implements Client {
 
   #exempted = ["createdAt", "updatedAt", "length", "width", "height"];
   #include = {
+    country: {
+      states: { omit: this.omit.default },
+      listings: { omit: this.omit.default },
+      documents: { omit: this.omit.default },
+      schools: { omit: this.omit.default },
+      tags: { omit: this.omit.default },
+    },
+    state: {
+      country: { omit: this.omit.default },
+      cities: { omit: this.omit.default },
+      schools: { omit: this.omit.default },
+      documents: { omit: this.omit.default },
+      listings: { omit: this.omit.default },
+      tags: { omit: this.omit.default },
+    },
     user: {
       address: { omit: this.omit.default },
       documents: { omit: this.omit.default },

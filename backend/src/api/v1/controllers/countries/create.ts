@@ -26,7 +26,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
   }
 
-  // proced to create;
+  // proceed to create;
   try {
     const country = await db.client.client.country.create({
       data: {
@@ -35,10 +35,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
         alpha3Code: data.alpha3Code.toUpperCase(),
         name: utils.text.titleCase(data.name),
       },
+      include: db.client.include.country,
     });
+    const filtered = await db.client.filterModels([country]);
     return utils.handlers.success(res, {
       message: "country created successfully",
-      data: [{ id: country.id }],
+      data: filtered,
+      status: 201,
     });
   } catch (err: any) {
     return utils.handlers.error(res, "general", {

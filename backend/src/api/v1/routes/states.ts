@@ -23,6 +23,7 @@ router.post(
     ])
       .notEmpty()
       .withMessage("required field"),
+    body("data.countryId").isUUID().withMessage("expects uuid"),
     body("data.aka").optional().notEmpty().withMessage("value cannot be empty"),
   ],
   controllers.states.create,
@@ -34,7 +35,33 @@ router.put(
       .notEmpty()
       .withMessage("data is required")
       .isObject()
-      .withMessage("expects an object"),
+      .withMessage("expects an object")
+      .custom((value: Record<string, any>) => {
+        if (!Object.keys(value).length) {
+          throw new Error("value cannot be empty");
+        }
+        for (let [key, val] of Object.entries(value)) {
+          if (typeof val === "string" && !val.length) {
+            throw new Error(`${key} is empty string`);
+          }
+          if (typeof val === "undefined") {
+            throw new Error(`${key} is empty`);
+          }
+          if (val === null) {
+            throw new Error(`${key} cannot be null`);
+          }
+          if (
+            (key === "alpha2Code" ||
+              key === "alpha3Code" ||
+              key === "countryId" ||
+              key === "name") &&
+            typeof val !== "string"
+          ) {
+            throw new Error(`${key} must be a string`);
+          }
+        }
+        return true;
+      }),
   ],
   controllers.states.update,
 );
@@ -56,17 +83,12 @@ router.put(
       .isObject()
       .withMessage("expects an object")
       .custom((value) => {
-        const { cities, schools, documents, listings, tags } = value || {};
-        if (!cities && !schools && !documents && !listings && !tags) {
-          throw new Error(
-            "cities, schools, documents, listings and tags missing",
-          );
+        const { schools, documents, listings, tags } = value || {};
+        if (!schools && !documents && !listings && !tags) {
+          throw new Error("schools, documents, listings and tags missing");
         }
         return true;
-      })
-      .withMessage(
-        "one of cities, schools, documents, listings or tags required",
-      ),
+      }),
   ],
   controllers.states.connections,
 );

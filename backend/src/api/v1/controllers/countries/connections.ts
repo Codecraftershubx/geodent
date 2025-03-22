@@ -20,18 +20,18 @@ const updateConnections = async (
 
   const { id } = req.params;
   const { data } = matchedData(req);
-  const connections = ["schools", "documents", "listings", "tags"];
-  const connectObject = {} as Prisma.StateUpdateInput;
+  const connections = ["listings", "documents", "tags", "schools"];
+  const connectObject = {} as Prisma.CountryUpdateInput;
   const { extend } = req.query;
 
-  // verify state exists
-  const state = await db.client.client.state.findMany({
+  // verify country exists
+  const country = await db.client.client.country.findMany({
     where: { id, isDeleted: false },
   });
-  if (!state.length) {
+  if (!country.length) {
     return utils.handlers.error(res, "validation", {
       status: 404,
-      message: `state not found`,
+      message: `country not found`,
     });
   }
   // construct update object
@@ -57,18 +57,12 @@ const updateConnections = async (
       }
     }
   }
-  // update state
+  // update country
   try {
-    let updated = await db.client.client.state.update({
+    let updated = await db.client.client.country.update({
       where: { id },
       data: { ...connectObject },
-      include: {
-        cities: { omit: db.client.omit.default },
-        schools: { omit: db.client.omit.default },
-        documents: { omit: db.client.omit.default },
-        listings: { omit: db.client.omit.default },
-        tags: { omit: db.client.omit.default },
-      },
+      include: db.client.include.country,
     });
     const filtered = await db.client.filterModels([updated]);
     return utils.handlers.success(res, {

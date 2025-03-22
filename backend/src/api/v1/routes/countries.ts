@@ -1,5 +1,5 @@
 import express, { Response, Request, Router } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import controllers from "../controllers/index.js";
 
 const router: Router = express.Router();
@@ -42,6 +42,33 @@ router.put(
 );
 
 router.delete("/:id", controllers.countries.delete);
+router.put(
+  "/:id/connections",
+  [
+    query("extend")
+      .default(true)
+      .notEmpty()
+      .toBoolean()
+      .withMessage("cannot be empty")
+      .isBoolean({ strict: true })
+      .withMessage("expects true/false"),
+    body(["data"])
+      .notEmpty()
+      .withMessage("required")
+      .isObject()
+      .withMessage("expects an object")
+      .custom((value) => {
+        const { listings, documents, schools, tags } = value || {};
+        if (!listings && !documents && !schools && !tags) {
+          throw new Error("listings, documents, schools and tags missing");
+        }
+        return true;
+      }),
+  ],
+  controllers.countries.connections,
+);
+
+router.put("/:id/restore", controllers.countries.restore);
 
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This country resource doesn't exist" });
