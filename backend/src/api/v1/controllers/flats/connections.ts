@@ -62,12 +62,7 @@ const updateConnections = async (
     let updated = await db.client.client.flat.update({
       where: { id },
       data: { ...connectObject },
-      include: {
-        rooms: { omit: db.client.omit.default },
-        amenities: { omit: db.client.omit.default },
-        documents: { omit: db.client.omit.default },
-        tags: { omit: db.client.omit.default },
-      },
+      include: db.client.include.flat,
     });
     const filtered = await db.client.filterModels([updated]);
     return utils.handlers.success(res, {

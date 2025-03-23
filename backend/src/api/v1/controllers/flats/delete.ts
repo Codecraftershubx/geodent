@@ -12,10 +12,10 @@ const deleteFlat = async (req: Request, res: Response): Promise<void> => {
   if (!flat.length) {
     return utils.handlers.error(res, "validation", {
       status: 404,
-      message: `room not found`,
+      message: `flat not found`,
     });
   }
-  // delete room
+  // delete flat
   await db.client.client.flat.update({
     where: { id },
     data: {

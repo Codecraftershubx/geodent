@@ -86,8 +86,21 @@ router.put(
           throw new Error("flats, rooms, documents and tags data missing");
         }
         return true;
-      })
-      .withMessage("one of flats, rooms documents or tags required"),
+      }),
+    body(["data.amenities", "data.flats", "data.documents", "data.tags"])
+      .optional()
+      .isArray({ min: 1 })
+      .withMessage("expects array >=1 "),
+    body([
+      "data.amenities.*",
+      "data.flats.*",
+      "data.documents.*",
+      "data.tags.*",
+    ])
+      .notEmpty()
+      .withMessage("cannot be empty")
+      .isUUID()
+      .withMessage("expects uuid"),
   ],
   controllers.blocks.connections,
 );
