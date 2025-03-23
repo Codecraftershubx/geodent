@@ -67,7 +67,14 @@ type TUserModel = {
   verifications: Array<any>;
 };
 
+enum SchoolType {
+  COLLEGE = "COLLEGE",
+  UNIVERSITY = "UNIVERSITY",
+  POLYTECHNIC = "POLYTECHNIC",
+}
+
 export type {
+  SchoolType,
   TDecomposeResult,
   TPayload,
   TErrNumber,

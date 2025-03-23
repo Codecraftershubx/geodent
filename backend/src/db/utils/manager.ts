@@ -124,6 +124,13 @@ class DbClient implements Client {
       schools: { omit: this.omit.default },
       tags: { omit: this.omit.default },
     },
+    school: {
+      address: { omit: this.omit.default },
+      campuses: { omit: this.omit.default },
+      documents: { omit: this.omit.default },
+      listings: { omit: this.omit.default },
+      tags: { omit: this.omit.default },
+    },
     state: {
       country: { omit: this.omit.default },
       cities: { omit: this.omit.default },

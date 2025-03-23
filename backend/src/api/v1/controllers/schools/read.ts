@@ -3,28 +3,22 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const read = async (req: Request, res: Response): Promise<void> => {
-  // get one city by id
   const { id } = req.params;
   let count;
-  const include = {
-    address: { omit: db.client.omit.default },
-    campuses: { omit: db.client.omit.default },
-    documents: { omit: db.client.omit.default },
-    listings: { omit: db.client.omit.default },
-    state: { omit: db.client.omit.default },
-    country: { omit: db.client.omit.default },
-  };
+  let filtered;
+
+  // get one school by id
   if (id) {
     const school = await db.client.client.school.findMany({
       where: { id, isDeleted: false },
-      include,
-      omit: db.client.omit.default,
+      include: db.client.include.school,
     });
     count = school.length;
     if (count) {
+      filtered = await db.client.filterModels(school);
       return utils.handlers.success(res, {
         message: "query successful",
-        data: school,
+        data: filtered,
         count,
       });
     }
@@ -33,18 +27,18 @@ const read = async (req: Request, res: Response): Promise<void> => {
       status: 404,
     });
   }
-  // get all cities
+  // get all schools
   const schools = await db.client.client.school.findMany({
     where: { isDeleted: false },
-    include,
-    omit: db.client.omit.default,
+    include: db.client.include.school,
   });
 
   count = schools.length;
   if (count) {
+    filtered = await db.client.filterModels(schools);
     return utils.handlers.success(res, {
       message: "query successful",
-      data: schools,
+      data: filtered,
       count,
     });
   }
