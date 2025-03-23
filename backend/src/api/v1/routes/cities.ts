@@ -62,12 +62,7 @@ router.put(
       .notEmpty()
       .isArray({ min: 1 })
       .withMessage("expects array"),
-    body([
-      "data.listings.*",
-      "data.schools.*",
-      "data.documents.*",
-      "data.tags.*",
-    ])
+    body(["data.listings.*", "data.schools.*", "data.documents.*", "data.tags.*"])
       .notEmpty()
       .withMessage("cannot be empty")
       .isUUID()
