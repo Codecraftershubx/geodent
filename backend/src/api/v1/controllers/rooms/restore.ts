@@ -5,7 +5,7 @@ import utils from "../../../../utils/index.js";
 const restoreRoom = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
-  // verify tag exists
+  // verify room exists and is deleted
   const document = await db.client.client.room.findMany({
     where: { id, isDeleted: true },
   });
@@ -15,7 +15,7 @@ const restoreRoom = async (req: Request, res: Response): Promise<void> => {
       message: `room not found`,
     });
   }
-  // restore tag
+  // restore room
   await db.client.client.room.update({
     where: { id },
     data: {

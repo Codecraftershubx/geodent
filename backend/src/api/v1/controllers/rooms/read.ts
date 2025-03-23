@@ -3,24 +3,14 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const read = async (req: Request, res: Response): Promise<void> => {
-  // get one country by id
   const { id } = req.params;
   let count;
   let filtered;
-  const include = {
-    amenities: { omit: db.client.omit.default },
-    tags: { omit: db.client.omit.default },
-    documents: { omit: db.client.omit.default },
-    landlord: { omit: db.client.omit.user },
-    address: { omit: db.client.omit.default },
-    block: { omit: db.client.omit.default },
-    flat: { omit: db.client.omit.default },
-    listing: { omit: db.client.omit.default },
-  };
   if (id) {
+    // get room by id if exists
     const room = await db.client.client.room.findMany({
       where: { id, isDeleted: false },
-      include,
+      include: db.client.include.room,
     });
     count = room.length;
     if (count) {
@@ -36,10 +26,10 @@ const read = async (req: Request, res: Response): Promise<void> => {
       status: 404,
     });
   }
-  // get all countries
+  // get all rooms
   const rooms = await db.client.client.room.findMany({
     where: { isDeleted: false },
-    include,
+    include: db.client.include.room,
   });
   filtered = await db.client.filterModels(rooms);
   count = rooms.length;

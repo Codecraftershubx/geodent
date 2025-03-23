@@ -4,7 +4,6 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const update = async (req: Request, res: Response): Promise<void> => {
-  // get one city by id
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();

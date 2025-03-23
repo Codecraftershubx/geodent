@@ -74,16 +74,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   try {
     const room = await db.client.client.room.create({
       data: { ...roomData, ...connection },
-      include: {
-        amenities: true,
-        documents: true,
-        landlord: true,
-        tags: true,
-        listing: true,
-        flat: true,
-        block: true,
-        address: true,
-      },
+      include: db.client.include.room,
     });
     const filtered = await db.client.filterModels([room]);
     return utils.handlers.success(res, {
