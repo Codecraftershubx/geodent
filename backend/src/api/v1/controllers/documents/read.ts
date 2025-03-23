@@ -14,6 +14,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
     });
     count = document.length;
     if (count) {
+      console.log(document[0]);
       filtered = await db.client.filterModels(document);
       return utils.handlers.success(res, {
         message: "query successful",

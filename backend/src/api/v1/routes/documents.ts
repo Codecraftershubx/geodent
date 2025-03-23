@@ -7,10 +7,16 @@ const router: Router = express.Router();
 
 router.get("/", controllers.documents.get);
 router.get("/:id", controllers.documents.get);
+router.get(
+  "/static/:id",
+  [query("download").default(false).toBoolean().isBoolean()],
+  controllers.documents.files,
+);
 router.post(
   "/",
+  utils.storage.upload.array("files"),
   [
-    body("data.owner")
+    body("owner")
       .notEmpty()
       .withMessage("required")
       .isIn([
@@ -29,7 +35,6 @@ router.post(
       ])
       .withMessage("invalid owner passed"),
   ],
-  utils.storage.upload.array("files"),
   controllers.documents.create,
 );
 router.put(

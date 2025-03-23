@@ -38,9 +38,13 @@ model Address {
 model Document {
   id             String        @id @default(uuid())
   serial         Int           @unique @default(autoincrement())
-  cdnUrl         String?
+  url            String?
+  fallbackUrl    String?
+  downloadUrl    String?
   createdAt      DateTime      @default(now())
   fileName       String
+  isDownloadable Boolean       @default(true)
+  originalName   String
   fileSize       Int
   isDeleted      Boolean       @default(false)
   deletedAt      DateTime?
@@ -412,11 +416,11 @@ model Listing {
 
   // relationships
   amenities Amenity[] @relation("ListingsAmenities")
-  campus    Campus    @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  campus    Campus?    @relation(fields: [campusId], references: [id], onDelete: Cascade)
   city      City      @relation(fields: [cityId], references: [id], onDelete: Cascade)
   state     State     @relation(fields: [stateId], references: [id], onDelete: Cascade)
   country   Country   @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  campusId  String
+  campusId  String?
   cityId    String
   countryId String
   stateId   String

@@ -6,6 +6,7 @@ import citiesRouter from "./cities.js";
 import countriesRouter from "./countries.js";
 import documentRouter from "./documents.js";
 import flatsRouter from "./flats.js";
+import listingsRouter from "./listings.js";
 import roomsRouter from "./rooms.js";
 import schoolsRouter from "./schools.js";
 import statesRouter from "./states.js";
@@ -21,6 +22,7 @@ export default {
   countries: countriesRouter,
   document: documentRouter,
   flats: flatsRouter,
+  listings: listingsRouter,
   rooms: roomsRouter,
   schools: schoolsRouter,
   states: statesRouter,

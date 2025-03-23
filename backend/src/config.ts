@@ -69,6 +69,10 @@ const emailPwd = process.env.EMAIL_PWD;
 const authSecret = process.env.AUTH_SECRET;
 const refreshSecret = process.env.REFRESH_SECRET;
 const refreshMaxAge = 60 * 60 * 24 * 7 * 1000; // 7 days
+const hostname =
+  process.env.MODE === "DEV"
+    ? `http://${serverHost}:${serverPort}`
+    : "https://google.com";
 
 // exports
 const envs = {
@@ -78,6 +82,7 @@ const envs = {
   errnos,
   email,
   emailPwd,
+  hostname,
   mode,
   refreshMaxAge,
   refreshSecret,

@@ -107,6 +107,7 @@ class DbClient implements Client {
     "cityId",
     "countryId",
     "stateId",
+    "fileName",
   ];
 
   #exempted = ["createdAt", "updatedAt", "length", "width", "height"];
