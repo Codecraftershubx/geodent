@@ -410,12 +410,11 @@ model Listing {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   shares      Int           @default(0)
-  shareUrl    String
+  shareUrl    String?
   documents   Document[]
   proximity   ProximityType @default(IN)
 
   // relationships
-  amenities Amenity[] @relation("ListingsAmenities")
   campus    Campus?    @relation(fields: [campusId], references: [id], onDelete: Cascade)
   city      City      @relation(fields: [cityId], references: [id], onDelete: Cascade)
   state     State     @relation(fields: [stateId], references: [id], onDelete: Cascade)
@@ -503,7 +502,6 @@ model Amenity {
   serial      Int       @default(autoincrement())
   name        String
   description String?
-  listings    Listing[] @relation("ListingsAmenities")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   isDeleted   Boolean   @default(false)

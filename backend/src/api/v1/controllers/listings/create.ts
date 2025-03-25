@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { matchedData, validationResult } from "express-validator";
 import { Prisma } from "@prisma/client";
+import { ListingProximity, ListingType } from "../../../../utils/types.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
@@ -18,14 +19,16 @@ const create = async (req: Request, res: Response): Promise<void> => {
 
   const { data } = matchedData(req);
   const name = utils.text.titleCase(data.name);
-  const type = utils.text.upperCase(data.type);
-  const proximity = utils.text.upperCase(data.proximity);
+  const type = utils.text.upperCase(data.type) as ListingType;
+  const proximity = utils.text.upperCase(data.proximity) as ListingProximity;
   const price = parseFloat(parseFloat(data.price).toFixed(2));
-  const amenities = [];
   const rooms = data.rooms || null;
   const flats = data.flats || null;
   const tags = data.tags || null;
   const blocks = data.blocks || null;
+  const isAvailable = data.isAvailable || false;
+  const shortDescr = data.shortDescr;
+  const longDescr = data.longDescr || null;
 
   // validate country
   const country = await db.client.client.country.findMany({
@@ -111,6 +114,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
       });
     }
   }
+
   // validate user
   const user = await db.client.client.user.findMany({
     where: { id: data.userId, isDeleted: false },
@@ -121,7 +125,8 @@ const create = async (req: Request, res: Response): Promise<void> => {
       status: 404,
     });
   }
-  // vali date tags
+
+  // validate tags
   for (let id of tags) {
     const tag = await db.client.client.tag.findMany({
       where: { id, isDeleted: false },
@@ -133,7 +138,22 @@ const create = async (req: Request, res: Response): Promise<void> => {
       });
     }
   }
+
   // validate blocks
+  if (blocks) {
+    let block;
+    for (let id of blocks) {
+      block = await db.client.client.block.findMany({
+        where: { id, isDeleted: false },
+      });
+      if (!block.length) {
+        return utils.handlers.error(res, "validation", {
+          message: `block ${id} not found`,
+          status: 404,
+        });
+      }
+    }
+  }
 
   // validate rooms
   if (rooms) {
@@ -166,17 +186,35 @@ const create = async (req: Request, res: Response): Promise<void> => {
       }
     }
   }
-  // avoid duplicate entries
-  /*
-  const connectionKeys = [
-    "amenities",
-    "documents",
-    "tags",
-    "rooms",
-    "flats",
-    "blocks",
+
+  // define connections and filters
+  const connectionKeys = ["tags", "rooms", "flats", "blocks"];
+  const staticFields = [
+    "countryId",
+    "stateId",
+    "cityId",
+    "schoolId",
+    "userId",
+    "campusId",
   ];
-  const connection = {} as Prisma.RoomCreateInput;
+  const createData = {
+    name,
+    type,
+    price,
+    isAvailable,
+    proximity,
+    shortDescr,
+    longDescr,
+  } as Prisma.ListingCreateInput;
+  const whereData = {
+    name,
+    type,
+    price,
+    isAvailable,
+    proximity,
+    shortDescr,
+    longDescr,
+  } as Record<string, any>;
   for (let key of connectionKeys) {
     if (data[key] && data[key].length) {
       const temp = {
@@ -186,51 +224,63 @@ const create = async (req: Request, res: Response): Promise<void> => {
           }),
         },
       };
-      Object.assign(connection, temp);
+      Object.assign(createData, temp);
     }
   }
-  const roomData: Prisma.RoomCreateInput = {
-    width,
-    height,
-    length,
-    number,
-    landlord: { connect: { id: userId } },
-  };
-  const optionalFields = ["addressId", "listingId", "flatId", "blockId"];
-  const whereData = {} as Record<string, any>;
-  for (let field of optionalFields) {
+  for (let field of staticFields) {
     if (data[field]) {
-      Object.assign(roomData, { [field]: data[field] });
       Object.assign(whereData, { [field]: data[field] });
+      if (field === "countryId") {
+        Object.assign(createData, {
+          country: { connect: { id: data[field] } },
+        });
+      } else if (field === "stateId") {
+        Object.assign(createData, {
+          state: { connect: { id: data[field] } },
+        });
+      } else if (field === "cityId") {
+        Object.assign(createData, {
+          city: { connect: { id: data[field] } },
+        });
+      } else if (field === "campusId") {
+        Object.assign(createData, {
+          campus: { connect: { id: data[field] } },
+        });
+      } else if (field === "schoolId") {
+        Object.assign(createData, {
+          school: { connect: { id: data[field] } },
+        });
+      } else if (field === "userId") {
+        Object.assign(createData, {
+          user: { connect: { id: data[field] } },
+        });
+      }
     }
   }
-  const existingRoom = await db.client.client.room.findMany({
+  // verify no dulicates
+  const exitingListing = await db.client.client.listing.findMany({
     where: {
-      width,
-      height,
-      length,
-      number,
-      userId,
       ...whereData,
       isDeleted: false,
     },
   });
-  if (existingRoom.length) {
+  if (exitingListing.length) {
     return utils.handlers.error(res, "general", {
-      message: "room already exists",
+      message: "listing already exists",
       status: 400,
     });
   }
 
   // proceed to create;
   try {
-    const room = await db.client.client.room.create({
-      data: { ...roomData, ...connection },
-      include: db.client.include.room,
+    const listing = await db.client.client.listing.create({
+      data: { ...createData },
+      include: db.client.include.listing,
     });
-    const filtered = await db.client.filterModels([room]);
+
+    const filtered = await db.client.filterModels([listing]);
     return utils.handlers.success(res, {
-      message: "room created successfully",
+      message: "listing created successfully",
       data: filtered,
       status: 201,
     });
@@ -241,9 +291,6 @@ const create = async (req: Request, res: Response): Promise<void> => {
       data: [{ details: err }],
     });
   }
-  */
-  res.json({ success: true });
-  return;
 };
 
 export default create;

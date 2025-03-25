@@ -51,7 +51,12 @@ class DbClient implements Client {
             filtered[key] = await filterHelper(value);
           }
         } else if (!this.#modelFilters.includes(key)) {
-          if (key === "length" || key === "width" || key === "height") {
+          if (
+            key === "length" ||
+            key === "width" ||
+            key === "height" ||
+            key === "price"
+          ) {
             value = parseFloat(value);
           }
           filtered[key] = value;
@@ -110,7 +115,7 @@ class DbClient implements Client {
     "fileName",
   ];
 
-  #exempted = ["createdAt", "updatedAt", "length", "width", "height"];
+  #exempted = ["createdAt", "updatedAt", "length", "width", "height", "price"];
   #include = {
     block: {
       address: { omit: this.omit.default },
@@ -144,6 +149,22 @@ class DbClient implements Client {
       listing: { omit: this.omit.default },
       block: { omit: this.omit.default },
       rooms: { omit: this.omit.default },
+    },
+    listing: {
+      campus: { omit: this.omit.default },
+      documents: { omit: this.omit.default },
+      school: { omit: this.omit.default },
+      city: { omit: this.omit.default },
+      state: { omit: this.omit.default },
+      country: { omit: this.omit.default },
+      user: { omit: this.omit.user },
+      rooms: { omit: this.omit.default },
+      flats: { omit: this.omit.default },
+      blocks: { omit: this.omit.default },
+      tags: { omit: this.omit.default },
+      likes: { omit: this.omit.like },
+      reviews: { omit: this.omit.default },
+      tenants: { omit: this.omit.default },
     },
     room: {
       amenities: { omit: this.omit.default },

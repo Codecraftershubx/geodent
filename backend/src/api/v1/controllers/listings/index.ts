@@ -1,15 +1,15 @@
 import createListing from "./create.js";
-import deleteRoom from "./delete.js";
-import readRooms from "./read.js";
-import restoreRooms from "./restore.js";
-import roomConnections from "./connections.js";
+import deleteListing from "./delete.js";
+import listingConnections from "./connections.js";
+import readListings from "./read.js";
+import restoreListing from "./restore.js";
 import updateRoom from "./update.js";
 
 export default {
-  connections: roomConnections,
+  connections: listingConnections,
   create: createListing,
-  delete: deleteRoom,
-  get: readRooms,
-  restore: restoreRooms,
+  delete: deleteListing,
+  get: readListings,
+  restore: restoreListing,
   update: updateRoom,
 };

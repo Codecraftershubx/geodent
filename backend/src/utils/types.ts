@@ -73,7 +73,21 @@ enum SchoolType {
   POLYTECHNIC = "POLYTECHNIC",
 }
 
+enum ListingProximity {
+  IN = "IN",
+  NEAR = "NEAR",
+}
+
+enum ListingType {
+  STUDIO = "STUDIO",
+  SELF_CONTAINED = "SELF_CONTAINED",
+  FLAT = "FLAT",
+  BLOCK = "BLOCK",
+}
+
 export type {
+  ListingProximity,
+  ListingType,
   SchoolType,
   TDecomposeResult,
   TPayload,
