@@ -456,8 +456,8 @@ model Like {
   serial    Int        @unique @default(autoincrement())
   target    LikeTarget
   likerId   String
-  listingId String
-  userId    String
+  listingId String?
+  userId    String?
   liker     User       @relation(fields: [likerId], references: [id], onDelete: Cascade)
   user      User?      @relation("UserLikesReceived", fields: [userId], references: [id], onDelete: Cascade)
   listing   Listing?   @relation("LikedListings", fields: [listingId], references: [id], onDelete: Cascade)

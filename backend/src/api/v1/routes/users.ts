@@ -5,8 +5,72 @@ import controllers from "../controllers/index.js";
 const router: Router = express.Router();
 
 router.delete("/:id", controllers.users.delete);
-router.get("/", controllers.users.get);
-router.get("/:id", controllers.users.get);
+router.get(
+  "/",
+  [
+    query("includes")
+      .optional()
+      .isArray({ min: 1 })
+      .withMessage("expects an array >=1 "),
+    query("includes.*")
+      .trim()
+      .notEmpty()
+      .withMessage("cannot be empty")
+      .isString()
+      .withMessage("expects a string")
+      .isIn([
+        "documents",
+        "chatrooms",
+        "likes",
+        "likedBy",
+        "listings",
+        "notifications",
+        "tenancy",
+        "rentals",
+        "reviews",
+        "receivedReviews",
+        "rooms",
+        "flats",
+        "blocks",
+        "verifications",
+      ])
+      .withMessage("unsupported value"),
+  ],
+  controllers.users.get,
+);
+router.get(
+  "/:id",
+  [
+    query("includes")
+      .optional()
+      .isArray({ min: 1 })
+      .withMessage("expects an array >=1 "),
+    query("includes.*")
+      .trim()
+      .notEmpty()
+      .withMessage("cannot be empty")
+      .isString()
+      .withMessage("expects a string")
+      .isIn([
+        "documents",
+        "chatrooms",
+        "likes",
+        "likedBy",
+        "listings",
+        "notifications",
+        "tenancy",
+        "rentals",
+        "reviews",
+        "receivedReviews",
+        "rooms",
+        "flats",
+        "blocks",
+        "verifications",
+      ])
+      .withMessage("unsupported value"),
+  ],
+  controllers.users.get,
+);
 router.put(
   "/:id",
   [
@@ -91,7 +155,18 @@ router.post(
   ],
   controllers.users.create,
 );
-
+router.post(
+  "/:id/like",
+  [
+    body("data").notEmpty().isObject().withMessage("expects an object"),
+    body("data.userId")
+      .notEmpty()
+      .withMessage("required field")
+      .isUUID()
+      .withMessage("expects a uuid"),
+  ],
+  controllers.users.like,
+);
 router.put(
   "/:id/connections",
   [

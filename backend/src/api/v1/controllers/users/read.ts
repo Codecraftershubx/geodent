@@ -1,15 +1,31 @@
 import { Request, Response } from "express";
+import { matchedData, validationResult } from "express-validator";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const read = async (req: Request, res: Response): Promise<void> => {
+  const validation = validationResult(req);
+  if (!validation.isEmpty()) {
+    const validationErrors = validation.array();
+    return utils.handlers.error(res, "validation", {
+      message: "validation error",
+      data: validationErrors,
+      count: validationErrors.length,
+    });
+  }
   // get one city by id
   const { id } = req.params;
+  const { includes } = matchedData(req);
+  const fields = includes ? includes : [];
+  const include = includes ? {} : db.client.include.user;
+  for (let field of fields) {
+    Object.assign(include, { [field]: true });
+  }
   let count;
   if (id) {
     const user = await db.client.client.user.findMany({
       where: { id, isDeleted: false },
-      include: db.client.include.user,
+      include,
       omit: db.client.omit.user,
     });
     count = user.length;
@@ -28,7 +44,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get all cities
   const users = await db.client.client.user.findMany({
     where: { isDeleted: false },
-    include: db.client.include.user,
+    include,
     omit: db.client.omit.user,
   });
 

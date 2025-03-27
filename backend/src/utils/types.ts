@@ -85,7 +85,13 @@ enum ListingType {
   BLOCK = "BLOCK",
 }
 
+enum LikeTarget {
+  LISTING = "LISTING",
+  USER = "USER",
+}
+
 export type {
+  LikeTarget,
   ListingProximity,
   ListingType,
   SchoolType,

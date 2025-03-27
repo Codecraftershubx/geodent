@@ -150,6 +150,11 @@ class DbClient implements Client {
       block: { omit: this.omit.default },
       rooms: { omit: this.omit.default },
     },
+    like: {
+      liker: { omit: this.omit.user },
+      user: { omit: this.omit.user },
+      listing: { omit: this.omit.default },
+    },
     listing: {
       campus: { omit: this.omit.default },
       documents: { omit: this.omit.default },

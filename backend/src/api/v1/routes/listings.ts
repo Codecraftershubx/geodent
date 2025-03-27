@@ -91,6 +91,19 @@ router.post(
   controllers.listings.create,
 );
 
+router.post(
+  "/:id/like",
+  [
+    body("data").notEmpty().isObject().withMessage("expects an object"),
+    body("data.userId")
+      .notEmpty()
+      .withMessage("required field")
+      .isUUID()
+      .withMessage("expects a uuid"),
+  ],
+  controllers.listings.like,
+);
+
 router.put(
   "/:id",
   [
