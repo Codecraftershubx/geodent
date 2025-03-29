@@ -480,8 +480,8 @@ model Review {
   reviewerId String
   reviewer   User         @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
   target     ReviewTarget
-  userId     String
-  listingId  String
+  userId     String?
+  listingId  String?
   user       User?        @relation("ReceivedReviews", fields: [userId], references: [id], onDelete: Cascade)
   listing    Listing?     @relation(fields: [listingId], references: [id], onDelete: Cascade)
   createdAt  DateTime     @default(now())

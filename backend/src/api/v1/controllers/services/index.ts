@@ -1,3 +1,4 @@
 import likes from "./likes.js";
+import reviews from "./createReview.js";
 
-export default { likes };
+export default { likes, reviews };

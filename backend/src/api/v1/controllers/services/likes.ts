@@ -93,7 +93,7 @@ const likeHandler = async (
   if (hasLiked) {
     // unlike the like
     try {
-      updated = db.client.client.like.delete({
+      updated = await db.client.client.like.delete({
         where: { id: hasLiked.id },
       });
       return {

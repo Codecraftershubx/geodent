@@ -39,7 +39,7 @@ const like = async (req: Request, res: Response): Promise<void> => {
     });
   }
 
-  // update user
+  // update listing
   let result = await services.likes(userId, "LISTING", id);
   if (result.error) {
     return utils.handlers.error(res, "validation", {

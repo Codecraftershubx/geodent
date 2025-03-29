@@ -167,6 +167,33 @@ router.post(
   ],
   controllers.users.like,
 );
+
+router.post(
+  "/:id/review",
+  [
+    body("data").notEmpty().isObject().withMessage("expects an object"),
+    body("data.reviewerId")
+      .notEmpty()
+      .withMessage("required field")
+      .isUUID()
+      .withMessage("expects a uuid"),
+    body("data.rating")
+      .notEmpty()
+      .withMessage("required field")
+      .isInt({ min: 1, max: 5 })
+      .withMessage("expects an int 1 <= n <= 5"),
+    body(["data.message", "data.target"])
+      .notEmpty()
+      .withMessage("required field")
+      .isString()
+      .withMessage("expects a string"),
+    body("data.target")
+      .isIn(["AGENT", "LANDLORD", "LISTING"])
+      .withMessage("invalid value"),
+  ],
+  controllers.reviews.create,
+);
+
 router.put(
   "/:id/connections",
   [

@@ -171,6 +171,11 @@ class DbClient implements Client {
       reviews: { omit: this.omit.default },
       tenants: { omit: this.omit.default },
     },
+    review: {
+      reviewer: { omit: this.omit.user },
+      user: { omit: this.omit.user },
+      listing: { omit: this.omit.default },
+    },
     room: {
       amenities: { omit: this.omit.default },
       documents: { omit: this.omit.default },

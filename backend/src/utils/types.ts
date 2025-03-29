@@ -90,10 +90,17 @@ enum LikeTarget {
   USER = "USER",
 }
 
+enum ReviewTarget {
+  AGENT = "AGENT",
+  LANDLORD = "LANDLORD",
+  LISTING = "LISTING",
+}
+
 export type {
   LikeTarget,
   ListingProximity,
   ListingType,
+  ReviewTarget,
   SchoolType,
   TDecomposeResult,
   TPayload,
