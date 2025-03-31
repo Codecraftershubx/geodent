@@ -7,18 +7,10 @@ const read = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   let count;
   let filtered;
-  const include = {
-    block: { omit: db.client.omit.default },
-    flat: { omit: db.client.omit.default },
-    room: { omit: db.client.omit.default },
-    user: { omit: db.client.omit.user },
-    school: { omit: db.client.omit.default },
-    campus: { omit: db.client.omit.default },
-  };
   if (id) {
     const address = await db.client.client.address.findMany({
       where: { id, isDeleted: false },
-      include,
+      include: db.client.include.address,
     });
     count = address.length;
     if (count) {
@@ -37,7 +29,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   // get all countries
   const addresses = await db.client.client.address.findMany({
     where: { isDeleted: false },
-    include,
+    include: db.client.include.address,
   });
   filtered = await db.client.filterModels(addresses);
   count = addresses.length;

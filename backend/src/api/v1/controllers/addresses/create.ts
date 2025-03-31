@@ -16,7 +16,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   }
 
   const { data } = matchedData(req);
-  const { number, zip, street } = data;
+  const { number, zip, street, cityId, stateId, countryId } = data;
 
   // verify flat, user, school, campus, room, block
   // read from db
@@ -59,6 +59,36 @@ const create = async (req: Request, res: Response): Promise<void> => {
       status: 404,
     });
   }
+  // validate city, state, country
+  const city = await db.client.client.city.findUnique({
+    where: { id: cityId, isDeleted: false },
+  });
+  if (!city) {
+    return utils.handlers.error(res, "validation", {
+      message: `city ${cityId} not found`,
+      status: 404,
+    });
+  }
+
+  const state = await db.client.client.state.findUnique({
+    where: { id: stateId, isDeleted: false, cities: { some: { id: cityId } } },
+  });
+  if (!state) {
+    return utils.handlers.error(res, "validation", {
+      message: `state: ${stateId} not found or city{cityId} not in state`,
+      status: 404,
+    });
+  }
+
+  const country = await db.client.client.country.findUnique({
+    where: { id: countryId, states: { some: { id: stateId } } },
+  });
+  if (!country) {
+    return utils.handlers.error(res, "validation", {
+      message: `country ${countryId} not found or state ${stateId} not in country`,
+    });
+  }
+
   // obtain the db entries from db arrays
   const existingAddress = await db.client.client.address.findMany({
     where: {
@@ -69,6 +99,9 @@ const create = async (req: Request, res: Response): Promise<void> => {
       latitude: data?.latitude ?? null,
       longitude: data?.longitude ?? null,
       isDeleted: false,
+      cityId,
+      stateId,
+      countryId,
     },
   });
   if (existingAddress.length) {
@@ -105,6 +138,12 @@ const create = async (req: Request, res: Response): Promise<void> => {
   if (connect) {
     Object.assign(createData, connect);
   }
+
+  Object.assign(createData, {
+    city: { connect: { id: cityId } },
+    state: { connect: { id: stateId } },
+    country: { connect: { id: country } },
+  });
 
   // proceed to create;
   try {
