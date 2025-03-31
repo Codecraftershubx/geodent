@@ -8,6 +8,7 @@ import documentsControllers from "./documents/index.js";
 import flatsControllers from "./flats/index.js";
 import listingsControllers from "./listings/index.js";
 import likesControllers from "./likes/index.js";
+import rentalsControllers from "./rentals/index.js";
 import reviewsControllers from "./reviews/index.js";
 import roomsControllers from "./rooms/index.js";
 import schoolsControllers from "./schools/index.js";
@@ -26,6 +27,7 @@ export default {
   flats: flatsControllers,
   likes: likesControllers,
   listings: listingsControllers,
+  rentals: rentalsControllers,
   reviews: reviewsControllers,
   rooms: roomsControllers,
   schools: schoolsControllers,

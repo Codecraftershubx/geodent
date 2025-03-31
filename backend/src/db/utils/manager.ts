@@ -55,7 +55,8 @@ class DbClient implements Client {
             key === "length" ||
             key === "width" ||
             key === "height" ||
-            key === "price"
+            key === "price" ||
+            key === "amountPaid"
           ) {
             value = parseFloat(value);
           }
@@ -113,10 +114,30 @@ class DbClient implements Client {
     "countryId",
     "stateId",
     "fileName",
+    "landlordId",
   ];
 
-  #exempted = ["createdAt", "updatedAt", "length", "width", "height", "price"];
+  #exempted = [
+    "createdAt",
+    "updatedAt",
+    "length",
+    "width",
+    "height",
+    "price",
+    "amountPaid",
+  ];
   #include = {
+    address: {
+      flat: { omit: this.omit.default },
+      user: { omit: this.omit.user },
+      school: { omit: this.omit.default },
+      campus: { omit: this.omit.default },
+      room: { omit: this.omit.default },
+      block: { omit: this.omit.default },
+      city: { omit: this.omit.default },
+      state: { omit: this.omit.default },
+      country: { omit: this.omit.default },
+    },
     block: {
       address: { omit: this.omit.default },
       listing: { omit: this.omit.default },
@@ -176,6 +197,11 @@ class DbClient implements Client {
       user: { omit: this.omit.user },
       listing: { omit: this.omit.default },
     },
+    rental: {
+      tenants: { omit: this.omit.user },
+      listing: { omit: this.omit.default },
+      landlord: { omit: this.omit.user },
+    },
     room: {
       amenities: { omit: this.omit.default },
       documents: { omit: this.omit.default },
@@ -187,7 +213,14 @@ class DbClient implements Client {
       address: { omit: this.omit.default },
     },
     school: {
-      address: { omit: this.omit.default },
+      address: {
+        omit: this.omit.default,
+        include: {
+          city: true,
+          state: true,
+          country: true,
+        },
+      },
       campuses: { omit: this.omit.default },
       documents: { omit: this.omit.default },
       listings: { omit: this.omit.default },

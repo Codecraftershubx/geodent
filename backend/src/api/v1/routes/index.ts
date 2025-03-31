@@ -8,6 +8,7 @@ import documentRouter from "./documents.js";
 import flatsRouter from "./flats.js";
 import likesRouter from "./likes.js";
 import listingsRouter from "./listings.js";
+import rentalsRouter from "./rentals.js";
 import reviewsRouter from "./reviews.js";
 import roomsRouter from "./rooms.js";
 import schoolsRouter from "./schools.js";
@@ -26,6 +27,7 @@ export default {
   flats: flatsRouter,
   likes: likesRouter,
   listings: listingsRouter,
+  rentals: rentalsRouter,
   reviews: reviewsRouter,
   rooms: roomsRouter,
   schools: schoolsRouter,

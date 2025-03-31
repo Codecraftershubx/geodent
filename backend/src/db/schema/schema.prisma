@@ -427,8 +427,8 @@ model Listing {
   reviews   Review[]
   tenants   Rental[]
   tags      Tag[]
-  user      User?     @relation(fields: [userId], references: [id])
-  userId    String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
   schoolId  String
   school    School    @relation(fields: [schoolId], references: [id])
   rooms     Room[]

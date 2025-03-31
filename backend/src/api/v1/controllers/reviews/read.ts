@@ -9,7 +9,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   if (id) {
     // get review if exists
     const review = await db.client.client.review.findMany({
-      where: { id },
+      where: { id, isDeleted: false },
       include: db.client.include.review,
     });
     count = review.length;
@@ -28,6 +28,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   }
   // get all reviews
   const reviews = await db.client.client.review.findMany({
+    where: { isDeleted: false },
     include: db.client.include.review,
   });
   filtered = await db.client.filterModels(reviews);
