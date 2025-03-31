@@ -16,6 +16,7 @@ router.use("/documents", routes.document);
 router.use("/flats", routes.flats);
 router.use("/likes", routes.likes);
 router.use("/listings", routes.listings);
+router.use("/notifications", routes.notifications);
 router.use("/rentals", routes.rentals);
 router.use("/reviews", routes.reviews);
 router.use("/rooms", routes.rooms);

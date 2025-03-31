@@ -584,7 +584,6 @@ model Notification {
   serial     Int          @unique @default(autoincrement())
   receiverId String
   message    String
-  type       ReceiverType
   receiver   User         @relation(fields: [receiverId], references: [id])
   isRead     Boolean      @default(false)
   createdAt  DateTime     @default(now())
@@ -592,9 +591,3 @@ model Notification {
   isDeleted         Boolean @default(false)
   deletedAt         DateTime?
 }
-
-// ReceiverType
-enum ReceiverType {
-  USER
-  ADMIN
- }
