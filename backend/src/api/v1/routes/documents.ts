@@ -1,5 +1,6 @@
 import express, { Response, Request, Router } from "express";
 import { body, query } from "express-validator";
+import validator from "validator";
 import utils from "../../../utils/index.js";
 import controllers from "../controllers/index.js";
 
@@ -32,8 +33,20 @@ router.post(
         "CITY",
         "COUNTRY",
         "STATE",
+        "MESSAGE",
       ])
       .withMessage("invalid owner passed"),
+    body().custom((value) => {
+      const key = utils.text.lowerCase(value.owner);
+      if (
+        !value[key] ||
+        !(typeof value[key] === "string") ||
+        !validator.isUUID(value[key])
+      ) {
+        throw new Error(`'${key}' id required for owner ${value.owner}`);
+      }
+      return true;
+    }),
   ],
   controllers.documents.create,
 );
@@ -59,6 +72,7 @@ router.put(
           cityId,
           countryId,
           stateId,
+          messageId,
         } = value;
         // verify at least one is provided
         if (
@@ -73,7 +87,8 @@ router.put(
           !campusId &&
           !cityId &&
           !countryId &&
-          !stateId
+          !stateId &&
+          !messageId
         ) {
           throw new Error("no owner Id provided");
         }

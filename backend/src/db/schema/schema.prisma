@@ -62,6 +62,7 @@ model Document {
   cityId         String?
   countryId      String?
   stateId        String?
+  messageId      String?       @unique
   owner          DocumentOwner
   chatroom       Chatroom?     @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
   listing        Listing?      @relation(fields: [listingId], references: [id], onDelete: Cascade)
@@ -75,6 +76,7 @@ model Document {
   city           City?         @relation(fields: [cityId], references: [id], onDelete: Cascade)
   country        Country?      @relation(fields: [countryId], references: [id], onDelete: Cascade)
   state          State?        @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  message        Message?      @relation(fields: [messageId], references: [id], onDelete: Cascade)
   updatedAt      DateTime      @updatedAt
 }
 
@@ -92,6 +94,7 @@ enum DocumentOwner {
   CITY
   COUNTRY
   STATE
+  MESSAGE
 }
 
 model Chatroom {
@@ -118,18 +121,19 @@ enum ChatroomType {
 model Message {
   id          String    @id @default(uuid())
   serial      Int       @unique @default(autoincrement())
-  content     String
+  content     String?
   chatroom    Chatroom  @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
   chatroomId  String
+  document    Document?
   createdAt   DateTime  @default(now())
   isDelivered Boolean   @default(false)
   isRead      Boolean   @default(false)
   isSent      Boolean   @default(false)
   isDeleted   Boolean   @default(false)
   deletedAt   DateTime?
-  sender      User      @relation(fields: [userId], references: [id])
+  sender      User      @relation(fields: [senderId], references: [id])
   updatedAt   DateTime  @updatedAt
- userId      String
+  senderId    String
 }
 
 model User {

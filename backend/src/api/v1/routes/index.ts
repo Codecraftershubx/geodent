@@ -2,6 +2,7 @@ import addressRouter from "./addresses.js";
 import authRouter from "./auth.js";
 import amenitiesRouter from "./amenities.js";
 import blocksRouter from "./blocks.js";
+import chatroomRouter from "./chatrooms.js";
 import citiesRouter from "./cities.js";
 import countriesRouter from "./countries.js";
 import documentRouter from "./documents.js";
@@ -23,6 +24,7 @@ export default {
   amenities: amenitiesRouter,
   blocks: blocksRouter,
   cities: citiesRouter,
+  chatrooms: chatroomRouter,
   countries: countriesRouter,
   document: documentRouter,
   flats: flatsRouter,

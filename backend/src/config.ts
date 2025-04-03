@@ -78,7 +78,7 @@ const hostname =
 const envs = {
   authSecret,
   dbUrl,
-  basePath: "/tmp/geodent",
+  basePath: "/var/geodent",
   errnos,
   email,
   emailPwd,
@@ -88,7 +88,7 @@ const envs = {
   refreshSecret,
   serverHost,
   serverPort,
-  trashPath: "/tmp/geodent/.trash",
+  trashPath: "/var/geodent/.trash",
 };
 
 export default envs;

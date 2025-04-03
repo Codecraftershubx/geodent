@@ -96,7 +96,29 @@ enum ReviewTarget {
   LISTING = "LISTING",
 }
 
+enum ChatroomType {
+  PRIVATE = "PRIVATE",
+  GROUP = "GROUP",
+}
+
+enum DocumentOwner {
+  CHATROOM = "CHATROOM",
+  USER = "USER",
+  LISTING = "LISTING",
+  VERIFICATION = "VERIFICATION",
+  ROOM = "ROOM",
+  FLAT = "FLAT",
+  BLOCK = "BLOCK",
+  SCHOOL = "SCHOOL",
+  CAMPUS = "CAMPUS",
+  CITY = "CITY",
+  COUNTRY = "COUNTRY",
+  STATE = "STATE",
+  MESSAGE = "MESSAGE",
+}
 export type {
+  ChatroomType,
+  DocumentOwner,
   LikeTarget,
   ListingProximity,
   ListingType,

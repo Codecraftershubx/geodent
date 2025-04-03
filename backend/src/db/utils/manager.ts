@@ -115,6 +115,8 @@ class DbClient implements Client {
     "stateId",
     "fileName",
     "landlordId",
+    "senderId",
+    "documentId",
   ];
 
   #exempted = [
@@ -147,6 +149,11 @@ class DbClient implements Client {
       rooms: { omit: this.omit.default },
       tags: { omit: this.omit.default },
       landlord: { omit: this.omit.user },
+    },
+    chatroom: {
+      documents: { omit: this.omit.default },
+      messages: { omit: this.omit.default },
+      participants: { omit: this.omit.default },
     },
     city: {
       listings: { omit: this.omit.default },
@@ -191,6 +198,10 @@ class DbClient implements Client {
       likes: { omit: this.omit.like },
       reviews: { omit: this.omit.default },
       tenants: { omit: this.omit.default },
+    },
+    message: {
+      document: { omit: this.omit.default },
+      chatroom: { omit: this.omit.default },
     },
     review: {
       reviewer: { omit: this.omit.user },
@@ -265,6 +276,7 @@ class DbClient implements Client {
       city: { omit: this.omit.default },
       country: { omit: this.omit.default },
       state: { omit: this.omit.default },
+      message: { omit: this.omit.default },
     },
   };
 
