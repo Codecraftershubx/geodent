@@ -1,4 +1,3 @@
-import { existsSync } from "fs";
 import { NextFunction, Request, Response } from "express";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
@@ -38,7 +37,7 @@ const read = async (
   };
   if (download) {
     if (!file.isDownloadable) {
-      utils.handlers.error(res, "validation", {
+      return utils.handlers.error(res, "validation", {
         message: `denied. not downloadable`,
         status: 401,
       });
@@ -57,6 +56,7 @@ const read = async (
       );
     }
   });
+  return;
 };
 
 export default read;
