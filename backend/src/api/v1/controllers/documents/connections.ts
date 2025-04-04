@@ -34,7 +34,7 @@ const updateConnections = async (
     "country",
     "state",
   ];
-  const connectObject = {} as Prisma.UserUpdateInput;
+  const connectObject = {} as Prisma.DocumentUpdateInput;
   const { extend } = req.query;
 
   // verify document exists
@@ -47,6 +47,7 @@ const updateConnections = async (
       message: `document not found`,
     });
   }
+
   // construct update object for vector fields
   for (let scalarField of scalarConnections) {
     // [UPDATE!!] check if each id provided is valid

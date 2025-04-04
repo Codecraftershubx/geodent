@@ -116,8 +116,17 @@ enum DocumentOwner {
   STATE = "STATE",
   MESSAGE = "MESSAGE",
 }
+
+enum DocumentRole {
+  AVATAR = "AVATAR",
+  RESOURCE = "RESOURCE",
+  THUMBNAIL = "THUMBNAIL",
+  BANNER = "BANNER",
+}
+
 export type {
   ChatroomType,
+  DocumentRole,
   DocumentOwner,
   LikeTarget,
   ListingProximity,

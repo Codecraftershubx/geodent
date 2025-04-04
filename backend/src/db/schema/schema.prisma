@@ -78,6 +78,16 @@ model Document {
   state          State?        @relation(fields: [stateId], references: [id], onDelete: Cascade)
   message        Message?      @relation(fields: [messageId], references: [id], onDelete: Cascade)
   updatedAt      DateTime      @updatedAt
+  role           DocumentRole  @default(RESOURCE)
+}
+
+// Document Role:
+enum DocumentRole {
+  AVATAR
+  RESOURCE
+  THUMBNAIL
+  BANNER
+  ICON
 }
 
 // Document owner type

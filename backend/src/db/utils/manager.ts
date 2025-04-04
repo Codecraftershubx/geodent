@@ -153,7 +153,7 @@ class DbClient implements Client {
     chatroom: {
       documents: { omit: this.omit.default },
       messages: { omit: this.omit.default },
-      participants: { omit: this.omit.default },
+      participants: { omit: this.omit.user },
     },
     city: {
       listings: { omit: this.omit.default },
@@ -202,10 +202,11 @@ class DbClient implements Client {
     message: {
       document: { omit: this.omit.default },
       chatroom: { omit: this.omit.default },
+      sender: { omit: this.omit.user },
     },
     review: {
       reviewer: { omit: this.omit.user },
-      user: { omit: this.omit.user },
+      sender: { omit: this.omit.user },
       listing: { omit: this.omit.default },
     },
     rental: {
