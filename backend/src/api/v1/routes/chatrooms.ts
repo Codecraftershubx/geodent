@@ -141,6 +141,41 @@ router.put(
   ],
   controllers.chatroom.update,
 );
+router.put(
+  "/:id/connections",
+  [
+    query("extend")
+      .default(true)
+      .notEmpty()
+      .toBoolean()
+      .withMessage("cannot be empty")
+      .isBoolean({ strict: true })
+      .withMessage("expects true/false"),
+    body(["data"])
+      .notEmpty()
+      .withMessage("required")
+      .isObject()
+      .withMessage("expects an object")
+      .custom((value) => {
+        const { participants, documents } = value || {};
+
+        // verify at least one is provided
+        if (!participants && !documents) {
+          throw new Error("no relation provided");
+        }
+        return true;
+      })
+      .withMessage("at least one relation needed for connection"),
+    body(["data.participants", "data.documents"])
+      .optional()
+      .isArray({ min: 1 })
+      .withMessage("expects an array"),
+    body(["data.participants.*", "data.documents.*"])
+      .isUUID()
+      .withMessage("expects uuid"),
+  ],
+  controllers.chatroom.connections,
+);
 router.put("/:id/messages/:messageId", controllers.chatroom.messages.update);
 router.put("/:id/restore", controllers.chatroom.restore);
 router.put(
