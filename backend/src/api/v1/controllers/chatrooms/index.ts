@@ -1,5 +1,6 @@
 import createChatroom from "./create.js";
 import deleteChatroom from "./delete.js";
+import connections from "./connections.js";
 import readChatrooms from "./read.js";
 import restoreChatroom from "./restore.js";
 import updateChatroom from "./update.js";
@@ -12,6 +13,7 @@ import deleteMessage from "./messages/delete.js";
 import restoreMessage from "./messages/restore.js";
 
 export default {
+  connections,
   create: createChatroom,
   delete: deleteChatroom,
   get: readChatrooms,
@@ -22,6 +24,7 @@ export default {
     restore: restoreMessage,
     update: updateMessage,
   },
+
   restore: restoreChatroom,
   update: updateChatroom,
 };

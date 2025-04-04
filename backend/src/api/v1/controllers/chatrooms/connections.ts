@@ -20,57 +20,67 @@ const updateConnections = async (
 
   const { id } = req.params;
   const { data } = matchedData(req);
-  const connections = [
-    "reviews",
-    "likes",
-    "tenants",
-    "tags",
-    "rooms",
-    "flats",
-    "blocks",
-  ];
-  const connectObject = {} as Prisma.ListingUpdateInput;
+  const connections = ["documents", "participants"];
+  const connectObject = {} as Prisma.ChatroomUpdateInput;
   const { extend } = req.query;
 
-  // verify room exists
-  const listing = await db.client.client.listing.findMany({
-    where: { id, isDeleted: false },
-  });
-  if (!listing.length) {
-    return utils.handlers.error(res, "validation", {
-      status: 404,
-      message: `listing not found`,
+  // verify chatroom exists
+  try {
+    const chatroom = await db.client.client.chatroom.findUnique({
+      where: { id, isDeleted: false },
     });
-  }
-  // construct update object
-  for (let field of connections) {
-    // [UPDATE!!] check if each id provided is valid
-    if (data[field]) {
-      if (extend) {
-        Object.assign(connectObject, {
-          [field]: {
-            connect: data[field].map((id: string) => {
-              return { id };
-            }),
-          },
+    if (!chatroom) {
+      return utils.handlers.error(res, "validation", {
+        status: 404,
+        message: `chatroom not found`,
+      });
+    }
+    // construct update object
+    for (let field of connections) {
+      let tempItem;
+      if (data[field]) {
+        // validate ids
+        data[field].forEach(async (fieldId: string) => {
+          tempItem =
+            field === "documents"
+              ? await db.client.client.document.findUnique({
+                  where: { id: fieldId, isDeleted: false },
+                })
+              : await db.client.client.user.findUnique({
+                  where: { id: fieldId, isDeleted: false },
+                });
+          if (!tempItem) {
+            return utils.handlers.error(res, "validation", {
+              message: `${field.slice(0, field.length - 2)} ${id} not found`,
+              status: 404,
+            });
+          }
         });
-      } else {
-        Object.assign(connectObject, {
-          [field]: {
-            disconnect: data[field].map((id: string) => {
-              return { id };
-            }),
-          },
-        });
+        if (extend) {
+          Object.assign(connectObject, {
+            [field]: {
+              connect: data[field].map((id: string) => {
+                return { id };
+              }),
+            },
+          });
+        } else {
+          Object.assign(connectObject, {
+            [field]: {
+              disconnect: data[field].map((id: string) => {
+                return { id };
+              }),
+            },
+          });
+        }
       }
     }
-  }
-  // update listing
-  try {
-    let updated = await db.client.client.listing.update({
+
+    // update chatroom
+    let updated = await db.client.client.chatroom.update({
       where: { id },
       data: { ...connectObject },
-      include: db.client.include.listing,
+      include: db.client.include.chatroom,
     });
     const filtered = await db.client.filterModels([updated]);
     return utils.handlers.success(res, {
