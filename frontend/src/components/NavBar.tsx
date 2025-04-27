@@ -15,7 +15,7 @@ const NavBar: React.FC<TNavBarProps> = ({ isLoggedIn, setIsLoggedIn }) => {
       <div className="flex justify-between cursor-pointer">
         <div className="flex gap-2">
           <img
-            src="../public/logo-red.png"
+            src="/logo-red.png"
             alt="logo-img"
             className="w-[20px]"
           />
