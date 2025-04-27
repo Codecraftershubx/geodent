@@ -6,8 +6,8 @@ const navItemStyle = "hover:text-red-400 transition-all";
 
 const NavBar: React.FC<TNavBarProps> = () => {
   const { isLoggedIn } = useAppSelector((store) => store.auth);
-  console.log("NAVBAR ISLOGGEDIN", isLoggedIn);
   const navigate = useNavigate();
+
   return (
     <nav className="px-20 py-5 shadow-xs">
       <div className="flex justify-between cursor-pointer">
@@ -59,7 +59,6 @@ const NavBar: React.FC<TNavBarProps> = () => {
               to={isLoggedIn ? "#" : "/login"}
               className="py-2 px-4 rounded-md bg-red-600 text-white shadow-0 hover:bg-zinc-200 hover:text-red-600 transition-all"
               onClick={(e) => {
-                console.log(e.currentTarget.textContent);
                 if (e.currentTarget.textContent === "Logout") {
                   window.localStorage.removeItem("accessToken");
                   setIsLoggedIn(false);
