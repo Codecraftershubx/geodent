@@ -1,4 +1,5 @@
 import { AxiosError } from "axios";
+import store from "../appState/store.js";
 
 type TBEDataHeader = {
   errno: Number;
@@ -17,4 +18,7 @@ type TBEResponse = {
   data: TBEData;
 };
 
-export type { TBEData, TBEDataHeader, TBEResponse };
+type RootState = ReturnType<typeof store.getState>;
+type AppDispatch = typeof store.dispatch;
+
+export type { AppDispatch, RootState, TBEData, TBEDataHeader, TBEResponse };

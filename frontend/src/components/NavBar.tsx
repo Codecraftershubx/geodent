@@ -1,14 +1,12 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useAppSelector } from "../appState/hooks.js";
 
-type TNavBarProps = {
-  isLoggedIn: Boolean;
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 const navItemStyle = "hover:text-red-400 transition-all";
 
-const NavBar: React.FC<TNavBarProps> = ({ isLoggedIn, setIsLoggedIn }) => {
-  console.log("NAVBAR ISLOGGEDIN:", isLoggedIn);
+const NavBar: React.FC<TNavBarProps> = () => {
+  const { isLoggedIn } = useAppSelector((store) => store.auth);
+  console.log("NAVBAR ISLOGGEDIN", isLoggedIn);
   const navigate = useNavigate();
   return (
     <nav className="px-20 py-5 shadow-xs">
