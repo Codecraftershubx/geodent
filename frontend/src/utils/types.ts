@@ -1,24 +1,32 @@
-import { AxiosError } from "axios";
 import store from "../appState/store.js";
 
-type TBEDataHeader = {
+type BEDataHeaderType = {
   errno: Number;
   status: String;
   message: String;
   [key: string]: any;
 };
 
-type TBEData = {
+type BEDataType = {
   data?: Array<Record<string, any>>;
-  header: TBEDataHeader;
+  header: BEDataHeaderType;
 };
 
-type TBEResponse = {
+type APIResponseType = {
   error: Boolean;
-  data: TBEData;
+  data: BEDataType;
 };
 
 type RootState = ReturnType<typeof store.getState>;
-type AppDispatch = typeof store.dispatch;
+type AppDispatchType = typeof store.dispatch;
 
-export type { AppDispatch, RootState, TBEData, TBEDataHeader, TBEResponse };
+
+type AuthStateType = {
+  accessToken: string | null;
+  isLoggedIn: boolean;
+  isLoading: boolean;
+  user: Record<string, any> | null;
+  error: BEDataType | null;
+}
+
+export type { AppDispatchType, AuthStateType, RootState, BEDataType, BEDataHeaderType, APIResponseType };

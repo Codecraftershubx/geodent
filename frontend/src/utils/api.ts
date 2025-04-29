@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 const api = axios.create({
   baseURL: "http://0.0.0.0:8081/api/v1/",
@@ -27,6 +27,7 @@ export default {
         headers: { "Content-Type": "application/json" },
         ...options,
       });
+      console.log("auth res:", res);
       return { error: false, data: res.data };
     } catch (err: any) {
       return {

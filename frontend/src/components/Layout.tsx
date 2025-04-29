@@ -1,18 +1,15 @@
 import { Outlet } from "react-router-dom";
 import components from "./index";
 
-type TLayoutProps = {
-  isLoggedIn: Boolean;
-  setisLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-};
+//type TLayoutProps = {
+//  isLoggedIn: Boolean;
+//  setisLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+//};
 
-const Layout: React.FC<TLayoutProps> = ({ isLoggedIn, setisLoggedIn }) => {
+const Layout: React.FC<TLayoutProps> = () => {
   return (
     <div>
-      <components.NavBar
-        isLoggedIn={isLoggedIn}
-        setIsLoggedIn={setisLoggedIn}
-      />
+      <components.NavBar />
       <Outlet />
     </div>
   );

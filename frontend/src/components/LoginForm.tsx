@@ -15,21 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import toast, { Toaster } from "react-hot-toast";
-import api from "../utils/api";
-import type { TBEResponse } from "../utils/types";
+import { loginUser } from "../appState/slices/authSlice.js";
+import { useAppSelector, useAppDispatch } from "../appState/hooks.js";
+import type { BEDataType, RootState } from "../utils/types";
 
-// Types
-type TRequestData = {
-  [key: string]: any;
-};
-
-type TLoginFormProps = {
-  accessToken: string | null;
-  tokenSuccess: boolean;
-  setAccessToken: React.Dispatch<React.SetStateAction<string | null>>;
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-  setTokenSuccess: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 // form schema
 const formSchema = z.object({
@@ -37,60 +26,24 @@ const formSchema = z.object({
   password: z.string(),
 });
 
-const LoginForm: React.FC<TLoginFormProps> = ({
-  accessToken,
-  tokenSuccess,
-  setAccessToken,
-  setIsLoggedIn,
-  setTokenSuccess,
-}) => {
+const LoginForm: React.FC = () => {
   // states and effect handlers
-  const [credentials, setCredentials] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
+  const { accessToken } = useAppSelector((store: RootState) => store.auth);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    const requestData: TRequestData = { data: credentials };
-    if (accessToken) {
-      console.log("logging user in...using token");
-      requestData["headers"] = { Authorization: `Bearer ${accessToken}` };
-    }
-    const res: TBEResponse = await api.post("/auth/login", requestData);
-    if (res.error) {
-      console.log(res.data);
-      if (res.data.header.message === "access token expired") {
-        window.localStorage.removeItem("accessToken");
-        setTokenSuccess(false);
-      } else {
-        toast.error(`Failed: ${res.data.header.message}`);
-        //window.location.reload();
-      }
-    } else {
-      console.log(res);
-      setIsLoggedIn(true);
-      if (accessToken) {
-        setTokenSuccess(true);
-      }
-      if (res.data.data) {
-        const token = res.data.data[0].accessToken;
-        if (!accessToken) {
-          window.localStorage.setItem("accessToken", token);
-          setAccessToken(token);
-        }
-      }
-      toast.success("Logging you in");
+  const handleLogin = async ({ email, password }: { email: string; password: string }) => {
+    try {
+      const loginResult: BEDataType = await dispatch(loginUser({ email, password })).unwrap();
+      console.log("success", loginResult.data);
+      toast.success("login success");
       navigate("/listings");
+    } catch(error: any) {
+      console.error("error", error.data);
+      toast.error(`Failed: ${error.data.header.message}`);
     }
   };
 
-  useEffect(() => {
-    console.log("useEffect: isloggedin:", isSubmitted);
-    // login request hander
-    if (isSubmitted || accessToken) {
-      handleLogin();
-    }
-  }, [isSubmitted, tokenSuccess]);
 
   // Form Definition
   const loginForm = useForm<z.infer<typeof formSchema>>({
@@ -103,10 +56,10 @@ const LoginForm: React.FC<TLoginFormProps> = ({
 
   // form action
   const formOnSubmit = (values: z.infer<typeof formSchema>) => {
-    setCredentials({ ...values });
-    setIsSubmitted(true);
+    handleLogin({ email: values.email, password: values.password });
   };
-  if (accessToken && tokenSuccess) {
+
+  if (accessToken) {
     return <></>;
   }
   return (
