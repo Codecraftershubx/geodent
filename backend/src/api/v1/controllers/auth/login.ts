@@ -6,10 +6,9 @@ import utils from "../../../../utils/index.js";
 
 const login = async (req: Request, res: Response): Promise<void> => {
   // extract access token
-  res.send({ message: "under maintenance" });
-  return;
-  /*
-  let authHeader = req.headers.authorization;
+
+  const authHeader = req.headers.authorization;
+  let filtered;
   if (authHeader) {
     const [_, accessToken] = authHeader.split(" ");
     try {
@@ -22,36 +21,49 @@ const login = async (req: Request, res: Response): Promise<void> => {
       // login authenticated User
       const payload = data.payload as TPayload;
       // get user profile
-      const userModel: TUserModel = (await db.client.client.user.findFirst({
+      const user = await db.client.client.user.findUnique({
         where: { id: payload.id },
-        include: db.client.modelFilters.users.select,
-      })) as TUserModel;
+        include: db.client.include.user,
+      });
+
+      if (!user) {
+        return utils.handlers.error(res, "authentication", {
+          message: "unknown user",
+        });
+      }
+
       // filter hidden values
-      const userProfile = getUserProfile(userModel);
+      filtered = await db.client.filterModels([user]);
       return utils.handlers.success(res, {
-        data: [userProfile],
-        message: "user authenticated",
+        data: filtered,
+        message: "auth success",
       });
     } catch (err) {
       // error occured while generating token
       if (err instanceof Error) {
         return utils.handlers.error(res, "general", {
-          message: "user authentication failed",
+          message: "auth failed",
           status: 500,
           data: [{ details: err }],
         });
       }
       // invalid access token
       return utils.handlers.error(res, "authentication", {
-        message: "invalid credentials provided",
+        message: "user doesn't exist",
       });
     }
   }
+
   // no auth header: use user credentials
   const { email, password } = req.body;
   if (!email || !password) {
+    const field = email
+      ? "password"
+      : password
+        ? "email"
+        : "email and password";
     return utils.handlers.error(res, "authentication", {
-      message: "missing email or password",
+      message: `${field} not provided`,
     });
   }
   // verify credentials
@@ -60,7 +72,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
   });
   if (!user) {
     return utils.handlers.error(res, "authentication", {
-      message: "invalid credentials provided",
+      message: "user doesn't exist",
     });
   }
 
@@ -68,22 +80,22 @@ const login = async (req: Request, res: Response): Promise<void> => {
   const match = await utils.passwords.verify(user.password, password);
   if (!match) {
     return utils.handlers.error(res, "authentication", {
-      message: "invalid credentials provided",
+      message: "wrong password",
     });
   }
   // auth success: generate tokens for user
   try {
     const newAccessToken = utils.tokens.generate.accessToken({ id: user.id });
     const newRefreshToken = utils.tokens.generate.refreshToken({ id: user.id });
-    const updatedUser: TUserModel = await db.client.client.user.update({
+    const updatedUser = await db.client.client.user.update({
       where: { id: user.id },
       data: { refreshToken: newRefreshToken },
-      include: db.client.modelFilters.users.include,
+      include: db.client.include.user,
     });
 
     // filter out fields to hide
-    const filteredUser = getUserProfile(updatedUser);
-    filteredUser.accessToken = newAccessToken;
+    filtered = await db.client.filterModels([updatedUser]);
+    filtered[0].accessToken = newAccessToken;
 
     // set cookie
     res.cookie("refreshToken", newRefreshToken, {
@@ -96,10 +108,13 @@ const login = async (req: Request, res: Response): Promise<void> => {
     // return user profile
     return utils.handlers.success(res, {
       message: "user authenticated",
-      data: [filteredUser],
+      data: filtered,
     });
-  } catch (err) {}
-  */
+  } catch (err) {
+    return utils.handlers.error(res, "authentication", {
+      message: "auth failed",
+    });
+  }
 };
 
 export default login;
