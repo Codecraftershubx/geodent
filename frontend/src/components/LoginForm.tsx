@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, FieldPath, useForm } from "react-hook-form";
@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import toast, { Toaster } from "react-hot-toast";
+import { useAppDispatch, useAppSelector } from "../appState/hooks.js";
 import { loginUser } from "../appState/slices/authSlice.js";
-import { useAppSelector, useAppDispatch } from "../appState/hooks.js";
 import type { BEDataType, RootState } from "../utils/types";
 
 
@@ -27,23 +27,27 @@ const formSchema = z.object({
 });
 
 const LoginForm: React.FC = () => {
+
   // states and effect handlers
   const { accessToken } = useAppSelector((store: RootState) => store.auth);
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-  const handleLogin = async ({ email, password }: { email: string; password: string }) => {
+  const login = async ({ email, password }: {
+    email: string; password: string
+  }) => {
     try {
-      const loginResult: BEDataType = await dispatch(loginUser({ email, password })).unwrap();
-      console.log("success", loginResult.data);
+     const loginResult: BEDataType = await dispatch(loginUser({
+       email, password
+     })).unwrap();
+      console.log("success", loginResult);
       toast.success("login success");
       navigate("/listings");
-    } catch(error: any) {
+   } catch(error: any) {
       console.error("error", error.data);
-      toast.error(`Failed: ${error.data.header.message}`);
-    }
+     toast.error(`Failed: ${error.data.header.message}`);
+   }
   };
-
 
   // Form Definition
   const loginForm = useForm<z.infer<typeof formSchema>>({
@@ -56,8 +60,8 @@ const LoginForm: React.FC = () => {
 
   // form action
   const formOnSubmit = (values: z.infer<typeof formSchema>) => {
-    handleLogin({ email: values.email, password: values.password });
-  };
+    login({ ...values })
+  }
 
   if (accessToken) {
     return <></>;

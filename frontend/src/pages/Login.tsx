@@ -1,48 +1,59 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppSelector, useAppDispatch } from "../appState/hooks.js";
+import { loginUser } from "../appState/slices/authSlice.js";
 import { Toaster } from "react-hot-toast";
+import type { RootState } from "../utils/types.js";
 import components from "../components/index";
 
-type TLoginPageProps = {
-  accessToken: string | null;
-  isLoggedIn: boolean;
-  setAccessToken: React.Dispatch<React.SetStateAction<string | null>>;
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
-const Login: React.FC<TLoginPageProps> = ({
-  accessToken,
-  isLoggedIn,
-  setAccessToken,
-  setIsLoggedIn,
-}) => {
+
+const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [tokenSuccess, setTokenSuccess] = useState(true);
+  const dispatch = useAppDispatch();
+  const { accessToken, isLoggedIn } = useAppSelector((store: RootState) => store.auth);
+  const [ heading, setHeading ] = useState( accessToken ? "Welcome Back" : "Login" );
+  const [ runner, setRunner ] = useState(accessToken ? "Hold on while we sign you in" : "Enter your credentials to sign in");
+
   console.log("LOGIN PAGE: user is logged in:", isLoggedIn);
-  if (isLoggedIn) {
-    navigate("/listings");
+
+  const login = async (accessToken: string) => {
+    try {
+      const result = await dispatch(loginUser({ accessToken })).unwrap();
+      console.log("login page login success with token:", result);
+    } catch(error: any) {
+      // attempt token refresh if token expired
+      console.error("login page error", error);
+      setHeading("Login Again");
+      setRunner("Auto login failed. Sign in with your credentials.");
+    }
   }
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/listings");
+    }
+  }, [ isLoggedIn ]);
+
+  useEffect(() => {
+    if (accessToken && !isLoggedIn) {
+      login(accessToken);
+    }
+  }, []);
+
   return (
     <main className="flex flex-col justify-between items-center min-h-screen py-10 px-2 md:p-24 ">
       <section className="w-9/10 sm:max-w-md max-w-lg">
         <div className="mb-8 flex flex-col gap-2">
           <h1 className="text-3xl font-bold text-red-500 mb-5">
-            {accessToken ? "Welcome Back" : "Login"}
+            { heading }
           </h1>
           <p className="text-sm text-zinc-500">
-            {accessToken && tokenSuccess
-              ? "Hold on while we sign you in..."
-              : "Enter your credentials sign in"}
+            { runner }
           </p>
         </div>
         <Toaster />
-        <components.LoginForm
-          accessToken={accessToken}
-          tokenSuccess={tokenSuccess}
-          setAccessToken={setAccessToken}
-          setIsLoggedIn={setIsLoggedIn}
-          setTokenSuccess={setTokenSuccess}
-        />
+        <components.LoginForm />
       </section>
     </main>
   );

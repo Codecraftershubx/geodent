@@ -6,7 +6,7 @@ import components from "./index";
 //  setisLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 //};
 
-const Layout: React.FC<TLayoutProps> = () => {
+const Layout: React.FC = () => {
   return (
     <div>
       <components.NavBar />

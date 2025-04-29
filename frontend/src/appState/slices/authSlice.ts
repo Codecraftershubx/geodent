@@ -30,11 +30,12 @@ const loginUser = createAsyncThunk<BEDataType, LoginCredentialsType, { rejectVal
         return rejectWithValue(response.data);
     }
     console.log("LOGIN THUNK SUCCESS:", response.data);
-    if (response.data.accessToken) {
-        dispatch(authSlice.actions.setAccessToken(response.data.accessToken));
-        delete response.data.accessToken;
+    const data = response.data.data[0];
+    if (data.accessToken) {
+        dispatch(authSlice.actions.setAccessToken(data.accessToken));
+        delete data.accessToken;
     }
-    return response.data;
+    return data;
 });
 
 const authSlice = createSlice({
@@ -48,6 +49,7 @@ const authSlice = createSlice({
     },
     reducers: {
         setAccessToken: (state: AuthStateType, action: PayloadAction<string>) => {
+            console.log("setting access token");
             state.accessToken = action.payload;
             window.localStorage.setItem("accessToken", action.payload);
         },
