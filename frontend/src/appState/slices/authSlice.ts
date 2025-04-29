@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import type { AppDispatchType, AuthStateType, BEDataType, RootState } from "../../utils/types.js";
+import type { AppDispatchType, AuthStateType, UserType } from "../../utils/types.js";
 import api from "../../utils/api.js";
 
 type LoginCredentialsType = {
@@ -10,7 +10,7 @@ type LoginCredentialsType = {
 
 type RequestErrorType = Record<string, any>;
 
-const loginUser = createAsyncThunk<BEDataType, LoginCredentialsType, { rejectValue: RequestErrorType, dispatch: AppDispatchType }>("auth/login", async (credentials: LoginCredentialsType, { rejectWithValue, dispatch }) => {
+const loginUser = createAsyncThunk<UserType, LoginCredentialsType, { rejectValue: RequestErrorType, dispatch: AppDispatchType }>("auth/login", async (credentials: LoginCredentialsType, { rejectWithValue, dispatch }) => {
     console.log("LOGIN THUNK CALLED WITH:", credentials);
     const options: Record<string, any> = {};
     if (credentials.accessToken) {
@@ -26,10 +26,8 @@ const loginUser = createAsyncThunk<BEDataType, LoginCredentialsType, { rejectVal
     }
     const response = await api.post("/auth/login", options);
     if (response.error) {
-        console.error("LOGIN THUNK ERROR:", response.error);
         return rejectWithValue(response.data);
     }
-    console.log("LOGIN THUNK SUCCESS:", response.data);
     const data = response.data.data[0];
     if (data.accessToken) {
         dispatch(authSlice.actions.setAccessToken(data.accessToken));
@@ -49,7 +47,6 @@ const authSlice = createSlice({
     },
     reducers: {
         setAccessToken: (state: AuthStateType, action: PayloadAction<string>) => {
-            console.log("setting access token");
             state.accessToken = action.payload;
             window.localStorage.setItem("accessToken", action.payload);
         },
@@ -74,7 +71,7 @@ const authSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(loginUser.fulfilled, (state: AuthStateType,  { payload }) => {
-                console.log("login paylod:", payload);
+                console.log("LOGIN THUNK FULFILLED REDUCER PAYLOAD:", payload);
                 const data = payload;
                 state.user = data;
                 state.isLoggedIn = true;
@@ -85,7 +82,7 @@ const authSlice = createSlice({
             state.isLoading = true;
         })
         .addCase(loginUser.rejected, (state: AuthStateType, { payload }) => {
-            console.log(payload);
+            console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
             state.isLoading = false;
             //state.error = payload;
             state.isLoggedIn = false;

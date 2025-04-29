@@ -17,7 +17,7 @@ import { z } from "zod";
 import toast, { Toaster } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../appState/hooks.js";
 import { loginUser } from "../appState/slices/authSlice.js";
-import type { BEDataType, RootState } from "../utils/types";
+import type { RootState } from "../utils/types";
 
 
 // form schema
@@ -27,6 +27,7 @@ const formSchema = z.object({
 });
 
 const LoginForm: React.FC = () => {
+  console.log("RENDERING LOGIN FORM.....");
 
   // states and effect handlers
   const { accessToken } = useAppSelector((store: RootState) => store.auth);
@@ -37,14 +38,12 @@ const LoginForm: React.FC = () => {
     email: string; password: string
   }) => {
     try {
-     const loginResult: BEDataType = await dispatch(loginUser({
+     await dispatch(loginUser({
        email, password
      })).unwrap();
-      console.log("success", loginResult);
       toast.success("login success");
       navigate("/listings");
    } catch(error: any) {
-      console.error("error", error.data);
      toast.error(`Failed: ${error.data.header.message}`);
    }
   };

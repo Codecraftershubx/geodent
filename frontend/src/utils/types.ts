@@ -29,4 +29,13 @@ type AuthStateType = {
   error: BEDataType | null;
 }
 
-export type { AppDispatchType, AuthStateType, RootState, BEDataType, BEDataHeaderType, APIResponseType };
+type UserType = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  emailVerified: boolean;
+  [key: string]: any;
+}
+
+export type { AppDispatchType, AuthStateType, RootState, BEDataType, BEDataHeaderType, APIResponseType, UserType };

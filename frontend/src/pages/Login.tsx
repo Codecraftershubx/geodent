@@ -5,6 +5,7 @@ import { loginUser } from "../appState/slices/authSlice.js";
 import { Toaster } from "react-hot-toast";
 import type { RootState } from "../utils/types.js";
 import components from "../components/index";
+import { isNull } from "util";
 
 
 
@@ -15,12 +16,11 @@ const Login: React.FC = () => {
   const [ heading, setHeading ] = useState( accessToken ? "Welcome Back" : "Login" );
   const [ runner, setRunner ] = useState(accessToken ? "Hold on while we sign you in" : "Enter your credentials to sign in");
 
-  console.log("LOGIN PAGE: user is logged in:", isLoggedIn);
-
   const login = async (accessToken: string) => {
     try {
       const result = await dispatch(loginUser({ accessToken })).unwrap();
-      console.log("login page login success with token:", result);
+      setHeading(`Welcome ${result.firstName}`);
+      setRunner("Taking you in...");
     } catch(error: any) {
       // attempt token refresh if token expired
       console.error("login page error", error);
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
           </p>
         </div>
         <Toaster />
-        <components.LoginForm />
+        { accessToken === null && <components.LoginForm /> }
       </section>
     </main>
   );
