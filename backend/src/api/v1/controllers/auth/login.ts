@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import type { TPayload, TUserModel } from "../../../../utils/types.js";
+import type { TPayload } from "../../../../utils/types.js";
 import config from "../../../../config.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
