@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import type { AppDispatchType, AuthStateType, UserType } from "../../utils/types.js";
+import type { AppDispatchType, AuthStateType, BEDataType, StoreMessageType, UserType } from "../../utils/types.js";
 import api from "../../utils/api.js";
 
 type LoginCredentialsType = {
@@ -8,9 +8,9 @@ type LoginCredentialsType = {
     password?: string | null;
 }
 
-type RequestErrorType = Record<string, any>;
 
-const loginUser = createAsyncThunk<UserType, LoginCredentialsType, { rejectValue: RequestErrorType, dispatch: AppDispatchType }>("auth/login", async (credentials: LoginCredentialsType, { rejectWithValue, dispatch }) => {
+// logout user
+const loginUser = createAsyncThunk<UserType, LoginCredentialsType, { rejectValue: BEDataType, dispatch: AppDispatchType }>("auth/login", async (credentials: LoginCredentialsType, { rejectWithValue, dispatch }) => {
     console.log("LOGIN THUNK CALLED WITH:", credentials);
     const options: Record<string, any> = {};
     if (credentials.accessToken) {
@@ -36,12 +36,30 @@ const loginUser = createAsyncThunk<UserType, LoginCredentialsType, { rejectValue
     return data;
 });
 
+// logout sequence
+const logoutUser = createAsyncThunk<boolean, Record<string, any>, { rejectValue: BEDataType }>("auth/logout", async ({}, { rejectWithValue }) => {
+    const response = await api.post("/auth/logout", {});
+    if (response.error) {
+        return rejectWithValue(response.data);
+    }
+   return true;
+});
+
+// message toggle
+const toggleMessage = createAsyncThunk<Promise<void>, { autoHide: boolean, delay?: number }, { dispatch: AppDispatchType }>("auth/toggleMessage", async ({ autoHide, delay = 4000 }, { dispatch }) => {
+    dispatch(authSlice.actions.showMessage());
+    if (autoHide) {
+        dispatch(authSlice.actions.hideMessage({ delay }));
+    }
+});
 const authSlice = createSlice({
     name: "auth",
     initialState: {
         accessToken: window.localStorage.getItem("accessToken") || null,
         isLoggedIn: false,
         isLoading: false,
+        showMessage: false,
+        message: null,
         user: null,
         error: null,
     },
@@ -50,22 +68,36 @@ const authSlice = createSlice({
             state.accessToken = action.payload;
             window.localStorage.setItem("accessToken", action.payload);
         },
-
         clearAccessToken: (state: AuthStateType) => {
             state.accessToken = null;
             window.localStorage.removeItem("accessToken");
         },
-
         setIsLoggedIn: (state: AuthStateType) => {
             if (!state.isLoggedIn) {
                 state.isLoggedIn = true;
             }
         },
-
         unsetIsLoggedIn: (state: AuthStateType) => {
             if (state.isLoggedIn) {
                 state.isLoggedIn = false;
             }
+        },
+        setMessage: (state: AuthStateType, action: PayloadAction<StoreMessageType>) => {
+            state.message = action.payload;
+        },
+        clearMessage: (state: AuthStateType) => {
+            state.message = null;
+        },
+        showMessage: (state: AuthStateType) => {
+            state.showMessage = true;
+        },
+        hideMessage: (state:AuthStateType, action: PayloadAction<{
+            delay?: number
+        } >) => {
+            const delay = action?.payload?.delay ?? 4000;
+            setTimeout(() => {
+                state.showMessage = false;
+            }, delay);
         }
     },
     extraReducers: (builder) => {
@@ -75,21 +107,68 @@ const authSlice = createSlice({
                 const data = payload;
                 state.user = data;
                 state.isLoggedIn = true;
-                state.error = null;
+                state.message = {
+                    type: "success", role: "alert", body: "login successful"
+                };
                 state.isLoading = false;
             })
         .addCase(loginUser.pending, (state: AuthStateType) => {
             state.isLoading = true;
+            state.message = {
+                type: "info", role: "alert", body: "logging you in..."
+            };
         })
         .addCase(loginUser.rejected, (state: AuthStateType, { payload }) => {
             console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
+            const value = payload as BEDataType;
             state.isLoading = false;
-            //state.error = payload;
+            state.message = {
+                type: "error", role: "alert", body: `${value.header.message}`,
+                details: value.data,
+                ...value.header
+            };
             state.isLoggedIn = false;
+        })
+        .addCase(logoutUser.fulfilled, (state: AuthStateType) => {
+            state.isLoading = false;
+            state.isLoggedIn = false;
+            state.message = {
+                type: "success", body: "log out successful", role: "alert"
+            };
+            state.accessToken = null;
+            state.user = null;
+        })
+        .addCase(logoutUser.pending, (state: AuthStateType) => {
+            state.isLoading = true;
+            state.message = {
+                type: "info",
+                role: "alert",
+                body: "logging you out..."
+            };
+        })
+        .addCase(logoutUser.rejected, (state: AuthStateType, { payload }) => {
+            console.log("LOGOUT THUNK REJECTED ERROR:", payload);
+            const value = payload as BEDataType;
+            state.message = {
+                type: "error", role: "notification",
+                body: `${value.header.message}`,
+                details: value.data,
+                ...value.header
+            };
+            state.isLoading = false;
         })
     }
 });
 
-export { loginUser };
-export const { setIsLoggedIn, unsetIsLoggedIn } = authSlice.actions;
+export { loginUser, logoutUser, toggleMessage };
+export const {
+    setAccessToken,
+    clearAccessToken,
+    setIsLoggedIn,
+    unsetIsLoggedIn,
+    setMessage,
+    clearMessage,
+    showMessage,
+    hideMessage,
+} = authSlice.actions;
 export default authSlice.reducer;

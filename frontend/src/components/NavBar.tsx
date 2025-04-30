@@ -1,12 +1,25 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../appState/hooks.js";
+import { useAppDispatch, useAppSelector } from "../appState/hooks.js";
+import { logoutUser, toggleMessage } from "../appState/slices/authSlice.js";
+import type { RootState } from "../utils/types.js";
 
 
 const navItemStyle = "hover:text-red-400 transition-all";
 
-const NavBar: React.FC<TNavBarProps> = () => {
-  const { isLoggedIn } = useAppSelector((store) => store.auth);
+const NavBar: React.FC = () => {
+  const { isLoggedIn } = useAppSelector((store: RootState) => store.auth);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const logout = async () => {
+    try {
+    await dispatch(logoutUser({})).unwrap();
+      dispatch(toggleMessage({ autoHide: true }));
+    } catch (error) {
+      dispatch(toggleMessage({ autoHide: false }));
+    }
+  }
+
 
   return (
     <nav className="px-20 py-5 shadow-xs">
@@ -61,8 +74,7 @@ const NavBar: React.FC<TNavBarProps> = () => {
               onClick={(e) => {
                 if (e.currentTarget.textContent === "Logout") {
                   window.localStorage.removeItem("accessToken");
-                  setIsLoggedIn(false);
-                  navigate("/");
+                  logout().then(() => { navigate("/") })
                 }
               }}
             >
