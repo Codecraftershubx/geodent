@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import type { TPayload } from "../../../../utils/types.js";
+import type { TRefreshTokenPayload } from "../../../../utils/types.js";
 import config from "../../../../config.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
@@ -8,7 +8,8 @@ const login = async (req: Request, res: Response): Promise<void> => {
   // extract access token
 
   const authHeader = req.headers.authorization;
-  let filtered;
+  let newRefreshToken, filtered, updatedUser;
+
   if (authHeader) {
     const [_, accessToken] = authHeader.split(" ");
     try {
@@ -19,11 +20,10 @@ const login = async (req: Request, res: Response): Promise<void> => {
         });
       }
       // login authenticated User
-      const payload = data.payload as TPayload;
+      const payload = data.payload as TRefreshTokenPayload;
       // get user profile
       const user = await db.client.client.user.findUnique({
         where: { id: payload.id },
-        include: db.client.include.user,
       });
 
       if (!user) {
@@ -31,9 +31,15 @@ const login = async (req: Request, res: Response): Promise<void> => {
           message: "unknown user",
         });
       }
-
+      // save refreh token
+      updatedUser = await db.client.client.user.update({
+        where: { id: user.id },
+        data: { refreshToken: payload.refreshToken },
+        include: db.client.include.user,
+      });
       // filter hidden values
-      filtered = await db.client.filterModels([user]);
+      filtered = await db.client.filterModels([updatedUser]);
+      db.client.setRefreshCookie(res, payload.refreshToken);
       return utils.handlers.success(res, {
         data: filtered,
         message: "auth success",
@@ -85,29 +91,27 @@ const login = async (req: Request, res: Response): Promise<void> => {
   }
   // auth success: generate tokens for user
   try {
-    const newAccessToken = utils.tokens.generate.accessToken({ id: user.id });
-    const newRefreshToken = utils.tokens.generate.refreshToken({ id: user.id });
-    const updatedUser = await db.client.client.user.update({
+    newRefreshToken = utils.tokens.generate.refreshToken({ id: user.id });
+    const newAccessToken = utils.tokens.generate.accessToken({
+      id: user.id,
+      refreshToken: newRefreshToken,
+    });
+    updatedUser = await db.client.client.user.update({
       where: { id: user.id },
       data: { refreshToken: newRefreshToken },
       include: db.client.include.user,
     });
 
-    // filter out fields to hide
+    // Filter out fields to hide
     filtered = await db.client.filterModels([updatedUser]);
     filtered[0].accessToken = newAccessToken;
 
     // set cookie
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      maxAge: config.refreshMaxAge,
-      secure: config.mode === "LIVE",
-      path: "/api/v1",
-    });
+    db.client.setRefreshCookie(res, newRefreshToken);
 
     // return user profile
     return utils.handlers.success(res, {
-      message: "user authenticated",
+      message: "login successful",
       data: filtered,
     });
   } catch (err) {

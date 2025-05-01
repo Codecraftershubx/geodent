@@ -51,9 +51,12 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
               password,
             },
           });
-          accessToken = utils.tokens.generate.accessToken({ id: newUser.id });
           const refreshToken = utils.tokens.generate.refreshToken({
             id: newUser.id,
+          });
+          accessToken = utils.tokens.generate.accessToken({
+            id: newUser.id,
+            refreshToken,
           });
           const updatedUser = await db.client.client.user.update({
             data: { refreshToken },
@@ -65,7 +68,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
       // set refreshToken cookie
       res.cookie("refreshToken", updateUserTx.refreshToken, {
         httpOnly: true,
-        maxAge: config.refreshMaxAge,
+        maxAge: config.expirations.refreshCookie,
         secure: config.mode === "LIVE",
         path: "/api/v1",
       });

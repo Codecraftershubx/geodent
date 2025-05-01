@@ -68,7 +68,11 @@ const email = process.env.EMAIL;
 const emailPwd = process.env.EMAIL_PWD;
 const authSecret = process.env.AUTH_SECRET;
 const refreshSecret = process.env.REFRESH_SECRET;
-const refreshMaxAge = 60 * 60 * 24 * 21 * 1000; // 21 days
+const expirations = {
+  refreshCookie: 60 * 60 * 24 * 21 * 1000, // 21 days
+  accessToken: "1d",
+  refreshToken: "7d",
+};
 const hostname =
   process.env.MODE === "DEV"
     ? `http://${serverHost}:${serverPort}`
@@ -84,7 +88,7 @@ const envs = {
   emailPwd,
   hostname,
   mode,
-  refreshMaxAge,
+  expirations,
   refreshSecret,
   serverHost,
   serverPort,

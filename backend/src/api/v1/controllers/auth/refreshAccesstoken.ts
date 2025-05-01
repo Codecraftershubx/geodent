@@ -3,19 +3,41 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const refresh = async (req: Request, res: Response): Promise<void> => {
+  if (!req?.headers?.authorization) {
+    return utils.handlers.error(res, "authentication", {
+      message: "Unauthorized: Access token required",
+    });
+  }
+
+  const [_, accessToken] = req.headers.authorization.split(" ");
+  if (!accessToken) {
+    return utils.handlers.error(res, "authentication", {
+      message: "Unauthorized: Access token required",
+    });
+  }
+
   // extract refresh token
   const { refreshToken } = req.cookies;
   if (!refreshToken) {
-    return utils.handlers.error(res, "validation", {
-      message: "refresh token required",
+    return utils.handlers.error(res, "authentication", {
+      message: "Unauthorized: Refresh token required",
     });
   }
+
   // verify refreshToken is not expired
   try {
     const { payload } = utils.tokens.decompose.refreshToken(refreshToken);
+    const accessData = utils.tokens.decompose.accessToken(accessToken);
+
+    if (!accessData.expired) {
+      return utils.handlers.error(res, "authentication", {
+        message: "Unauthorized: Access token not expired",
+      });
+    }
+
     if (!payload) {
       return utils.handlers.error(res, "authentication", {
-        message: "refresh token expired",
+        message: "Unauthorized: Refresh token expired",
       });
     }
 
@@ -28,17 +50,18 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
       // no user found or refresh tokens don't match
       if (!user || user.refreshToken !== refreshToken) {
         return utils.handlers.error(res, "authentication", {
-          message: "invalid refresh token",
+          message: "Unauthorized: Invalid refresh token",
         });
       }
 
       // refresh access token and return
       const newToken = utils.tokens.generate.accessToken({
         id: user.id,
+        refreshToken,
       });
       return utils.handlers.success(res, {
-        message: "access token refreshed",
-        data: [{ id: user.id, accessToken: newToken }],
+        message: "Token refreshed",
+        data: [{ accessToken: newToken }],
       });
     } catch (err: any) {
       // handle unique db constraint error

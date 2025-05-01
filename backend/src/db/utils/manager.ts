@@ -1,3 +1,4 @@
+import { Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import config from "../../config.js";
 import migration from "./migration.js";
@@ -31,6 +32,15 @@ class DbClient implements Client {
       console.log("DEPLOY MIGRATION FAILURE");
       console.error(err);
     }
+  }
+
+  setRefreshCookie(res: Response, value: string) {
+    res.cookie("refreshToken", value, {
+      httpOnly: true,
+      maxAge: config.expirations.refreshCookie,
+      secure: config.mode === "LIVE",
+      path: "/api/v1",
+    });
   }
 
   // filter out model values

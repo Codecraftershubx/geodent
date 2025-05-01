@@ -49,7 +49,9 @@ const logoutUser = createAsyncThunk<boolean, Record<string, any>, { rejectValue:
 const toggleMessage = createAsyncThunk<Promise<void>, { autoHide: boolean, delay?: number }, { dispatch: AppDispatchType }>("auth/toggleMessage", async ({ autoHide, delay = 4000 }, { dispatch }) => {
     dispatch(authSlice.actions.showMessage());
     if (autoHide) {
-        dispatch(authSlice.actions.hideMessage({ delay }));
+        setTimeout(() => {
+            dispatch(authSlice.actions.hideMessage());
+        }, delay);
     }
 });
 const authSlice = createSlice({
@@ -91,13 +93,8 @@ const authSlice = createSlice({
         showMessage: (state: AuthStateType) => {
             state.showMessage = true;
         },
-        hideMessage: (state:AuthStateType, action: PayloadAction<{
-            delay?: number
-        } >) => {
-            const delay = action?.payload?.delay ?? 4000;
-            setTimeout(() => {
-                state.showMessage = false;
-            }, delay);
+        hideMessage: (state: AuthStateType) => {
+            state.showMessage = false;
         }
     },
     extraReducers: (builder) => {
@@ -135,7 +132,6 @@ const authSlice = createSlice({
             state.message = {
                 type: "success", body: "log out successful", role: "alert"
             };
-            state.accessToken = null;
             state.user = null;
         })
         .addCase(logoutUser.pending, (state: AuthStateType) => {

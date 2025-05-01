@@ -15,7 +15,9 @@ const NavBar: React.FC = () => {
     try {
     await dispatch(logoutUser({})).unwrap();
       dispatch(toggleMessage({ autoHide: true }));
+      console.log("navbar func logout success...");
     } catch (error) {
+      console.log("navbar logout func error...", error);
       dispatch(toggleMessage({ autoHide: false }));
     }
   }
@@ -73,7 +75,6 @@ const NavBar: React.FC = () => {
               className="py-2 px-4 rounded-md bg-red-600 text-white shadow-0 hover:bg-zinc-200 hover:text-red-600 transition-all"
               onClick={(e) => {
                 if (e.currentTarget.textContent === "Logout") {
-                  window.localStorage.removeItem("accessToken");
                   logout().then(() => { navigate("/") })
                 }
               }}
