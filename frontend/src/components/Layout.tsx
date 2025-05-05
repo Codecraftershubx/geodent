@@ -1,6 +1,5 @@
 import { Outlet } from "react-router-dom";
 import components from "./index";
-import Icons from "./Icons";
 
 //type TLayoutProps = {
 //  isLoggedIn: Boolean;
@@ -11,9 +10,7 @@ const Layout: React.FC = () => {
   return (
     <div>
       <components.NavBar />
-      <div className="h-[50px] w-[50px]">
-        <Icons.Close />
-      </div>
+      {/* <components.Alert /> */}
       <Outlet />
     </div>
   );

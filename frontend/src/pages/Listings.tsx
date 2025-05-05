@@ -1,3 +1,4 @@
+
 const Listings = () => {
   return (
     <div className="px-20 py-10">
