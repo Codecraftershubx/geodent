@@ -40,13 +40,13 @@ const NavBar: React.FC = () => {
         <Components.NavItems.Button
           target="/signup"
           text="Signup"
-          className={`text-black/80 hover:text-red-600 ${menuIsOpen ? "bg-zinc-100 active:bg-zinc-800 active:text-white/90 duration-300" : "bg-white !shadow-lg"}`}
+          className={`text-black/80 hover:text-red-600 ${menuIsOpen ? "bg-zinc-100 active:bg-zinc-500 active:text-white/90 duration-300" : "bg-white !shadow-lg"} ${pathname === "/signup" && "outline-[1.5px] outline-zinc-700 -outline-offset-4"}`}
         />
       )}
       <Components.NavItems.Button
         target={isLoggedIn ? "#" : "/login"}
         text={isLoggedIn ? "Logout" : "Login"}
-        className={`bg-red-600 text-white ${menuIsOpen ? "active:bg-red-800 duration-300" : "hover:bg-red-700/90"}`}
+        className={`bg-red-600 text-white ${menuIsOpen ? "active:bg-red-900 duration-300" : "hover:bg-red-700"} ${pathname === "/login" && "bg-red-700/90 outline-[1.5px] outline-white/80 -outline-offset-4"}`}
         onClick={(e) => {
           if (e.currentTarget.textContent === "Logout") {
             logout().then(() => {
@@ -59,7 +59,7 @@ const NavBar: React.FC = () => {
   );
   return (
     <>
-      <div className={`py-5 shadow-md shadow-zinc-100 relative`}>
+      <div className={`shadow-md shadow-zinc-100 relative py-3 md:py-5`}>
         <Components.Wrapper>
           <nav className={`flex justify-between items-center @container`}>
             <Components.Logo />
@@ -68,7 +68,7 @@ const NavBar: React.FC = () => {
               className={`flex transition-all duration-500 ${!menuIsOpen ? "w-3/5 items-center justify-between gap-4 @max-md:hidden" : "flex-col gap-2 fixed top-0 left-0 w-full pt-20 pb-8 px-8 z-10 bg-black/90 opacity-98 min-h-screen"}`}
             >
               <div
-                className={`flex text-md ${menuIsOpen ? "flex-col gap-2 mb-5 justify-center items-center text- font-normal text-white/90" : "font-medium gap-5"}`}
+                className={`flex text-md ${menuIsOpen ? "flex-col gap-2 mb-5 justify-center items-center font-medium text-white/90" : "font-medium gap-5"}`}
               >
                 {navLinks}
               </div>
