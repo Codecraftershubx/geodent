@@ -1,19 +1,18 @@
 import { NavLink } from "react-router-dom";
 
 type AppNavLinkPropsType = {
-  className?: string;
-  target: string;
-  text: string;
-};
-
-type AppNavButtonType = {
   text: string;
   className?: string;
   onClick?: React.MouseEventHandler<HTMLElement>;
   target: string;
 };
 
-const Link: React.FC<AppNavLinkPropsType> = ({ className, target, text }) => {
+const Link: React.FC<AppNavLinkPropsType> = ({
+  className,
+  onClick,
+  target,
+  text,
+}) => {
   const styles = `hover:text-red-600/60 ${className}`;
   return (
     <NavLink
@@ -21,13 +20,14 @@ const Link: React.FC<AppNavLinkPropsType> = ({ className, target, text }) => {
       className={({ isActive = true }) =>
         isActive ? `text-red-600 ${styles}` : `text-[currentColor] ${styles}`
       }
+      onClick={onClick}
     >
       {text}
     </NavLink>
   );
 };
 
-const Button: React.FC<AppNavButtonType> = ({
+const Button: React.FC<AppNavLinkPropsType> = ({
   text,
   onClick,
   className,

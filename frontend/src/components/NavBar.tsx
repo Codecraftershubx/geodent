@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../appState/hooks.js";
 import { logoutUser, toggleMessage } from "../appState/slices/authSlice.js";
@@ -12,8 +12,12 @@ const NavBar: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const toggleMenu = () => {
-    setMenuIsOpen(!menuIsOpen);
+  const closeMenu = () => {
+    if (menuIsOpen) {
+      setTimeout(() => {
+        setMenuIsOpen(false);
+      }, 400);
+    }
   };
   const logout = async () => {
     try {
@@ -26,14 +30,20 @@ const NavBar: React.FC = () => {
 
   const navLinks = (
     <>
-      <Components.NavItems.Link target="/home" text="Home" />
+      <Components.NavItems.Link
+        target="/home"
+        text="Home"
+        onClick={closeMenu}
+      />
       <Components.NavItems.Link
         target="/listings"
         text="Listings"
         className={pathname === "/" ? "text-red-600" : ""}
+        onClick={closeMenu}
       />
     </>
   );
+
   const navButtons = (
     <>
       {!isLoggedIn && (
@@ -41,6 +51,7 @@ const NavBar: React.FC = () => {
           target="/signup"
           text="Signup"
           className={`text-black/80 hover:text-red-600 ${menuIsOpen ? "bg-zinc-100 active:bg-zinc-500 active:text-white/90 duration-300" : "bg-white !shadow-lg"} ${pathname === "/signup" && "outline-[1.5px] outline-zinc-700 -outline-offset-4"}`}
+          onClick={closeMenu}
         />
       )}
       <Components.NavItems.Button
@@ -53,6 +64,7 @@ const NavBar: React.FC = () => {
               navigate("/");
             });
           }
+          closeMenu();
         }}
       />
     </>
@@ -67,8 +79,10 @@ const NavBar: React.FC = () => {
             <div
               className={`flex items-center ${menuIsOpen ? "max-w-[40rem]" : "w-3/5"}`}
             >
+              {/* Nav bg - mobile bg = black */}
               <div
-                className={`flex transition-all duration-500 w-full ${!menuIsOpen ? "@max-md:hidden" : "fixed top-0 left-0 w-full pt-20 pb-8 px-8 z-10 bg-black/90 opacity-98 min-h-screen"}`}
+                id="nav-items-container"
+                className={`flex transition-all duration-500 w-full ${!menuIsOpen ? "@max-md:hidden" : "fixed top-0 left-0 w-full pt-20 pb-8 px-8 z-10 bg-black/90 opacity-98 min-h-screen animate-slide_in_rtl"}`}
               >
                 {/* nav items content wrapper*/}
                 <div
