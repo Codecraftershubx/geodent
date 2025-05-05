@@ -63,26 +63,36 @@ const NavBar: React.FC = () => {
         <Components.Wrapper>
           <nav className={`flex justify-between items-center @container`}>
             <Components.Logo />
-            {/* Normal Nav items */}
+            {/* Nav items */}
             <div
-              className={`flex transition-all duration-500 ${!menuIsOpen ? "w-3/5 items-center justify-between gap-4 @max-md:hidden" : "flex-col gap-2 fixed top-0 left-0 w-full pt-20 pb-8 px-8 z-10 bg-black/90 opacity-98 min-h-screen"}`}
+              className={`flex items-center ${menuIsOpen ? "max-w-[40rem]" : "w-3/5"}`}
             >
               <div
-                className={`flex text-md ${menuIsOpen ? "flex-col gap-2 mb-5 justify-center items-center font-medium text-white/90" : "font-medium gap-5"}`}
+                className={`flex transition-all duration-500 w-full ${!menuIsOpen ? "@max-md:hidden" : "fixed top-0 left-0 w-full pt-20 pb-8 px-8 z-10 bg-black/90 opacity-98 min-h-screen"}`}
               >
-                {navLinks}
-              </div>
-              {/*Nav Buttons*/}
-              <div
-                className={`flex gap-2 ${menuIsOpen ? "flex-col justify-center text-center font-medium" : "justify-between font-semibold"}`}
-              >
-                {navButtons}
+                {/* nav items content wrapper*/}
+                <div
+                  className={`flex transition-all duration-500 w-full ${!menuIsOpen ? "items-center !justify-between gap-4" : "flex-col m-auto gap-2 max-w-sm"}`}
+                >
+                  {/* Nav items */}
+                  <div
+                    className={`flex text-md ${menuIsOpen ? "flex-col gap-2 mb-5 justify-center items-center font-medium text-white/90" : "font-medium gap-5"}`}
+                  >
+                    {navLinks}
+                  </div>
+                  {/*Nav Buttons*/}
+                  <div
+                    className={`flex gap-2 ${menuIsOpen ? "flex-col justify-center text-center font-medium" : "justify-between font-semibold"}`}
+                  >
+                    {navButtons}
+                  </div>
+                </div>
               </div>
             </div>
             <Hamburger
               toggled={menuIsOpen}
               toggle={setMenuIsOpen}
-              className={`justify-self-end md:hidden z-30 ${menuIsOpen ? "text-white" : "text-red-600"}`}
+              className={`justify-self-end z-30 ${menuIsOpen ? "text-white" : "text-red-600 md:hidden"}`}
             />
           </nav>
         </Components.Wrapper>
