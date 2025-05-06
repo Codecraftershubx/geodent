@@ -3,6 +3,7 @@ type PageWrapperPropsType = {
   px?: "sm" | "md" | "lg" | "xl";
   py?: "sm" | "md" | "lg" | "xl";
   className?: string;
+  fullWidth?: boolean;
 };
 
 const Wrapper: React.FC<PageWrapperPropsType> = ({
@@ -10,6 +11,7 @@ const Wrapper: React.FC<PageWrapperPropsType> = ({
   children,
   px,
   py,
+  fullWidth = false,
 }) => {
   const spacing = {
     sm: "px-2",
@@ -17,7 +19,7 @@ const Wrapper: React.FC<PageWrapperPropsType> = ({
     lg: "px-8",
     xl: "px-[5rem]",
   };
-  const styles = `w-96/100 md:w-94/100 xl:w-9/10 2xl:w-86/100 m-auto ${px ? spacing[px] : ""} ${py ? spacing[py] : ""} ${className}`;
+  const styles = `m-auto ${fullWidth ? "w-full" : "w-96/100  md:w-94/100 xl:w-9/10 2xl:w-86/100"} ${px ? spacing[px] : ""} ${py ? spacing[py] : ""} ${className}`;
   return <div className={styles}>{children}</div>;
 };
 
