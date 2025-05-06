@@ -106,7 +106,14 @@ const AppAlert: React.FC<AlertPropsType> = ({
           </div>
           {isClosable && (
             <div className="size-[26px] flex flex-col justify-center items-center">
-              <Icons.Close hoverable={true} />
+              <Icons.Close hoverable={true} onClick={(e) => {
+                e.preventDefault;
+                const alert = e.currentTarget.parentElement?.parentElement?.parentElement?.parentElement as HTMLElement;
+                alert?.classList.add("animate-fade_out", "!duration-500");
+                setTimeout(() => {
+                  alert?.classList.add("hidden");
+                }, 500);
+              }} />
             </div>
           )}
         </Wrapper>

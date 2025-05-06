@@ -78,6 +78,7 @@
 @theme inline {
   --animate-slide_in_rtl: slide-in-rtl 0.5s ease-in forwards;
   --animate-slide_out_ltr: slide-out-ltr 0.5s ease-in forwards;
+  --animate-fade_out: fade-out 0.3s ease-out forwards;
   --breakpoint-xs: 30rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -148,6 +149,16 @@
 
   100% {
     transform: translateX(100vw);
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
     opacity: 0;
   }
 }

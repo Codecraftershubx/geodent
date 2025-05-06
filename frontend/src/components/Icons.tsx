@@ -7,6 +7,7 @@ type IconPropsType = {
   variant?: "default" | "thin" | "thick";
   className?: string;
   hoverable?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 };
 
 type IconGenPropsType = IconPropsType & {
@@ -35,10 +36,12 @@ const AppIcon: React.FC<IconGenPropsType> = ({
   hoverable = false,
   className,
   Icon,
+  onClick,
 }) => {
   const styles = `${baseStyles} ${className ? className : ""} ${hoverable ? hoverableStyles : ""}`;
+
   return (
-    <div item-role="icon-wrapper" className={styles}>
+    <div item-role="icon-wrapper" className={styles} onClick={onClick}>
       <Icon
         size={size}
         strokeWidth={variants[variant].strokeWidth}
@@ -50,10 +53,10 @@ const AppIcon: React.FC<IconGenPropsType> = ({
 
 // Icons
 const Close: React.FC<IconPropsType> = ({
-  size, variant, className, hoverable
+  size, variant, className, hoverable, onClick,
 }) => {
   return (
-    <AppIcon Icon={X} size={size} variant={variant} className={className} hoverable={hoverable} />
+    <AppIcon Icon={X} size={size} variant={variant} className={className} hoverable={hoverable} onClick={onClick} />
   );
 };
 
