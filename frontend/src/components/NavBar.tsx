@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../appState/hooks.js";
 import { logoutUser, toggleMessage } from "../appState/slices/authSlice.js";

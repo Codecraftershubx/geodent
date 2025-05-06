@@ -1,19 +1,22 @@
 import { Sling } from "hamburger-react";
+import React from "react";
 
 type MenuPropsType = {
   toggle: React.Dispatch<React.SetStateAction<boolean>>;
   toggled: boolean;
   className?: string;
   color?: string;
+  onClick?: (e: React.MouseEvent) => void;
 };
 const HamburgerMenu: React.FC<MenuPropsType> = ({
   toggle,
   toggled,
   className,
   color,
+  onClick,
 }) => {
   return (
-    <div className={`${className ? className : ""}`}>
+    <div className={`${className ? className : ""}`} onClick>
       <Sling
         toggle={toggle}
         toggled={toggled}
