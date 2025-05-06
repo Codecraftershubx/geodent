@@ -91,6 +91,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-neutral: var(--primary);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -121,6 +122,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -131,6 +133,7 @@
     transform: translateX(100vw);
     opacity: 0;
   }
+
   100% {
     transform: translateX(0);
     opacity: 1;
@@ -138,11 +141,12 @@
 }
 
 @keyframes slide-out-ltr {
-  0%: {
+  0% {
     transform: translateX(0);
     opacity: 1;
   }
-  100%: {
+
+  100% {
     transform: translateX(100vw);
     opacity: 0;
   }

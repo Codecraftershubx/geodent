@@ -2,44 +2,111 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Wrapper from "./Wrapper";
 import Icons from "./Icons";
 
+
 type AlertPropsType = {
   isClosable?: boolean;
   rounded?: boolean;
+  type?: keyof typeof alertTypes;
+  variant?: "solid" | "plain";
+  fullWidth?: boolean;
+  withTitle?: boolean;
+  title?: string;
+  description?: string;
 };
+
+const alertTypes = {
+  neutral: {
+    content: {
+      title: "Message",
+      description: "A message for you...",
+    },
+    styles: {
+      solid: "[&_[data-slot=alert-title]]:text-white/95 [&_[data-slot=alert-description]]:text-white/91 [&_[item-role=alert-icon]]:bg-neutral [&_[item-role=alert-icon]>[item-role=icon-wrapper]]:text-white/95 bg-neutral/80 [&_[item-role=icon-wrapper]]:text-gray-200",
+
+      plain: "[&_[data-slot=alert-title]]:text-neutral [&_[data-slot=alert-description]]:text-neutral/70 [&_[item-role=alert-icon]]:bg-neutral [&_[item-role=alert-icon]>[item-role=icon-wrapper]]:text-white/95 bg-neutral/5 border-1 border-neutral/10 [&_[item-role=icon-wrapper]]:text-neutral",
+    }
+  },
+  info: {
+    content: {
+      title: "Info",
+      description: "A message for you...",
+    },
+    styles: {
+      solid: "",
+      plain: "",
+    }
+  },
+  warning: {
+    content: {
+      title: "Info",
+      description: "A message for you...",
+    },
+    styles: {
+      solid: "",
+      plain: "",
+    }
+  },
+  success: {
+    content: {
+      title: "Info",
+      description: "A message for you...",
+    },
+    styles: {
+      solid: "",
+      plain: "",
+    }
+  },
+  error: {
+    content: {
+      title: "Info",
+      description: "A message for you...",
+    },
+    styles: {
+      solid: "",
+      plain: "",
+    }
+  },
+} as const;
 
 const AppAlert: React.FC<AlertPropsType> = ({
   isClosable = true,
   rounded = true,
+  type = "neutral",
+  variant = "plain",
+  fullWidth = false,
+  withTitle = false,
+  title = alertTypes.neutral.content.title,
+  description = alertTypes.neutral.content.description,
 }) => {
   return (
     <Wrapper
-      className={`bg-yellow-300 ${rounded ? "rounded-lg" : ""}`}
-      fullWidth={true}
+      fullWidth={fullWidth}
+      className={`bg-gray-100/0`}
     >
-      <Alert>
-        <Wrapper className="border-2 border-yellow-300 flex justify-between items-center">
+      <Alert className={`${rounded ? "rounded-lg" : ""} @container ${alertTypes[type].styles[variant]}`}>
+        <Wrapper className="flex justify-between items-center @max-lg:w-95/100">
           <div
-            role="alert-content"
-            className="flex justify-start items-center py-2"
+            item-role="alert-content"
+            className="flex justify-start items-center py-2 pr-4 gap-2 md:gap-3"
           >
             <div
-              role="alert-icon"
+              item-role="alert-icon"
               className={
-                "h-[36px] max-w-[36px] md:h-[48px] md:w-[48px] bg-destructive rounded-sm px-4 flex flex-col items-center justify-center"
+                "size-[26px] md:size-[30px] rounded-sm px-3 flex flex-col items-center justify-center"
               }
             >
               <Icons.Error />
             </div>
-            <div role="alert-body">
-              <AlertTitle>Title</AlertTitle>
+            <div item-role="alert-body">
+              {withTitle && <AlertTitle>{title}</AlertTitle>}
               <AlertDescription>
-                Something happend and we're alerting you
+                {description}
               </AlertDescription>
             </div>
           </div>
           {isClosable && (
-            <div className="h-[40px] w-[40px] text-destructive flex flex-col justify-center items-center">
-              <Icons.Close className="border-1 border-blue-400" />
+            <div className="size-[26px] flex flex-col justify-center items-center">
+              <Icons.Close hoverable={true} />
             </div>
           )}
         </Wrapper>
