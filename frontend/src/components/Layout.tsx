@@ -10,7 +10,7 @@ const Layout: React.FC = () => {
   return (
     <div>
       <components.NavBar />
-      {/* <components.Alert /> */}
+      {<components.Alert />}
       <Outlet />
     </div>
   );

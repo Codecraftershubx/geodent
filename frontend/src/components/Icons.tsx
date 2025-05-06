@@ -1,10 +1,13 @@
-import { X } from "lucide-react";
+import { TraingleAlert, X } from "lucide-react";
 
 type IconPropsType = {
   size?: string;
   variant?: "default" | "thin" | "thick";
   className?: string;
 };
+
+const baseStyles =
+  "h-full w-full flex flex-col items-center justify-center rounded-full p-2";
 
 const Close: React.FC<IconPropsType> = ({
   size = "64px",
@@ -20,7 +23,8 @@ const Close: React.FC<IconPropsType> = ({
     },
     thin: { strokeWidth: "1px" },
   };
-  const styles = `h-full w-full flex flex-col items-center justify-center cursor-pointer p-2 rounded-full hover:bg-[currentColor]/5 transition-colors ease-in duration-400 ${className ? className : ""}`;
+  const styles = `cursor-pointer hover:bg-[currentColor]/10 transition-colors ease-in duration-400 ${baseStyles} ${className ? className : ""}`;
+
   return (
     <div role="icon-wrapper" className={styles}>
       <X
