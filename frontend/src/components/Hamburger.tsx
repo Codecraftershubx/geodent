@@ -16,7 +16,7 @@ const HamburgerMenu: React.FC<MenuPropsType> = ({
   onClick,
 }) => {
   return (
-    <div className={`${className ? className : ""}`} onClick>
+    <div className={`${className ? className : ""}`} onClick={onClick}>
       <Sling
         toggle={toggle}
         toggled={toggled}
