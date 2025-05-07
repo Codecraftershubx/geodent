@@ -14,9 +14,7 @@ const NavBar: React.FC = () => {
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const closeMenu = () => {
     if (menuIsOpen) {
-      setTimeout(() => {
-        setMenuIsOpen(false);
-      }, 400);
+      setMenuIsOpen(false);
     }
   };
   const logout = async () => {
@@ -69,16 +67,35 @@ const NavBar: React.FC = () => {
       />
     </>
   );
-  useEffect(() => {
+
+  // hide menu handler
+  const hideMenu = (delay: number = 0) => {
     const e = document.getElementById("nav-items-container") as HTMLElement;
+    e.classList.remove("@max-md:animate-slide_in_rtl");
+    e.classList.add("@max-md:animate-slide_out_ltr");
+    setTimeout(() => {
+      e.classList.add("@max-md:hidden");
+    }, delay);
+  };
+
+  // show menu handler
+  const showMenu = (delay: number = 0) => {
+    const e = document.getElementById("nav-items-container") as HTMLElement;
+    e.classList.remove(
+      "@max-md:animate-slide_out_ltr",
+    );
+    e.classList.add("@max-md:animate-slide_in_rtl");
+    setTimeout(() => {
+      e.classList.remove("@max-md:hidden");
+    }, delay);
+  }
+
+  // manage menu visibility when switch is toggled
+  useEffect(() => {
     if (!menuIsOpen) {
-      setTimeout(() => {
-        e.classList.add("@max-md:hidden");
-      }, 500);
+      hideMenu(280);
     } else {
-      setTimeout(() => {
-        e.classList.remove("@max-md:hidden");
-      }, 0);
+      showMenu();
     }
   }, [menuIsOpen]);
 
@@ -95,11 +112,11 @@ const NavBar: React.FC = () => {
               {/* Nav bg - mobile bg = black */}
               <div
                 id="nav-items-container"
-                className={`flex transition-all duration-500 w-full @max-md:fixed @max-md:top-0 @max-md:left-0 @max-md:pt-20 @max-md:pb-8 @max-md:px-8 @max-md:z-10 @max-md:bg-black/90 @max-md:opacity-98 @max-md:min-h-screen`}
+                className={`flex transition-all w-full @max-md:hidden @max-md:fixed @max-md:top-0 @max-md:left-0 @max-md:pt-20 @max-md:pb-8 @max-md:px-8 @max-md:z-10 @max-md:bg-black/90 @max-md:opacity-98 @max-md:min-h-screen`}
               >
                 {/* nav items content wrapper*/}
                 <div
-                  className={`flex transition-all duration-500 w-full items-center !justify-between gap-4 @max-md:flex-col @max-md:m-auto @max-md @max-md:gap-2 @max-md:max-w-sm`}
+                  className={`flex transition-all w-full items-center !justify-between gap-4 @max-md:flex-col @max-md:m-auto @max-md @max-md:gap-2 @max-md:max-w-sm`}
                 >
                   {/* Nav items */}
                   <div
@@ -120,21 +137,6 @@ const NavBar: React.FC = () => {
               toggled={menuIsOpen}
               toggle={setMenuIsOpen}
               className={`justify-self-end z-30 ${menuIsOpen ? "text-white" : "text-red-600 md:hidden"}`}
-              onClick={(e) => {
-                e.preventDefault;
-                const navContainer = document.getElementById(
-                  "nav-items-container",
-                ) as HTMLElement;
-                if (!menuIsOpen) {
-                  navContainer.classList.remove(
-                    "@max-md:animate-slide_out_ltr",
-                  );
-                  navContainer.classList.add("@max-md:animate-slide_in_rtl");
-                } else {
-                  navContainer.classList.remove("@max-md:animate-slide_in_rtl");
-                  navContainer.classList.add("@max-md:animate-slide_out_ltr");
-                }
-              }}
             />
           </nav>
         </Components.Wrapper>
