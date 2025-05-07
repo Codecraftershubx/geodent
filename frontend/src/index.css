@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -22,7 +23,7 @@
   --accent-foreground: oklch(0.21 0.006 285.885);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
-  --font-sans: "Mulish", sans-serif;
+  --font-sans: "Geist", sans-serif;
   --info: oklch(54.6% 0.245 262.881);
   --warning: oklch(79.5% 0.184 86.047);
   --success: oklch(59.6% 0.145 163.225);
@@ -43,6 +44,7 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+  font-family: var(--font-sans);
 }
 
 .dark {
