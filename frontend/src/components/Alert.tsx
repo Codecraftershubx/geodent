@@ -28,18 +28,18 @@ const alertTypes = {
   },
   info: {
     content: {
-      title: "Info",
+      title: "Message",
       description: "A message for you...",
     },
     styles: {
-      solid: "",
-      plain: "",
+      solid: "[&_[data-slot=alert-title]]:text-white/95 [&_[data-slot=alert-description]]:text-white [&_[item-role=alert-icon]]:bg-blue-800/80 [&_[item-role=alert-icon]>[item-role=icon-wrapper]]:text-white/95 bg-info/90 [&_[item-role=icon-wrapper]]:text-white/90",
+      plain: "[&_[data-slot=alert-title]]:text-info [&_[data-slot=alert-description]]:text-info/90 [&_[item-role=alert-icon]]:bg-blue-700 [&_[item-role=alert-icon]>[item-role=icon-wrapper]]:text-white/95 bg-info/10 border-1 border-info/10 [&_[item-role=icon-wrapper]]:text-info",
     }
   },
   warning: {
     content: {
-      title: "Info",
-      description: "A message for you...",
+      title: "Warning",
+      description: "Be careful. There might be a problem",
     },
     styles: {
       solid: "",
@@ -48,8 +48,8 @@ const alertTypes = {
   },
   success: {
     content: {
-      title: "Info",
-      description: "A message for you...",
+      title: "Success",
+      description: "Request completed successfully",
     },
     styles: {
       solid: "",
@@ -58,8 +58,8 @@ const alertTypes = {
   },
   error: {
     content: {
-      title: "Info",
-      description: "A message for you...",
+      title: "Error",
+      description: "Request failed to complete for some reason",
     },
     styles: {
       solid: "",
@@ -81,7 +81,6 @@ const AppAlert: React.FC<AlertPropsType> = ({
   return (
     <Wrapper
       fullWidth={fullWidth}
-      className={`bg-gray-100/0`}
     >
       <Alert className={`${rounded ? "rounded-lg" : ""} @container ${alertTypes[type].styles[variant]}`}>
         <Wrapper className="flex justify-between items-center @max-lg:w-95/100">
