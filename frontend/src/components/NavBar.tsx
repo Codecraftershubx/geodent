@@ -81,14 +81,12 @@ const NavBar: React.FC = () => {
   // show menu handler
   const showMenu = (delay: number = 0) => {
     const e = document.getElementById("nav-items-container") as HTMLElement;
-    e.classList.remove(
-      "@max-md:animate-slide_out_ltr",
-    );
+    e.classList.remove("@max-md:animate-slide_out_ltr");
     e.classList.add("@max-md:animate-slide_in_rtl");
     setTimeout(() => {
       e.classList.remove("@max-md:hidden");
     }, delay);
-  }
+  };
 
   // manage menu visibility when switch is toggled
   useEffect(() => {
@@ -107,7 +105,7 @@ const NavBar: React.FC = () => {
             <Components.Logo />
             {/* Nav items */}
             <div
-              className={`flex items-center ${menuIsOpen ? "max-w-[40rem]" : "w-3/5"}`}
+              className={`flex items-center ${menuIsOpen ? "max-w-[40rem]" : "w-3/5 pl-5"}`}
             >
               {/* Nav bg - mobile bg = black */}
               <div
