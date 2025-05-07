@@ -1,7 +1,15 @@
-import { TriangleAlert, X } from "lucide-react";
+import {
+  Bell,
+  CircleCheck,
+  CircleX,
+  ThumbsUp,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 import { LucideIcon } from "lucide-react";
 import React from "react";
 
+// base props
 type IconPropsType = {
   size?: string;
   variant?: "default" | "thin" | "thick";
@@ -10,10 +18,12 @@ type IconPropsType = {
   onClick?: (e: React.MouseEvent) => void;
 };
 
+// generator type
 type IconGenPropsType = IconPropsType & {
   Icon: LucideIcon;
 };
 
+// base styles
 const baseStyles =
   "h-full w-full flex flex-col items-center justify-center rounded-full p-1 transition-all ease-linear duration-250";
 
@@ -29,7 +39,7 @@ const variants = {
   thin: { strokeWidth: "1px" },
 };
 
-
+// Icon base component
 const AppIcon: React.FC<IconGenPropsType> = ({
   size = "64px",
   variant = "default",
@@ -49,14 +59,42 @@ const AppIcon: React.FC<IconGenPropsType> = ({
       />
     </div>
   );
-}
+};
 
-// Icons
+// specific icons
 const Close: React.FC<IconPropsType> = ({
-  size, variant, className, hoverable, onClick,
+  size,
+  variant,
+  className,
+  hoverable,
+  onClick,
 }) => {
   return (
-    <AppIcon Icon={X} size={size} variant={variant} className={className} hoverable={hoverable} onClick={onClick} />
+    <AppIcon
+      Icon={X}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+      onClick={onClick}
+    />
+  );
+};
+
+const CircledCheckmark: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={CircleCheck}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
   );
 };
 
@@ -67,8 +105,90 @@ const Error: React.FC<IconPropsType> = ({
   hoverable,
 }) => {
   return (
-    <AppIcon Icon={TriangleAlert} size={size} variant={variant} className={className} hoverable={hoverable} />
+    <AppIcon
+      Icon={CircleX}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
   );
 };
 
-export default { Close, Error };
+const Warning: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={TriangleAlert}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+
+const NormalBell: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={Bell}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+
+const ThumbUp: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={ThumbsUp}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+
+const RingingBell: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={TriangleAlert}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+
+export default {
+  CircledCheckmark,
+  Close,
+  Error,
+  NormalBell,
+  RingingBell,
+  ThumbUp,
+  Warning,
+};

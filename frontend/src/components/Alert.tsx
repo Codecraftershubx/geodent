@@ -16,6 +16,7 @@ type AlertPropsType = {
 
 const alertTypes = {
   neutral: {
+    icon: <Icons.NormalBell />,
     content: {
       title: "Message",
       description: "A message for you...",
@@ -29,6 +30,7 @@ const alertTypes = {
     },
   },
   info: {
+    icon: <Icons.NormalBell />,
     content: {
       title: "Message",
       description: "A message for you...",
@@ -41,8 +43,9 @@ const alertTypes = {
     },
   },
   warning: {
+    icon: <Icons.Warning />,
     content: {
-      title: "Warning",
+      title: "Caution",
       description: "Be careful. There might be a problem",
     },
     styles: {
@@ -53,6 +56,7 @@ const alertTypes = {
     },
   },
   success: {
+    icon: <Icons.CircledCheckmark />,
     content: {
       title: "Success",
       description: "Request completed successfully",
@@ -65,6 +69,7 @@ const alertTypes = {
     },
   },
   error: {
+    icon: <Icons.Error />,
     content: {
       title: "Error",
       description: "Request failed to complete for some reason",
@@ -105,7 +110,7 @@ const AppAlert: React.FC<AlertPropsType> = ({
                 "size-[26px] md:size-[30px] rounded-sm px-3 flex flex-col items-center justify-center"
               }
             >
-              <Icons.Error />
+              {alertTypes[type].icon}
             </div>
             <div item-role="alert-body">
               {withTitle && (
