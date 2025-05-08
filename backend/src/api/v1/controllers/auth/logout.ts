@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import config from "../../../../config.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
@@ -17,14 +16,6 @@ const logout = async (req: Request, res: Response): Promise<void> => {
     await db.client.client.user.updateMany({
       where: { refreshToken },
       data: { refreshToken: null },
-    });
-
-    // unset cookies
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: config.mode === "LIVE",
-      sameSite: "strict",
-      path: "/api/v1",
     });
 
     return utils.handlers.success(res, {

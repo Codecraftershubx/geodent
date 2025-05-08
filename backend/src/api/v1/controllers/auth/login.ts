@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import type { TRefreshTokenPayload } from "../../../../utils/types.js";
-import config from "../../../../config.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
