@@ -7,13 +7,14 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={ <Components.Layout /> } >
+        <Route path="/" element={<Components.Layout />}>
           <Route index element={<Pages.Listings />} />
           <Route path="/listings" element={<Pages.Listings />} />
-          <Route path="/login" element={ <Pages.Login /> } />
+          <Route path="/login" element={<Pages.Login />} />
           <Route path="/signup" element={<Pages.Signup />} />
           <Route path="/home" element={<Pages.Home />} />
           <Route path="/about" element={<Pages.About />} />
+          <Route path="/token/refresh" element={<Components.TokenRefresh />} />
         </Route>
       </Routes>
     </Router>
