@@ -1,5 +1,7 @@
 import { Outlet } from "react-router-dom";
-import components from "./index";
+import { useAppSelector } from "../appState/hooks.js";
+import type { RootState } from "../utils/types.js";
+import Components from "./index";
 
 //type TLayoutProps = {
 //  isLoggedIn: Boolean;
@@ -7,9 +9,22 @@ import components from "./index";
 //};
 
 const Layout: React.FC = () => {
+  const { message, show } = useAppSelector(
+    (store: RootState) => store.appMessage,
+  );
+  console.log("app message:", message);
   return (
     <div>
-      <components.NavBar />
+      <Components.NavBar />
+      {show && message && (
+        <Components.Alert
+          type={message.type}
+          description={message.description}
+          fullWidth={true}
+          variant={"plain"}
+          rounded={false}
+        />
+      )}
       <Outlet />
     </div>
   );

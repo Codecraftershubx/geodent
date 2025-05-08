@@ -53,3 +53,5 @@ export const {
   showAppMessage,
   hideAppMessage,
 } = messageSlice.actions;
+
+export default messageSlice.reducer;

@@ -95,7 +95,7 @@ const AppAlert: React.FC<AlertPropsType> = ({
   className,
 }) => {
   return (
-    <Wrapper fullWidth={fullWidth} className={className}>
+    <Wrapper fullWidth={fullWidth} className={`mb-5 ${className}`}>
       <Alert
         className={`${rounded ? "rounded-lg" : ""} @container ${alertTypes[type].styles[variant]}`}
       >

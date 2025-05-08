@@ -113,10 +113,12 @@ const authSlice = createSlice({
       state: AuthStateType,
       action: PayloadAction<StoreMessageType>,
     ) => {
+      console.log("setting auth state message!");
       state.message = action.payload;
     },
     clearMessage: (state: AuthStateType) => {
       state.message = null;
+      state.showMessage = false;
     },
     showMessage: (state: AuthStateType) => {
       state.showMessage = true;
@@ -135,7 +137,9 @@ const authSlice = createSlice({
         state.message = {
           type: data.redirect ? "info" : "success",
           role: "alert",
-          body: data.redirect ? "hold on a little longer" : "login successful",
+          description: data.redirect
+            ? "hold on a little longer"
+            : "login successful",
         };
         state.isLoading = data.redirect ? true : false;
       })
@@ -144,7 +148,7 @@ const authSlice = createSlice({
         state.message = {
           type: "info",
           role: "alert",
-          body: "logging you in...",
+          description: "logging you in...",
         };
       })
       .addCase(loginUser.rejected, (state: AuthStateType, { payload }) => {
@@ -154,7 +158,7 @@ const authSlice = createSlice({
         state.message = {
           type: "error",
           role: "alert",
-          body: `${value.header.message}`,
+          description: `${value.header.message}`,
           details: value.data,
           ...value.header,
         };
@@ -165,7 +169,7 @@ const authSlice = createSlice({
         state.isLoggedIn = false;
         state.message = {
           type: "success",
-          body: "log out successful",
+          description: "log out successful",
           role: "alert",
         };
         state.user = null;
@@ -175,7 +179,7 @@ const authSlice = createSlice({
         state.message = {
           type: "info",
           role: "alert",
-          body: "logging you out...",
+          description: "logging you out...",
         };
       })
       .addCase(logoutUser.rejected, (state: AuthStateType, { payload }) => {
@@ -184,7 +188,7 @@ const authSlice = createSlice({
         state.message = {
           type: "error",
           role: "notification",
-          body: `${value.header.message}`,
+          description: `${value.header.message}`,
           details: value.data,
           ...value.header,
         };

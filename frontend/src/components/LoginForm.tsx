@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, FieldPath, useForm } from "react-hook-form";
@@ -14,11 +14,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import toast, { Toaster } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../appState/hooks.js";
-import { loginUser } from "../appState/slices/authSlice.js";
+import {
+  loginUser,
+  clearMessage,
+  showMessage as showAuthMessage,
+  toggleMessage,
+} from "../appState/slices/authSlice.js";
+import Alert from "./Alert";
 import type { RootState } from "../utils/types";
-
 
 // form schema
 const formSchema = z.object({
@@ -27,25 +31,40 @@ const formSchema = z.object({
 });
 
 const LoginForm: React.FC = () => {
-  console.log("RENDERING LOGIN FORM.....");
-
   // states and effect handlers
-  const { accessToken } = useAppSelector((store: RootState) => store.auth);
+  const { accessToken, message, showMessage } = useAppSelector(
+    (store: RootState) => store.auth,
+  );
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const login = async ({ email, password }: {
-    email: string; password: string
+  useEffect(() => {
+    if (showMessage && message) {
+      dispatch(toggleMessage({ autoHide: true, delay: 5000 }));
+    } else {
+      //dispatch(clearMessage());
+    }
+  }, [showMessage]);
+
+  const login = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
   }) => {
     try {
-     await dispatch(loginUser({
-       email, password
-     })).unwrap();
-      toast.success("login success");
+      dispatch(showAuthMessage());
+      await dispatch(
+        loginUser({
+          email,
+          password,
+        }),
+      ).unwrap();
       navigate("/listings");
-   } catch(error: any) {
-     toast.error(`Failed: ${error.data.header.message}`);
-   }
+    } catch (error: any) {
+      dispatch(toggleMessage({ autoHide: true, delay: 10000 }));
+    }
   };
 
   // Form Definition
@@ -59,15 +78,23 @@ const LoginForm: React.FC = () => {
 
   // form action
   const formOnSubmit = (values: z.infer<typeof formSchema>) => {
-    login({ ...values })
-  }
+    login({ ...values });
+  };
 
   if (accessToken) {
     return <></>;
   }
+
   return (
     <Form {...loginForm}>
-      <Toaster />
+      {showMessage && message && (
+        <Alert
+          variant={"plain"}
+          description={message.description}
+          fullWidth={true}
+          type={message.type}
+        />
+      )}
       <form
         onSubmit={loginForm.handleSubmit(formOnSubmit)}
         className="space-y-5"

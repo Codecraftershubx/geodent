@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../appState/hooks.js";
-import { loginUser } from "../appState/slices/authSlice.js";
+import { clearMessage, loginUser } from "../appState/slices/authSlice.js";
+import {
+  toggleAppMessage,
+  clearAppMessage,
+  setAppMessage,
+} from "../appState/slices/appMessageSlice.js";
 import { Toaster } from "react-hot-toast";
 import type { RootState } from "../utils/types.js";
-import components from "../components/index";
+import Components from "../components/index";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { accessToken, isLoggedIn } = useAppSelector(
+  const { accessToken, isLoggedIn, message } = useAppSelector(
     (store: RootState) => store.auth,
   );
+  const { show } = useAppSelector((store: RootState) => store.appMessage);
   const [heading, setHeading] = useState(
     accessToken ? "Welcome Back" : "Login",
   );
@@ -40,7 +46,18 @@ const Login: React.FC = () => {
   };
 
   useEffect(() => {
+    if (message && accessToken) {
+      dispatch(setAppMessage(message));
+      dispatch(toggleAppMessage({ autoHide: true }));
+    }
+  }, [message, accessToken]);
+
+  useEffect(() => {
     if (isLoggedIn) {
+      setTimeout(() => {
+        dispatch(clearAppMessage());
+        dispatch(clearMessage());
+      }, 5000);
       navigate("/listings");
     }
   }, [isLoggedIn]);
@@ -59,7 +76,7 @@ const Login: React.FC = () => {
           <p className="text-sm text-zinc-500">{runner}</p>
         </div>
         <Toaster />
-        {accessToken === null && <components.LoginForm />}
+        {accessToken === null && <Components.LoginForm />}
       </section>
     </main>
   );
