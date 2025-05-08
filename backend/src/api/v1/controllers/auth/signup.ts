@@ -66,12 +66,8 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
         },
       );
       // set refreshToken cookie
-      res.cookie("refreshToken", updateUserTx.refreshToken, {
-        httpOnly: true,
-        maxAge: config.expirations.refreshCookie,
-        secure: config.mode === "LIVE",
-        path: "/api/v1",
-      });
+      db.client.setRefreshCookie(res, updateUserTx.refreshToken as string);
+
       // return success
       return utils.handlers.success(res, {
         data: [
