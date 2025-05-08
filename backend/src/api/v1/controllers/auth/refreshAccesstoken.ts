@@ -48,7 +48,12 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
       });
 
       // no user found or refresh tokens don't match
-      if (!user || user.refreshToken !== refreshToken) {
+      if (!user) {
+        return utils.handlers.error(res, "authentication", {
+          message: "Unauthorized: user not found",
+        });
+      }
+      if (user.refreshToken && user.refreshToken !== refreshToken) {
         return utils.handlers.error(res, "authentication", {
           message: "Unauthorized: Invalid refresh token",
         });
@@ -59,6 +64,9 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
         id: user.id,
         refreshToken,
       });
+
+      // update refresh cookie
+      db.client.setRefreshCookie(res, newToken);
       return utils.handlers.success(res, {
         message: "Token refreshed",
         data: [{ accessToken: newToken }],
@@ -76,4 +84,5 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
     });
   }
 };
+
 export default refresh;

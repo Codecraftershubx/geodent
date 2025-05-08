@@ -6,6 +6,7 @@ const router: Router = express.Router();
 
 router.post(/^\/(signin|login)\/?$/, controllers.auth.login);
 router.post(/^\/(signout|logout)\/?$/, controllers.auth.logout);
+router.post("/refresh", controllers.auth.refreshAccessToken);
 router.post(
   "/signup",
   [
