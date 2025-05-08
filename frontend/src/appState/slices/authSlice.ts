@@ -22,7 +22,7 @@ const loginUser = createAsyncThunk<
 >(
   "auth/login",
   async (credentials: LoginCredentialsType, { rejectWithValue, dispatch }) => {
-    console.log("LOGIN THUNK CALLED WITH:", credentials);
+    // console.log("LOGIN THUNK CALLED WITH:", credentials);
     const options: Record<string, any> = {};
     if (credentials.accessToken) {
       options.headers = {
@@ -128,7 +128,7 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.fulfilled, (state: AuthStateType, { payload }) => {
-        console.log("LOGIN THUNK FULFILLED REDUCER PAYLOAD:", payload);
+        // console.log("LOGIN THUNK FULFILLED REDUCER PAYLOAD:", payload);
         const data = payload;
         state.user = data;
         state.isLoggedIn = data.redirect ? false : true;
@@ -148,7 +148,7 @@ const authSlice = createSlice({
         };
       })
       .addCase(loginUser.rejected, (state: AuthStateType, { payload }) => {
-        console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
+        // console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
         const value = payload as BEDataType;
         state.isLoading = false;
         state.message = {
@@ -179,7 +179,7 @@ const authSlice = createSlice({
         };
       })
       .addCase(logoutUser.rejected, (state: AuthStateType, { payload }) => {
-        console.log("LOGOUT THUNK REJECTED ERROR:", payload);
+        // console.log("LOGOUT THUNK REJECTED ERROR:", payload);
         const value = payload as BEDataType;
         state.message = {
           type: "error",

@@ -24,7 +24,7 @@ const Login: React.FC = () => {
   const login = async (accessToken: string) => {
     try {
       const result = await dispatch(loginUser({ accessToken })).unwrap();
-      console.log("login page result:", result);
+      // console.log("login page result:", result);
       if (result.redirect) {
         navigate(result.redirect);
         return <></>;
@@ -33,7 +33,7 @@ const Login: React.FC = () => {
       setRunner("Taking you in...");
     } catch (error: any) {
       // attempt token refresh if token expired
-      console.error("login page error", error);
+      // console.error("login page error", error);
       setHeading("Login Again");
       setRunner("Auto login failed. Sign in with your credentials.");
     }
