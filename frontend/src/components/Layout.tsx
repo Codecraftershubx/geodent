@@ -12,7 +12,6 @@ const Layout: React.FC = () => {
   const { message, show } = useAppSelector(
     (store: RootState) => store.appMessage,
   );
-  console.log("app message:", message);
   return (
     <div>
       <Components.NavBar />

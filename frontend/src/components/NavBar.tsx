@@ -7,7 +7,9 @@ import Components from "./index.js";
 import Hamburger from "./Hamburger";
 
 const NavBar: React.FC = () => {
-  const { isLoggedIn } = useAppSelector((store: RootState) => store.auth);
+  const { isLoggedIn, isLoading } = useAppSelector(
+    (store: RootState) => store.auth,
+  );
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -53,6 +55,10 @@ const NavBar: React.FC = () => {
         />
       )}
       <Components.NavItems.Button
+        aside={
+          <Components.Loader size={"4"} className="text-white/50 fill-white" />
+        }
+        showAside={isLoading}
         target={isLoggedIn ? "#" : "/login"}
         text={isLoggedIn ? "Logout" : "Login"}
         className={`bg-red-600 text-white ${menuIsOpen ? "active:bg-red-900 duration-300" : "hover:bg-red-700"} ${pathname === "/login" && "bg-red-700/90 outline-[1.5px] outline-white/80 -outline-offset-4"}`}
@@ -95,7 +101,7 @@ const NavBar: React.FC = () => {
     } else {
       showMenu();
     }
-  }, [menuIsOpen]);
+  }, [menuIsOpen, isLoading]);
 
   return (
     <>

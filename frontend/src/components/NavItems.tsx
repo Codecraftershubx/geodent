@@ -5,6 +5,8 @@ type AppNavLinkPropsType = {
   className?: string;
   onClick?: React.MouseEventHandler<HTMLElement>;
   target: string;
+  aside?: React.ReactElement;
+  showAside?: boolean;
 };
 
 const Link: React.FC<AppNavLinkPropsType> = ({
@@ -32,10 +34,13 @@ const Button: React.FC<AppNavLinkPropsType> = ({
   onClick,
   className,
   target,
+  aside,
+  showAside = false,
 }) => {
-  let styles = `py-2 px-5 rounded-md shadow-none transition-all ease-in ${className}`;
+  let styles = `flex justify-start items-center gap-2 py-2 px-5 rounded-md shadow-none transition-all ease-in ${className}`;
   return (
     <NavLink to={target} onClick={onClick} className={styles}>
+      {showAside && aside}
       {text}
     </NavLink>
   );
