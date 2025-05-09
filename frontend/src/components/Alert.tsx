@@ -97,7 +97,7 @@ const AppAlert: React.FC<AlertPropsType> = ({
   return (
     <Wrapper fullWidth={fullWidth} className={`mb-5 ${className}`}>
       <Alert
-        className={`${rounded ? "rounded-lg" : ""} @container ${alertTypes[type].styles[variant]}`}
+        className={`${rounded ? "rounded-lg" : ""} py-2 @container ${alertTypes[type].styles[variant]}`}
       >
         <Wrapper className="flex justify-between items-center @max-lg:w-95/100">
           <div
@@ -107,7 +107,7 @@ const AppAlert: React.FC<AlertPropsType> = ({
             <div
               item-role="alert-icon"
               className={
-                "size-[26px] md:size-[30px] rounded-sm px-3 flex flex-col items-center justify-center"
+                "size-[20px] md:size-[24px] rounded-sm px-2 flex flex-col items-center justify-center"
               }
             >
               {alertTypes[type].icon}
