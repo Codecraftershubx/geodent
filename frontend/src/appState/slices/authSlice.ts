@@ -83,7 +83,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     accessToken: window.localStorage.getItem("accessToken") || null,
-    isLoggedIn: false,
+    isLoggedIn: JSON.parse(window.localStorage.getItem("isLoggedIn")) || false,
     isLoading: false,
     showMessage: false,
     message: null,
@@ -98,16 +98,6 @@ const authSlice = createSlice({
     clearAccessToken: (state: AuthStateType) => {
       state.accessToken = null;
       window.localStorage.removeItem("accessToken");
-    },
-    setIsLoggedIn: (state: AuthStateType) => {
-      if (!state.isLoggedIn) {
-        state.isLoggedIn = true;
-      }
-    },
-    unsetIsLoggedIn: (state: AuthStateType) => {
-      if (state.isLoggedIn) {
-        state.isLoggedIn = false;
-      }
     },
     setMessage: (
       state: AuthStateType,
@@ -142,6 +132,10 @@ const authSlice = createSlice({
             : "login successful",
         };
         state.isLoading = data.redirect ? true : false;
+        window.localStorage.setItem(
+          "isLoggedIn",
+          JSON.stringify(state.isLoggedIn),
+        );
       })
       .addCase(loginUser.pending, (state: AuthStateType) => {
         state.isLoading = true;
@@ -173,6 +167,10 @@ const authSlice = createSlice({
           role: "alert",
         };
         state.user = null;
+        window.localStorage.setItem(
+          "isLoggedIn",
+          JSON.stringify(state.isLoggedIn),
+        );
       })
       .addCase(logoutUser.pending, (state: AuthStateType) => {
         state.isLoading = true;
