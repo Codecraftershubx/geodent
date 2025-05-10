@@ -30,7 +30,7 @@ const formSchema = z.object({
   password: z.string(),
 });
 
-const LoginForm: React.FC = () => {
+const LoginForm: React.FC<{ to: string }> = ({ to }) => {
   // states and effect handlers
   const { accessToken, message, showMessage } = useAppSelector(
     (store: RootState) => store.auth,
@@ -61,7 +61,7 @@ const LoginForm: React.FC = () => {
           password,
         }),
       ).unwrap();
-      navigate("/listings");
+      navigate(to);
     } catch (error: any) {
       dispatch(toggleMessage({ autoHide: true, delay: 10000 }));
     }

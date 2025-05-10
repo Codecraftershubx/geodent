@@ -61,7 +61,7 @@ function App() {
           <Route path="/home" element={<Pages.Home />} />
           <Route path="/about" element={<Pages.About />} />
           <Route path="/token/refresh" element={<Components.TokenRefresh />} />
-          <Route path="/user/me" element={<Pages.UserAccount />} />
+          <Route path="/users/me" element={<Pages.UserAccount />} />
         </Route>
       </Routes>
     </Router>

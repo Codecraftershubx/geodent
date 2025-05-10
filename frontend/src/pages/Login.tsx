@@ -1,23 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "../appState/hooks.js";
-import { clearMessage, loginUser } from "../appState/slices/authSlice.js";
+import {
+  useAppSelector,
+  useAppDispatch,
+  useQueryParams,
+} from "@/appState/hooks.js";
+import { clearMessage, loginUser } from "@/appState/slices/authSlice.js";
 import {
   toggleAppMessage,
   clearAppMessage,
   setAppMessage,
-} from "../appState/slices/appMessageSlice.js";
-import { Toaster } from "react-hot-toast";
-import type { RootState } from "../utils/types.js";
-import Components from "../components/index";
+} from "@/appState/slices/appMessageSlice.js";
+import type { RootState } from "@/utils/types.js";
+import Components from "@/components/index";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const redirectPath = useQueryParams("redirect") || "/listings";
   const { accessToken, isLoggedIn, message } = useAppSelector(
     (store: RootState) => store.auth,
   );
-  const { show } = useAppSelector((store: RootState) => store.appMessage);
   const [heading, setHeading] = useState(
     accessToken ? "Welcome Back" : "Login",
   );
@@ -58,7 +61,7 @@ const Login: React.FC = () => {
         dispatch(clearAppMessage());
         dispatch(clearMessage());
       }, 5000);
-      navigate("/listings");
+      navigate(redirectPath);
     }
   }, [isLoggedIn]);
 
@@ -75,8 +78,7 @@ const Login: React.FC = () => {
           <h1 className="text-3xl font-bold text-red-500 mb-5">{heading}</h1>
           <p className="text-sm text-zinc-500">{runner}</p>
         </div>
-        <Toaster />
-        {accessToken === null && <Components.LoginForm />}
+        {accessToken === null && <Components.LoginForm to={redirectPath} />}
       </section>
     </main>
   );

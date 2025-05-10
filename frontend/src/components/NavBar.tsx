@@ -42,7 +42,7 @@ const NavBar: React.FC = () => {
         onClick={closeMenu}
       />
       <Components.NavItems.Link
-        target="/user/me"
+        target="/users/me"
         text="Account"
         onClick={closeMenu}
       />
