@@ -41,6 +41,11 @@ const NavBar: React.FC = () => {
         className={pathname === "/" ? "text-red-600" : ""}
         onClick={closeMenu}
       />
+      <Components.NavItems.Link
+        target="/user/me"
+        text="Account"
+        onClick={closeMenu}
+      />
     </>
   );
 

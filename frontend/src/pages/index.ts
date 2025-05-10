@@ -3,6 +3,7 @@ import Home from "./Home";
 import Listings from "./Listings";
 import Login from "./Login";
 import Signup from "./Signup";
+import UserAccount from "./UserAccount";
 
 export default {
   About,
@@ -10,4 +11,5 @@ export default {
   Listings,
   Login,
   Signup,
+  UserAccount,
 };
