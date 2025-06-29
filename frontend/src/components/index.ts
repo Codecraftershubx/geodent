@@ -1,6 +1,5 @@
 import Alert from "./Alert";
 import Layout from "./Layout";
-import Loader from "./Loader";
 import LoginForm from "./LoginForm";
 import Logo from "./Logo";
 import NavBar from "./NavBar";
@@ -12,7 +11,6 @@ import Wrapper from "./Wrapper";
 export default {
   Alert,
   Layout,
-  Loader,
   LoginForm,
   Logo,
   NavBar,

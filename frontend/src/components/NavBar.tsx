@@ -110,7 +110,10 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <div className={`shadow-md shadow-zinc-100 relative py-3 md:py-5`}>
+      <div
+        className={`shadow-md shadow-zinc-100 relative py-3 md:py-5`}
+        id="navbar"
+      >
         <Components.Wrapper>
           <nav className={`flex justify-between items-center @container`}>
             <Components.Logo />
