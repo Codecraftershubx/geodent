@@ -1,7 +1,12 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Control, FieldPath, useForm } from "react-hook-form";
+import {
+  Control,
+  ControllerRenderProps,
+  FieldPath,
+  useForm,
+} from "react-hook-form";
 import {
   Form,
   FormField,
@@ -151,7 +156,7 @@ const LoginFormField: React.FC<LoginFormType> = ({
     <FormField
       name={name}
       control={control}
-      render={({ field }) => (
+      render={({ field }: { field: ControllerRenderProps }) => (
         <FormItem>
           <FormLabel> {label} </FormLabel>
           <FormControl>
