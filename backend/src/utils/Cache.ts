@@ -3,7 +3,7 @@ import { createClient, RedisClientType } from "redis";
 // variables
 const cachePort = process.env.CACHE_PORT
   ? parseInt(process.env.CACHE_PORT)
-  : 3000;
+  : 6379;
 const maxRetries = 10;
 
 class Cache {
@@ -19,7 +19,8 @@ class Cache {
     if (this.#client) {
       return;
     }
-    this.#client = await createClient({
+    console.log("creating new client");
+    this.#client = createClient({
       socket: {
         host: "localhost",
         port: cachePort,
@@ -32,7 +33,9 @@ class Cache {
           return baseDelay / 2 + jitter / 2;
         },
       },
-    })
+    });
+    // add client event listeners
+    this.#client
       .on("ready", () => {
         console.log(`[${this.#name}]: Ready ✅`);
       })
@@ -53,6 +56,7 @@ class Cache {
 
   // connect client
   async connect() {
+    console.log("connecting to client");
     if (this.#alive || !this.#client) {
       return;
     }
@@ -67,4 +71,11 @@ class Cache {
   }
 }
 
-export default Cache;
+// instantiate cache
+const cacheInstance = new Cache();
+cacheInstance.init().then(() => {
+  cacheInstance.connect();
+});
+
+// expose instance
+export default cacheInstance;
