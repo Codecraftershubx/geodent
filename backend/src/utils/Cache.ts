@@ -19,14 +19,13 @@ class Cache {
     if (this.#client) {
       return;
     }
-    console.log("creating new client");
     this.#client = createClient({
       socket: {
         host: "localhost",
         port: cachePort,
         reconnectStrategy: (retries: number) => {
           if (retries > this.#maxRetries) {
-            return new Error(`${this.#name} failed to initialise`);
+            return new Error(`Error! Failed to initialise`);
           }
           const baseDelay = Math.min(2000 ** retries, this.#retryInterval);
           const jitter = Math.random() * baseDelay;
@@ -34,6 +33,7 @@ class Cache {
         },
       },
     });
+
     // add client event listeners
     this.#client
       .on("ready", () => {
@@ -52,11 +52,22 @@ class Cache {
           );
         }
       });
+
+    // Safe operation wraper
+    async safeOp (operation: Callable) {
+      if (!this.#alive) {
+        return new Error("Error! Cache not ready");
+      }
+      try {
+        return await operation();
+      } catch (err: any) {
+        return new Error(...err);
+      }
+    }
   }
 
   // connect client
   async connect() {
-    console.log("connecting to client");
     if (this.#alive || !this.#client) {
       return;
     }
