@@ -37,7 +37,7 @@ class DbClient implements Client {
   setRefreshCookie(res: Response, value: string) {
     res.cookie("refreshToken", value, {
       httpOnly: true,
-      maxAge: config.expirations.refreshCookie,
+      maxAge: config.expirations.refreshToken * 1000,
       secure: config.mode === "LIVE",
       path: "/api/v1",
     });
