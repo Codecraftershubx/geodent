@@ -28,7 +28,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
     });
     if (existingUser) {
       return utils.handlers.error(res, "validation", {
-        message: `email ${data.email} already in use`,
+        message: `email ${data.email} not available`,
       });
     }
 
@@ -42,41 +42,30 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
 
     try {
       // generate createUser and updateUser transactions
-      let accessToken;
-      const [, updateUserTx] = await db.client.client.$transaction(
-        async (_) => {
-          const newUser = await db.client.client.user.create({
-            data: {
-              ...data,
-              password,
-            },
-          });
-          const refreshToken = utils.tokens.generate.refreshToken({
-            id: newUser.id,
-          });
-          accessToken = utils.tokens.generate.accessToken({
-            id: newUser.id,
-            refreshToken,
-          });
-          const updatedUser = await db.client.client.user.update({
-            data: { refreshToken },
-            where: { id: newUser.id },
-          });
-          return [newUser, updatedUser];
-        },
-      );
-      // set refreshToken cookie
-      db.client.setRefreshCookie(res, updateUserTx.refreshToken as string);
-
+      const result = await db.client.client.$transaction(async () => {
+        const user = (await db.client.client.user.create({
+          data: {
+            ...data,
+            password,
+          },
+        })) as Record<string, any>;
+        const rT = utils.tokens.generate.refreshToken({
+          id: user.id,
+        });
+        const aT = utils.tokens.generate.accessToken({ id: user.id });
+        // save tokens in cache
+        const cachedAT = await utils.cache.set(aT, user.id);
+        const cachedRT = await utils.cache.set(`${aT}:refresh`, rT);
+        if (!cachedAT || !cachedRT) {
+          throw new Error("Error! Sign up aborted");
+        }
+        return [user, aT];
+      });
+      const newUser = result[0] as Record<string, any>;
+      const accessToken = result[1] as string;
       // return success
       return utils.handlers.success(res, {
-        data: [
-          {
-            id: updateUserTx.id,
-            accessToken,
-            refreshToken: updateUserTx.refreshToken,
-          },
-        ],
+        data: [{ id: newUser.id, accessToken }],
         status: 201,
         message: "user created successfully",
       });

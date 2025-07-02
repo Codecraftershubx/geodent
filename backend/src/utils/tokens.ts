@@ -1,19 +1,15 @@
 import jwt from "jsonwebtoken";
 import config from "../config.js";
-import type {
-  TBasePayload,
-  TRefreshTokenPayload,
-  TDecomposeResult,
-} from "./types.js";
+import type { TAccessTokenPayload, TDecomposeResult } from "./types.js";
 
 export default {
   // generate tokens
   generate: {
     accessToken: (
-      payload: TRefreshTokenPayload,
+      payload: TAccessTokenPayload,
       options: object = {
         expiresIn: config.expirations.accessToken,
-      },
+      }
     ): string => {
       if (!config.authSecret) {
         throw new Error("authSecret env var not defined");
@@ -22,10 +18,10 @@ export default {
     },
 
     refreshToken: (
-      payload: TBasePayload,
+      payload: TAccessTokenPayload,
       options: object = {
         expiresIn: config.expirations.refreshToken,
-      },
+      }
     ): string => {
       if (!config.refreshSecret) {
         throw new Error("refreshSecret env var not defined");
@@ -43,8 +39,8 @@ export default {
         }
         const payload = jwt.verify(
           token,
-          config.authSecret,
-        ) as TRefreshTokenPayload;
+          config.authSecret
+        ) as TAccessTokenPayload;
         return { payload, expired: false };
       } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
@@ -59,7 +55,10 @@ export default {
         if (!config.refreshSecret) {
           throw new Error("refreshSecret env var not defined");
         }
-        const payload = jwt.verify(token, config.refreshSecret) as TBasePayload;
+        const payload = jwt.verify(
+          token,
+          config.refreshSecret
+        ) as TAccessTokenPayload;
         return { payload, expired: false };
       } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {

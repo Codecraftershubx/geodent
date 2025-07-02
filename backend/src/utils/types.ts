@@ -1,7 +1,7 @@
 // error numbers object type
 
 type TDecomposeResult = {
-  payload: TBasePayload | TRefreshTokenPayload | null;
+  payload: TAccessTokenPayload | null;
   expired: Boolean;
 };
 type TErrNumber = {
@@ -16,18 +16,12 @@ type TErrNumbers = {
 
 type THandlerOptions = {
   status?: number;
-  data?: Array<object>;
+  data?: Array<Record<string, any>>;
   message?: String;
   [key: string]: any;
 };
 
-type TBasePayload = {
-  id: string;
-};
-
-type TRefreshTokenPayload = TBasePayload & {
-  refreshToken: string;
-};
+type TAccessTokenPayload = { id: string };
 
 type TUserData = {
   firstName: string;
@@ -138,8 +132,7 @@ export type {
   ReviewTarget,
   SchoolType,
   TDecomposeResult,
-  TBasePayload,
-  TRefreshTokenPayload,
+  TAccessTokenPayload,
   TErrNumber,
   TErrNumbers,
   THandlerOptions,
