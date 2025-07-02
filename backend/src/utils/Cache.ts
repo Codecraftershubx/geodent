@@ -1,4 +1,5 @@
 import { createClient, RedisClientType } from "redis";
+import config from "../config.js";
 
 // variables
 const cachePort = process.env.CACHE_PORT
@@ -12,7 +13,7 @@ class Cache {
   #retryInterval: number = 5000;
   #alive: boolean = false;
   #client: RedisClientType | null = null;
-  #defaultExpiry: number = 24 * 7 * 3600;
+  #defaultExpiry: number = config.expirations.cacheDefault;
   [Symbol.toStringTag] = this.#name;
 
   /*----------------*
@@ -101,11 +102,11 @@ class Cache {
         if (!this.#client) {
           throw new Error("Error! Cache not ready");
         }
-        const result = await this.#client.get(key);
-        if (buffers && result) {
-          return Buffer.from(result, format);
+        const item = await this.#client.get(key);
+        if (buffers && item) {
+          return Buffer.from(item, format);
         }
-        return result;
+        return item;
       });
       return data;
     } catch (err: any) {
@@ -119,16 +120,16 @@ class Cache {
     key: string,
     value: string,
     ex: number = this.#defaultExpiry
-  ): Promise<any | null> {
+  ): Promise<any | boolean> {
     if (!this.#client) {
-      return null;
+      return false;
     }
     try {
       const res = await this.#client.set(key, value, { EX: ex });
       return res;
     } catch (err: any) {
       console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
-      return null;
+      return false;
     }
   }
 
