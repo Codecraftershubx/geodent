@@ -10,22 +10,17 @@ router.post("/refresh", controllers.auth.refreshAccessToken);
 router.post(
   "/signup",
   [
-    body("data")
-      .notEmpty()
-      .withMessage("data is required")
-      .isObject()
-      .withMessage("expects an object"),
-    body(["data.firstName", "data.lastName", "data.password", "data.email"])
+    body(["firstName", "lastName", "password", "email"])
       .notEmpty()
       .withMessage("required field"),
-    body("data.phone")
+    body("phone")
       .optional()
       .notEmpty()
       .withMessage("value cannot be empty")
       .isString()
       .withMessage("phone must be a string"),
   ],
-  controllers.auth.signup,
+  controllers.auth.signup
 );
 
 router.use("/*", (_: Request, res: Response): void => {
