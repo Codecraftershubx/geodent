@@ -43,22 +43,14 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
     try {
       // generate createUser and updateUser transactions
       const result = await db.client.client.$transaction(async () => {
-        const user = (await db.client.client.user.create({
+        const user = await db.client.client.user.create({
           data: {
             ...data,
             password,
           },
-        })) as Record<string, any>;
-        const rT = utils.tokens.generate.refreshToken({
-          id: user.id,
         });
         const aT = utils.tokens.generate.accessToken({ id: user.id });
-        // save tokens in cache
-        const cachedAT = await utils.cache.set(aT, user.id);
-        const cachedRT = await utils.cache.set(`${aT}:refresh`, rT);
-        if (!cachedAT || !cachedRT) {
-          throw new Error("Error! Sign up aborted");
-        }
+        console.log("accessToken:", aT);
         return [user, aT];
       });
       const newUser = result[0] as Record<string, any>;

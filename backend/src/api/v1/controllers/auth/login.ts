@@ -1,53 +1,71 @@
 import { Request, Response } from "express";
-import type { TRefreshTokenPayload } from "../../../../utils/types.js";
+import type {
+  TAccessTokenPayload,
+  TDecomposeResult,
+} from "../../../../utils/types.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
+import config from "../../../../../config.js";
 
 const login = async (req: Request, res: Response): Promise<void> => {
   // extract access token
-
   const authHeader = req.headers.authorization;
-  let newRefreshToken, filtered, updatedUser;
+  let filtered;
 
   if (authHeader) {
     const [_, accessToken] = authHeader.split(" ");
     try {
-      let data = utils.tokens.decompose.accessToken(accessToken);
+      let data: TDecomposeResult =
+        utils.tokens.decompose.accessToken(accessToken);
       if (data.expired) {
         return utils.handlers.error(res, "authentication", {
           message: "access token expired",
         });
       }
       // login authenticated User
-      const payload = data.payload as TRefreshTokenPayload;
+      const payload = data.payload as TAccessTokenPayload;
+
       // get user profile
       const user = await db.client.client.user.findUnique({
         where: { id: payload.id },
       });
 
-      if (!user) {
+      if (!user || user.id !== payload.id) {
         return utils.handlers.error(res, "authentication", {
           message: "unknown user",
         });
       }
-      // save refreh token
-      updatedUser = await db.client.client.user.update({
-        where: { id: user.id },
-        data: { refreshToken: payload.refreshToken },
-        include: db.client.include.user,
-      });
+      // verify user not already logged in
+      const loggedInUser = await utils.cache.get(accessToken);
+      if (
+        loggedInUser &&
+        typeof loggedInUser === "string" &&
+        loggedInUser === payload.id
+      ) {
+        return utils.handlers.error(res, "authentication", {
+          message: "already loggedd in",
+        });
+      }
+      // save login session
+      const rT = await utils.tokens.generate.refreshToken({ id: payload.id });
+      const cacheATRes = await utils.cache.set(accessToken, payload.id, config.expirations.accessToken);
+      const cacheRTRes = await utils.cache.set(`${accessToken}:RToken`, rT, config.expirations.refreshToken);
+      if (!cacheATRes || !cacheRTRes) {
+        throw new Error("Error! Login failed");
+      }
+      console.log("cacheATRes:", cacheATRes, "cacheRTRes:", cacheRTRes);
+
       // filter hidden values
-      filtered = await db.client.filterModels([updatedUser]);
-      db.client.setRefreshCookie(res, payload.refreshToken);
+      filtered = await db.client.filterModels([user]);
       return utils.handlers.success(res, {
         data: filtered,
-        message: "auth success",
+        message: "login success",
       });
     } catch (err) {
       // error occured while generating token
       if (err instanceof Error) {
         return utils.handlers.error(res, "general", {
-          message: "auth failed",
+          message: "login failed",
           status: 500,
           data: [{ details: err }],
         });
@@ -90,23 +108,21 @@ const login = async (req: Request, res: Response): Promise<void> => {
   }
   // auth success: generate tokens for user
   try {
-    newRefreshToken = utils.tokens.generate.refreshToken({ id: user.id });
-    const newAccessToken = utils.tokens.generate.accessToken({
-      id: user.id,
-      refreshToken: newRefreshToken,
-    });
-    updatedUser = await db.client.client.user.update({
-      where: { id: user.id },
-      data: { refreshToken: newRefreshToken },
-      include: db.client.include.user,
-    });
+    const aT = utils.tokens.generate.accessToken({ id: user.id });
+    const rT = utils.tokens.generate.refreshToken({ id: user.id });
 
-    // Filter out fields to hide
-    filtered = await db.client.filterModels([updatedUser]);
-    filtered[0].accessToken = newAccessToken;
-
-    // set cookie
-    db.client.setRefreshCookie(res, newRefreshToken);
+    // cache keys and handle failure
+		const cacheAT = await utils.cache.set(aT, user.id);
+		const cacheRT = await utils.cache.set(`${aT}:Refresh`, usre.id);
+		if (!cacheAT || !cacheRT){
+			return utils.handlers.error(res, "authentication", {
+				message: "login failed",
+				status: 500,
+			});
+		}
+    // Filter out hidden fields
+    filtered = await db.client.filterModels([user]);
+    filtered[0].accessToken = aT;
 
     // return user profile
     return utils.handlers.success(res, {
