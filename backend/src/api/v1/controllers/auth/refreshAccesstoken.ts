@@ -55,11 +55,20 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
 				message: "Unauthorized: unknown user",
 			});
 		}
-		// generate new access token and return
-		const newToken: string = utils.tokens.generate.accessToken({ id: user.id });
+		// generate new tokens and update cache
+		const newAT: string = utils.tokens.generate.accessToken({ id: user.id });
+		const newRT: string = utils.tokens.generate.refreshToken({ id: user.id });
+		const saveNewRT = await utils.cache.set(`${newAT}${config.refreshCacheSuffix}`, newRT);
+		const delOldRT = await utils.cache.delete(`${accessToken}${config.refreshCacheSuffix}`);
+		// handle caching failure
+		if (!saveNewRT || !delOldRT) {
+			return utils.handlers.error(res, "general", {
+				message: "Error: unable to complete operation",
+			});
+		}
     return utils.handlers.success(res, {
         message: "Refresh success",
-        data: [{ accessToken: newToken }],
+        data: [{ accessToken: newAT }],
     });
     } catch (err: any) {
       // handle unique db constraint error
