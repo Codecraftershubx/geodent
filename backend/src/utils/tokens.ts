@@ -44,7 +44,7 @@ export default {
         return { payload };
       } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
-          return { payload: null, expired: true };
+          return { payload: null };
         }
         throw err;
       }
@@ -59,10 +59,10 @@ export default {
           token,
           config.refreshSecret
         ) as TAccessTokenPayload;
-        return { payload, expired: false };
+        return { payload };
       } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
-          return { payload: null, expired: true };
+          return { payload: null };
         }
         throw err;
       }

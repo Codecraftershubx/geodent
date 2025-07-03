@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
+import config from "../../../../config.js";
 
 const logout = async (req: Request, res: Response): Promise<void> => {
   // get auth token from request
@@ -25,9 +26,9 @@ const logout = async (req: Request, res: Response): Promise<void> => {
 			})
 		}
 		// extract user id from token and
-		const { payload as aTData } = utils.tokens.decompose.accessToken(accessToken);
+		const { payload: aTData } = utils.tokens.decompose.accessToken(accessToken);
 		if (aTData === null) {
-			return utils.errors.error(res, "authentication", {
+			return utils.handlers.error(res, "authentication", {
 				message: "Unauthorised: session expired",
 			});
 		}

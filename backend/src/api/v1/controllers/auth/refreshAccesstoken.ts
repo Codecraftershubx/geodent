@@ -12,7 +12,7 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
     });
   }
 	// extract token
-  const [_, accessToken] = req.headers.authorization.split(" ");
+  const [_, accessToken] = authHeader.split(" ");
   if (!accessToken) {
     return utils.handlers.error(res, "authentication", {
       message: "Unauthorised!",
@@ -20,7 +20,7 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
   }
 	try {
 		// validate token's expired
-		const { payload as aTData } = utils.tokens.decompose.accessToken(accessToken);
+		const { payload: aTData } = utils.tokens.decompose.accessToken(accessToken);
 		if (aTData !== null) {
       return utils.handlers.error(res, "authentication", {
         message: "Unauthorised: session still active",
@@ -30,14 +30,14 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
 		const rT = (await utils.cache.get(`${accessToken}${config.refreshCacheSuffix}`)) as string;
 		if (!rT) {
 			return utils.handlers.error(res, "authentication", {
-        message: "Unauthorised: tokens expired",
+        message: "Unauthorised: token expired",
       });
 		}
 		// verify both token payloads match
-    const { payload as rTData } = utils.tokens.decompose.refreshToken(rT);
-		if (rTData.id !== aTData.id) {
+    const { payload: rTData } = utils.tokens.decompose.refreshToken(rT);
+		if (!rTData) {
 			return utils.handlers.error(res, "authentication", {
-        message: "Unauthorised: unknown user",
+        message: "Unauthorised: token expired",
       });
 		}
     // validate user exists and owns the tokens

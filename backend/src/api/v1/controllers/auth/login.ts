@@ -5,7 +5,7 @@ import type {
 } from "../../../../utils/types.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
-import config from "../../../../../config.js";
+import config from "../../../../config.js";
 
 const login = async (req: Request, res: Response): Promise<void> => {
   // extract access token
@@ -20,7 +20,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
 			});
 		}
     try {
-      let { payload as aTData } = utils.tokens.decompose.accessToken(accessToken);
+      let { payload: aTData } = utils.tokens.decompose.accessToken(accessToken);
       if (aTData === null) {
         return utils.handlers.error(res, "authentication", {
           message: "Unauthorised: session expired",
