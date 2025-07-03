@@ -1,9 +1,11 @@
 // error numbers object type
 
+type TAccessTokenPayload = { id: string };
+
 type TDecomposeResult = {
   payload: TAccessTokenPayload | null;
-  expired: Boolean;
 };
+
 type TErrNumber = {
   code: number;
   desc: string;
@@ -20,8 +22,6 @@ type THandlerOptions = {
   message?: String;
   [key: string]: any;
 };
-
-type TAccessTokenPayload = { id: string };
 
 type TUserData = {
   firstName: string;
