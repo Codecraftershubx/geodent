@@ -14,42 +14,43 @@ const login = async (req: Request, res: Response): Promise<void> => {
 
   if (authHeader) {
     const [_, accessToken] = authHeader.split(" ");
+		if (!accessToken) {
+			return utils.handlers.error(res, "authentication", {
+				message: "Unauthorised!",
+			});
+		}
     try {
-      let data: TDecomposeResult =
-        utils.tokens.decompose.accessToken(accessToken);
-      if (data.expired) {
+      let { payload as aTData } = utils.tokens.decompose.accessToken(accessToken);
+      if (aTData === null) {
         return utils.handlers.error(res, "authentication", {
-          message: "access token expired",
+          message: "Unauthorised: session expired",
         });
       }
-      // login authenticated User
-      const payload = data.payload as TAccessTokenPayload;
 
       // get user profile
       const user = await db.client.client.user.findUnique({
-        where: { id: payload.id },
+        where: { id: aTData.id },
       });
 
-      if (!user || user.id !== payload.id) {
+      if (!user || user.id !== aTData.id) {
         return utils.handlers.error(res, "authentication", {
-          message: "unknown user",
+          message: "Unauthorised: unknown user",
         });
       }
       // verify user not already logged in
       const loggedInUser = await utils.cache.get(accessToken);
       if (
         loggedInUser &&
-        typeof loggedInUser === "string" &&
-        loggedInUser === payload.id
+        loggedInUser === aTData.id
       ) {
         return utils.handlers.error(res, "authentication", {
-          message: "already loggedd in",
+          message: "Error: already loggedd in",
         });
       }
       // save login session
-      const rT = await utils.tokens.generate.refreshToken({ id: payload.id });
-      const cacheATRes = await utils.cache.set(accessToken, payload.id, config.expirations.accessToken);
-      const cacheRTRes = await utils.cache.set(`${accessToken}:RToken`, rT, config.expirations.refreshToken);
+      const rT = await utils.tokens.generate.refreshToken({ id: aTData.id });
+      const cacheATRes = await utils.cache.set(accessToken, aTData.id, config.expirations.accessToken);
+      const cacheRTRes = await utils.cache.set(`${accessToken}${config.refreshCacheSuffix}`, rT, config.expirations.refreshToken);
       if (!cacheATRes || !cacheRTRes) {
         throw new Error("Error! Login failed");
       }
@@ -95,7 +96,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
   });
   if (!user) {
     return utils.handlers.error(res, "authentication", {
-      message: "user doesn't exist",
+      message: "Unauthorised: user doesn't exist",
     });
   }
 
@@ -113,10 +114,10 @@ const login = async (req: Request, res: Response): Promise<void> => {
 
     // cache keys and handle failure
 		const cacheAT = await utils.cache.set(aT, user.id);
-		const cacheRT = await utils.cache.set(`${aT}:Refresh`, usre.id);
+		const cacheRT = await utils.cache.set(`${aT}:Refresh`, rT);
 		if (!cacheAT || !cacheRT){
 			return utils.handlers.error(res, "authentication", {
-				message: "login failed",
+				message: "Error: login failed",
 				status: 500,
 			});
 		}
@@ -131,7 +132,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (err) {
     return utils.handlers.error(res, "authentication", {
-      message: "auth failed",
+      message: "Error: login failed",
     });
   }
 };

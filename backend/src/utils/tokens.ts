@@ -41,7 +41,7 @@ export default {
           token,
           config.authSecret
         ) as TAccessTokenPayload;
-        return { payload, expired: false };
+        return { payload };
       } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
           return { payload: null, expired: true };

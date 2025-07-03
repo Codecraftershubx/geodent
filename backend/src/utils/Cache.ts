@@ -111,7 +111,7 @@ class Cache {
       return data;
     } catch (err: any) {
       console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
-      return null;
+      throw err;
     }
   }
 

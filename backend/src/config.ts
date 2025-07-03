@@ -90,6 +90,7 @@ const envs = {
   mode,
   expirations,
   refreshSecret,
+	refreshCacheSuffix: ":RToken",
   serverHost,
   serverPort,
   trashPath: "/var/geodent/.trash",
