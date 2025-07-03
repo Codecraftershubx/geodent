@@ -1,86 +1,76 @@
 import { Request, Response } from "express";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
+import config from "../../../../config.js";
 
 const refresh = async (req: Request, res: Response): Promise<void> => {
-  if (!req?.headers?.authorization) {
+	// validate access token sent
+	const authHeader = req.headers.authorization;
+  if (!authHeader) {
     return utils.handlers.error(res, "authentication", {
-      message: "Unauthorized: Access token required",
+      message: "Unauthorised!",
     });
   }
-
+	// extract token
   const [_, accessToken] = req.headers.authorization.split(" ");
   if (!accessToken) {
     return utils.handlers.error(res, "authentication", {
-      message: "Unauthorized: Access token required",
+      message: "Unauthorised!",
     });
   }
-
-  // extract refresh token
-  const { refreshToken } = req.cookies;
-  if (!refreshToken) {
-    return utils.handlers.error(res, "authentication", {
-      message: "Unauthorized: Refresh token required",
+	try {
+		// validate token's expired
+		const { payload as aTData } = utils.tokens.decompose.accessToken(accessToken);
+		if (aTData !== null) {
+      return utils.handlers.error(res, "authentication", {
+        message: "Unauthorised: session still active",
+      });
+    }
+		// verify refreshToken in cache and not expired
+		const rT = (await utils.cache.get(`${accessToken}${config.refreshCacheSuffix}`)) as string;
+		if (!rT) {
+			return utils.handlers.error(res, "authentication", {
+        message: "Unauthorised: tokens expired",
+      });
+		}
+		// verify both token payloads match
+    const { payload as rTData } = utils.tokens.decompose.refreshToken(rT);
+		if (rTData.id !== aTData.id) {
+			return utils.handlers.error(res, "authentication", {
+        message: "Unauthorised: unknown user",
+      });
+		}
+    // validate user exists and owns the tokens
+    const user = await db.client.client.user.findUnique({
+      	where: { id: rTData.id },
     });
-  }
-
-  // verify refreshToken is not expired
-  try {
-    const { payload } = utils.tokens.decompose.refreshToken(refreshToken);
-    const accessData = utils.tokens.decompose.accessToken(accessToken);
-
-    if (!accessData.expired) {
+		try {
+    if (!user) {
       return utils.handlers.error(res, "authentication", {
-        message: "Unauthorized: Access token not expired",
+        message: "Unauthorized: user not found",
       });
     }
-
-    if (!payload) {
-      return utils.handlers.error(res, "authentication", {
-        message: "Unauthorized: Refresh token expired",
-      });
-    }
-
-    // validate user owns refresh token
-    try {
-      const user = await db.client.client.user.findUnique({
-        where: { id: payload.id },
-      });
-
-      // no user found or refresh tokens don't match
-      if (!user) {
-        return utils.handlers.error(res, "authentication", {
-          message: "Unauthorized: user not found",
-        });
-      }
-      if (user.refreshToken && user.refreshToken !== refreshToken) {
-        return utils.handlers.error(res, "authentication", {
-          message: "Unauthorized: Invalid refresh token",
-        });
-      }
-
-      // refresh access token and return
-      const newToken = utils.tokens.generate.accessToken({
-        id: user.id,
-        refreshToken,
-      });
-
-      // update refresh cookie
-      db.client.setRefreshCookie(res, newToken);
-      return utils.handlers.success(res, {
-        message: "Token refreshed",
+    if (user.id !== rTData.id) {
+			return utils.handlers.error(res, "authentication", {
+				message: "Unauthorized: unknown user",
+			});
+		}
+		// generate new access token and return
+		const newToken: string = utils.tokens.generate.accessToken({ id: user.id });
+    return utils.handlers.success(res, {
+        message: "Refresh success",
         data: [{ accessToken: newToken }],
-      });
+    });
     } catch (err: any) {
       // handle unique db constraint error
       return utils.handlers.error(res, "general", {
-        message: "unable to complete operation",
+        message: "Error: unable to complete operation",
         data: [{ details: err }],
       });
     }
   } catch (_) {
     return utils.handlers.error(res, "authentication", {
-      message: "invalid refresh token provided",
+      message: "Unauthorised: invalid token",
     });
   }
 };
