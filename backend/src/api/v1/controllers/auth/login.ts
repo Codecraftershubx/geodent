@@ -8,17 +8,18 @@ import utils from "../../../../utils/index.js";
 import config from "../../../../config.js";
 
 const login = async (req: Request, res: Response): Promise<void> => {
+  console.log("logging in...");
   // extract access token
   const authHeader = req.headers.authorization;
   let filtered;
 
   if (authHeader) {
     const [_, accessToken] = authHeader.split(" ");
-		if (!accessToken) {
-			return utils.handlers.error(res, "authentication", {
-				message: "Unauthorised!",
-			});
-		}
+    if (!accessToken) {
+      return utils.handlers.error(res, "authentication", {
+        message: "Unauthorised!",
+      });
+    }
     try {
       let { payload: aTData } = utils.tokens.decompose.accessToken(accessToken);
       if (aTData === null) {
@@ -39,18 +40,23 @@ const login = async (req: Request, res: Response): Promise<void> => {
       }
       // verify user not already logged in
       const loggedInUser = await utils.cache.get(accessToken);
-      if (
-        loggedInUser &&
-        loggedInUser === aTData.id
-      ) {
+      if (loggedInUser && loggedInUser === aTData.id) {
         return utils.handlers.error(res, "authentication", {
           message: "Error: already loggedd in",
         });
       }
       // save login session
       const rT = await utils.tokens.generate.refreshToken({ id: aTData.id });
-      const cacheATRes = await utils.cache.set(accessToken, aTData.id, config.expirations.accessToken);
-      const cacheRTRes = await utils.cache.set(`${accessToken}${config.refreshCacheSuffix}`, rT, config.expirations.refreshToken);
+      const cacheATRes = await utils.cache.set(
+        accessToken,
+        aTData.id,
+        config.expirations.accessToken
+      );
+      const cacheRTRes = await utils.cache.set(
+        `${accessToken}${config.refreshCacheSuffix}`,
+        rT,
+        config.expirations.refreshToken
+      );
       if (!cacheATRes || !cacheRTRes) {
         throw new Error("Error! Login failed");
       }
@@ -79,13 +85,16 @@ const login = async (req: Request, res: Response): Promise<void> => {
   }
 
   // no auth header: use user credentials
+  console.log("Backend: Using credentials");
   const { email, password } = req.body;
+  console.log(email, password);
   if (!email || !password) {
     const field = email
       ? "password"
       : password
         ? "email"
         : "email and password";
+		console.log("returning missing credential");
     return utils.handlers.error(res, "authentication", {
       message: `${field} not provided`,
     });
@@ -94,6 +103,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
   const user = await db.client.client.user.findUnique({
     where: { email },
   });
+	console.log("returning wrong user email");
   if (!user) {
     return utils.handlers.error(res, "authentication", {
       message: "Unauthorised: user doesn't exist",
@@ -103,6 +113,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
   // verify password
   const match = await utils.passwords.verify(user.password, password);
   if (!match) {
+		console.log("returning wrong password");
     return utils.handlers.error(res, "authentication", {
       message: "wrong password",
     });
@@ -113,14 +124,14 @@ const login = async (req: Request, res: Response): Promise<void> => {
     const rT = utils.tokens.generate.refreshToken({ id: user.id });
 
     // cache keys and handle failure
-		const cacheAT = await utils.cache.set(aT, user.id);
-		const cacheRT = await utils.cache.set(`${aT}:Refresh`, rT);
-		if (!cacheAT || !cacheRT){
-			return utils.handlers.error(res, "authentication", {
-				message: "Error: login failed",
-				status: 500,
-			});
-		}
+    const cacheAT = await utils.cache.set(aT, user.id);
+    const cacheRT = await utils.cache.set(`${aT}:Refresh`, rT);
+    if (!cacheAT || !cacheRT) {
+      return utils.handlers.error(res, "authentication", {
+        message: "Error: login failed",
+        status: 500,
+      });
+    }
     // Filter out hidden fields
     filtered = await db.client.filterModels([user]);
     filtered[0].accessToken = aT;

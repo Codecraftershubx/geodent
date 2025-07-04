@@ -62,6 +62,7 @@ const error = (
     },
     errors: data,
   };
+	console.log(payload);
   res.status(statusCode).json(payload);
   return;
 };

@@ -7,7 +7,7 @@ import cors from "cors";
 const app = express();
 const port = config.serverPort || 8081;
 
-app.use(cors({ origin: "http://0.0.0.0:5001", credentials: true }));
+app.use(cors({ origin: ["http://0.0.0.0:5001", "http://localhost:5001", "http://192.168.0.10:5001", "http://192.168.8.10:5001" ], credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
