@@ -4,7 +4,7 @@ type BEDataHeaderType = {
   errno: Number;
   status: String;
   message: String;
-  [key: string]: any;
+  redirect?: String;
 };
 
 type BEDataType = {

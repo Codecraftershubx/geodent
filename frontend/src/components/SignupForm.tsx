@@ -48,7 +48,7 @@ const SignUpForm = () => {
       });
       console.log(res);
       if (res.error) {
-        toast.error(`Failed: ${res.data.header.message}`);
+        toast.error(`Failed: ${res.content.header.message}`);
       } else {
         toast.success(`Account created`);
         navigate("/login");

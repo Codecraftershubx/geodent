@@ -19,30 +19,30 @@ const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const redirectPath = useQueryParams("redirect") || "/listings";
   const { accessToken, isLoggedIn, message } = useAppSelector(
-    (store: RootState) => store.auth,
+    (store: RootState) => store.auth
   );
   const [heading, setHeading] = useState(
-    accessToken ? "Welcome Back" : "Login",
+    accessToken ? "Welcome Back" : "Login"
   );
   const [runner, setRunner] = useState(
     accessToken
       ? "Hold on while we sign you in"
-      : "Enter your credentials to sign in",
+      : "Enter your credentials to sign in"
   );
 
   const login = async (accessToken: string) => {
     try {
       const result = await dispatch(loginUser({ accessToken })).unwrap();
-      // console.log("login page result:", result);
-      if (result.redirect) {
-        navigate(result.redirect);
-        return <></>;
-      }
       setHeading(`Welcome ${result.firstName}`);
       setRunner("Taking you in...");
     } catch (error: any) {
       // attempt token refresh if token expired
       // console.error("login page error", error);
+      // console.log("login page result:", result);
+      if (error?.header?.redirect) {
+        navigate(error.header.redirect);
+        return <></>;
+      }
       setHeading("Login Again");
       setRunner("Auto login failed. Sign in with your credentials.");
     }

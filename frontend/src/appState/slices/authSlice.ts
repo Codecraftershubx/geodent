@@ -22,29 +22,30 @@ const loginUser = createAsyncThunk<
 >(
   "auth/login",
   async (credentials: LoginCredentialsType, { rejectWithValue, dispatch }) => {
-    // console.log("LOGIN THUNK CALLED WITH:", credentials);
     const options: Record<string, any> = {};
     if (credentials.accessToken) {
       options.headers = {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${credentials.accessToken}`,
       };
     } else {
-      options.data = {
+      options.extras = {
+				data: {
         email: credentials.email,
         password: credentials.password,
+				}
       };
     }
     let response = await api.post("/auth/login", options);
     let data;
     if (response.error) {
-      const { message } = response.data.header;
-      if (message === "access token expired") {
-        return { redirect: "/token/refresh" };
+      const { message } = response.content.header;
+      if (message === "Unauthorised: session expired") {
+        response.content.header.redirect = "/token/refresh";
       }
-      return rejectWithValue(response.data);
+			console.log("LOGIN THUNK HANDLER", response.content);
+      return rejectWithValue(response.content);
     }
-    data = response.data.data[0];
+    data = response.content.data[0];
     if (data.accessToken) {
       dispatch(authSlice.actions.setAccessToken(data.accessToken));
       delete data.accessToken;
@@ -61,7 +62,7 @@ const logoutUser = createAsyncThunk<
 >("auth/logout", async ({}, { rejectWithValue }) => {
   const response = await api.post("/auth/logout", {});
   if (response.error) {
-    return rejectWithValue(response.data);
+    return rejectWithValue(response.content);
   }
   return true;
 });
@@ -123,13 +124,11 @@ const authSlice = createSlice({
         // console.log("LOGIN THUNK FULFILLED REDUCER PAYLOAD:", payload);
         const data = payload;
         state.user = data;
-        state.isLoggedIn = data.redirect ? false : true;
+        state.isLoggedIn = true;
         state.message = {
-          type: data.redirect ? "info" : "success",
+          type: "success",
           role: "alert",
-          description: data.redirect
-            ? "hold on a little longer"
-            : "login successful",
+          description: "login successful",
         };
         state.isLoading = data.redirect ? true : false;
         window.localStorage.setItem(
@@ -146,13 +145,15 @@ const authSlice = createSlice({
         };
       })
       .addCase(loginUser.rejected, (state: AuthStateType, { payload }) => {
-        // console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
+        console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
         const value = payload as BEDataType;
         state.isLoading = false;
         state.message = {
           type: "error",
           role: "alert",
-          description: `${value.header.message}`,
+          description: value.header.redirect
+            ? "hold on a little longer..."
+            : `${value.header.message}`,
           details: value.data,
           ...value.header,
         };
