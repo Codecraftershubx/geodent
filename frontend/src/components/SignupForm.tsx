@@ -124,7 +124,7 @@ type TSignUpFormField = {
   description?: string;
   inputType?: string;
   className?: string;
-  formControl: Control<z.infer<typeof formSchema, any>>;
+  formControl: Control<z.infer<typeof formSchema>, any>;
 };
 
 const SignUpFormField: React.FC<TSignUpFormField> = ({

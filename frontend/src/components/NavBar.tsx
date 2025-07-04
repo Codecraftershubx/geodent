@@ -8,7 +8,7 @@ import Hamburger from "./Hamburger";
 
 const NavBar: React.FC = () => {
   const { isLoggedIn, isLoading } = useAppSelector(
-    (store: RootState) => store.auth,
+    (store: RootState) => store.auth
   );
   const dispatch = useAppDispatch();
   const navigate = useNavigate();

@@ -1,12 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Control,
-  ControllerRenderProps,
-  FieldPath,
-  useForm,
-} from "react-hook-form";
+import { Control, FieldPath, useForm } from "react-hook-form";
 import {
   Form,
   FormField,
@@ -22,12 +17,15 @@ import { z } from "zod";
 import { useAppDispatch, useAppSelector } from "../appState/hooks.js";
 import {
   loginUser,
-  clearMessage,
   showMessage as showAuthMessage,
   toggleMessage,
 } from "../appState/slices/authSlice.js";
 import Alert from "./Alert";
-import type { RootState } from "../utils/types";
+import type {
+  AuthStateType,
+  RootState,
+  StoreMessageType,
+} from "../utils/types";
 
 // form schema
 const formSchema = z.object({
@@ -37,8 +35,8 @@ const formSchema = z.object({
 
 const LoginForm: React.FC<{ to: string }> = ({ to }) => {
   // states and effect handlers
-  const { accessToken, message, showMessage } = useAppSelector(
-    (store: RootState) => store.auth,
+  const { accessToken, message, showMessage }: AuthStateType = useAppSelector(
+    (store: RootState) => store.auth
   );
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -64,7 +62,7 @@ const LoginForm: React.FC<{ to: string }> = ({ to }) => {
         loginUser({
           email,
           password,
-        }),
+        })
       ).unwrap();
       navigate(to);
     } catch (error: any) {
@@ -95,9 +93,9 @@ const LoginForm: React.FC<{ to: string }> = ({ to }) => {
       {showMessage && message && (
         <Alert
           variant={"plain"}
-          description={message.description}
+          description={(message as StoreMessageType).description}
           fullWidth={true}
-          type={message.type}
+          type={(message as StoreMessageType).type}
         />
       )}
       <form
@@ -135,7 +133,7 @@ const LoginForm: React.FC<{ to: string }> = ({ to }) => {
 
 type LoginFormType = {
   name: FieldPath<z.infer<typeof formSchema>>;
-  control: Control<z.infer<typeof formSchema, any>>;
+  control: Control<z.infer<typeof formSchema>, any>;
   placeholder?: string;
   inputType: string;
   description?: string;
@@ -156,7 +154,7 @@ const LoginFormField: React.FC<LoginFormType> = ({
     <FormField
       name={name}
       control={control}
-      render={({ field }: { field: ControllerRenderProps }) => (
+      render={({ field }) => (
         <FormItem>
           <FormLabel> {label} </FormLabel>
           <FormControl>

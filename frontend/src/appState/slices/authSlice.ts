@@ -50,7 +50,7 @@ const loginUser = createAsyncThunk<
       delete data.accessToken;
     }
     return data;
-  },
+  }
 );
 
 // logout sequence
@@ -83,7 +83,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     accessToken: window.localStorage.getItem("accessToken") || null,
-    isLoggedIn: JSON.parse(window.localStorage.getItem("isLoggedIn")) || false,
+    isLoggedIn: window.localStorage.getItem("isLoggedIn") === "true",
     isLoading: false,
     showMessage: false,
     message: null,
@@ -101,7 +101,7 @@ const authSlice = createSlice({
     },
     setMessage: (
       state: AuthStateType,
-      action: PayloadAction<StoreMessageType>,
+      action: PayloadAction<StoreMessageType>
     ) => {
       console.log("setting auth state message!");
       state.message = action.payload;
@@ -134,7 +134,7 @@ const authSlice = createSlice({
         state.isLoading = data.redirect ? true : false;
         window.localStorage.setItem(
           "isLoggedIn",
-          JSON.stringify(state.isLoggedIn),
+          JSON.stringify(state.isLoggedIn)
         );
       })
       .addCase(loginUser.pending, (state: AuthStateType) => {
@@ -169,7 +169,7 @@ const authSlice = createSlice({
         state.user = null;
         window.localStorage.setItem(
           "isLoggedIn",
-          JSON.stringify(state.isLoggedIn),
+          JSON.stringify(state.isLoggedIn)
         );
       })
       .addCase(logoutUser.pending, (state: AuthStateType) => {
@@ -199,8 +199,6 @@ export { loginUser, logoutUser, toggleMessage };
 export const {
   setAccessToken,
   clearAccessToken,
-  setIsLoggedIn,
-  unsetIsLoggedIn,
   setMessage,
   clearMessage,
   showMessage,
