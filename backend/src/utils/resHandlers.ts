@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Response, Request } from "express";
 import config from "../config.js";
 import type { THandlerOptions } from "./types.js";
 
@@ -9,12 +9,13 @@ const errnos = config.errnos;
 
 // success response handler
 const success = (
+  req: Request,
   res: Response,
   options: THandlerOptions = {
     data: [],
     status: errnos.success.statusCode || 200,
     message: "successful operation",
-  },
+  }
 ): void => {
   const status = options?.status ?? errnos.success.statusCode;
   const data = options.data;
@@ -33,20 +34,22 @@ const success = (
     },
     data,
   };
+  delete req.body?.auth;
   res.status(status).json(payload);
   return;
 };
 
 // error response handler
 const error = (
+  req: Request,
   res: Response,
   errType: string,
-  options: THandlerOptions = { data: [] },
+  options: THandlerOptions
 ): void => {
   const toDelete = ["data", "message", "status"];
   const message = options.message ?? errnos[errType].desc;
   const statusCode = options.status ?? errnos[errType].statusCode;
-  const data = options.data;
+  const data = options.data || [];
 
   // Remove internally used options
   for (let key of toDelete) {
@@ -62,7 +65,8 @@ const error = (
     },
     errors: data,
   };
-	console.log(payload);
+  console.log(payload);
+  delete req.body?.auth;
   res.status(statusCode).json(payload);
   return;
 };
