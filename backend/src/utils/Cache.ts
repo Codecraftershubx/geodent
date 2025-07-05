@@ -78,9 +78,7 @@ class Cache {
    * CACHE OPERATION HANDLERS
    *----------------------------*/
   // Safe operation wraper
-  async safeOperation(
-    operation: () => Promise<Buffer | string | boolean | null>
-  ) {
+  async safeOperation(operation: () => Promise<string | boolean | null>) {
     if (!this.#alive) {
       throw new Error("Error! Cache not ready");
     }
@@ -94,19 +92,14 @@ class Cache {
   // get string value from cache
   async get(
     key: string,
-    buffers: boolean = false,
-    format: BufferEncoding = "binary"
-  ): Promise<Buffer | string | boolean | null> {
+    buffers: boolean = false
+  ): Promise<string | boolean | null> {
     try {
       const data = await this.safeOperation(async () => {
         if (!this.#client) {
           throw new Error("Error! Cache not ready");
         }
-        const item = await this.#client.get(key);
-        if (buffers && item) {
-          return Buffer.from(item, format);
-        }
-        return item;
+        return await this.#client.get(key);
       });
       return data;
     } catch (err: any) {
@@ -120,7 +113,7 @@ class Cache {
     key: string,
     value: string,
     ex: number = this.#defaultExpiry
-  ): Promise<any | boolean> {
+  ): Promise<string | boolean | null> {
     if (!this.#client) {
       return false;
     }

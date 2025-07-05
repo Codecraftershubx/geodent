@@ -96,7 +96,6 @@ class DbClient implements Client {
       serial: true,
     },
     user: {
-      refreshToken: true,
       deletedAt: true,
       serial: true,
       isDeleted: true,
@@ -107,7 +106,6 @@ class DbClient implements Client {
   #modelFilters = [
     "serial",
     "password",
-    "refreshToken",
     "deletedAt",
     "isDeleted",
     "localPath",
