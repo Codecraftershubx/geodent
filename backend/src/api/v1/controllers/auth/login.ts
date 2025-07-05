@@ -8,142 +8,63 @@ import utils from "../../../../utils/index.js";
 import config from "../../../../config.js";
 
 const login = async (req: Request, res: Response): Promise<void> => {
-  console.log("logging in...");
   // extract access token
   const authHeader = req.headers.authorization;
-  let filtered;
-
-  if (authHeader) {
-    const [_, accessToken] = authHeader.split(" ");
-    if (!accessToken) {
-      return utils.handlers.error(res, "authentication", {
-        message: "Unauthorised!",
-      });
-    }
-    try {
-      let { payload: aTData } = utils.tokens.decompose.accessToken(accessToken);
-      if (aTData === null) {
-        return utils.handlers.error(res, "authentication", {
-          message: "Unauthorised: session expired",
-        });
-      }
-
-      // get user profile
-      const user = await db.client.client.user.findUnique({
-        where: { id: aTData.id },
-      });
-
-      if (!user || user.id !== aTData.id) {
-        return utils.handlers.error(res, "authentication", {
-          message: "Unauthorised: unknown user",
-        });
-      }
-      // verify user not already logged in
-      const loggedInUser = await utils.cache.get(accessToken);
-      if (loggedInUser && loggedInUser === aTData.id) {
-        return utils.handlers.error(res, "authentication", {
-          message: "Error: already loggedd in",
-        });
-      }
-      // save login session
-      const rT = await utils.tokens.generate.refreshToken({ id: aTData.id });
-      const cacheATRes = await utils.cache.set(
-        accessToken,
-        aTData.id,
-        config.expirations.accessToken
-      );
-      const cacheRTRes = await utils.cache.set(
-        `${accessToken}${config.refreshCacheSuffix}`,
-        rT,
-        config.expirations.refreshToken
-      );
-      if (!cacheATRes || !cacheRTRes) {
-        throw new Error("Error! Login failed");
-      }
-      console.log("cacheATRes:", cacheATRes, "cacheRTRes:", cacheRTRes);
-
-      // filter hidden values
-      filtered = await db.client.filterModels([user]);
-      return utils.handlers.success(res, {
-        data: filtered,
-        message: "login success",
-      });
-    } catch (err) {
-      // error occured while generating token
-      if (err instanceof Error) {
-        return utils.handlers.error(res, "general", {
-          message: "login failed",
-          status: 500,
-          data: [{ details: err }],
-        });
-      }
-      // invalid access token
-      return utils.handlers.error(res, "authentication", {
-        message: "user doesn't exist",
-      });
-    }
-  }
-
-  // no auth header: use user credentials
-  console.log("Backend: Using credentials");
-  const { email, password } = req.body;
-  console.log(email, password);
-  if (!email || !password) {
-    const field = email
-      ? "password"
-      : password
-        ? "email"
-        : "email and password";
-		console.log("returning missing credential");
-    return utils.handlers.error(res, "authentication", {
-      message: `${field} not provided`,
-    });
-  }
-  // verify credentials
-  const user = await db.client.client.user.findUnique({
-    where: { email },
-  });
-	console.log("returning wrong user email");
+  // validate middleware validation happened
+  const { user } = req.body.auth;
+  let aT: string;
   if (!user) {
-    return utils.handlers.error(res, "authentication", {
-      message: "Unauthorised: user doesn't exist",
+    return utils.handlers.error(req, res, "authentication", {
+      message: "Unauthorised!",
+      status: 403,
     });
   }
-
-  // verify password
-  const match = await utils.passwords.verify(user.password, password);
-  if (!match) {
-		console.log("returning wrong password");
-    return utils.handlers.error(res, "authentication", {
-      message: "wrong password",
-    });
-  }
-  // auth success: generate tokens for user
+  // use auth token if provided
   try {
-    const aT = utils.tokens.generate.accessToken({ id: user.id });
-    const rT = utils.tokens.generate.refreshToken({ id: user.id });
-
-    // cache keys and handle failure
-    const cacheAT = await utils.cache.set(aT, user.id);
-    const cacheRT = await utils.cache.set(`${aT}:Refresh`, rT);
-    if (!cacheAT || !cacheRT) {
-      return utils.handlers.error(res, "authentication", {
-        message: "Error: login failed",
-        status: 500,
-      });
+    if (authHeader) {
+      console.log("using auth token");
+      aT = authHeader.split(" ")[1];
+      // verify user not already logged in
+      const loggedInUser = (await utils.cache.get(aT)) as string | null;
+      if (loggedInUser) {
+        if (JSON.parse(loggedInUser).id === user.id) {
+          return utils.handlers.error(req, res, "authentication", {
+            message: "Error: already loggedd in",
+          });
+        }
+      }
+    } else {
+      // generate new access token for user authenticated by credentials
+      aT = await utils.tokens.generate.accessToken({ id: user.id });
     }
-    // Filter out hidden fields
-    filtered = await db.client.filterModels([user]);
-    filtered[0].accessToken = aT;
-
-    // return user profile
-    return utils.handlers.success(res, {
-      message: "login successful",
-      data: filtered,
+    // generate refreshToken and cache results
+    const rT: string = await utils.tokens.generate.refreshToken({
+      id: user.id,
     });
-  } catch (err) {
-    return utils.handlers.error(res, "authentication", {
-      message: "Error: login failed",
+    const cacheATRes = await utils.cache.set(
+      aT,
+      JSON.stringify(user),
+      config.expirations.accessToken
+    );
+    const cacheRTRes = await utils.cache.set(
+      `${aT}${config.refreshCacheSuffix}`,
+      rT,
+      config.expirations.refreshToken
+    );
+    if (!cacheATRes || !cacheRTRes) {
+      throw new Error("Error! Login failed");
+    }
+    console.log("cacheATRes:", cacheATRes, "cacheRTRes:", cacheRTRes);
+    return utils.handlers.success(req, res, {
+      data: user,
+      message: "login success",
+    });
+  } catch (err: any) {
+    // error occured while fetching data from cache
+    return utils.handlers.error(req, res, "general", {
+      message: err?.message ?? "Error: An internal error occured",
+      status: 500,
+      data: [{ details: err }],
     });
   }
 };
