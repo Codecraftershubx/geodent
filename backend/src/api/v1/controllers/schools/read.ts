@@ -16,13 +16,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
     count = school.length;
     if (count) {
       filtered = await db.client.filterModels(school);
-      return utils.handlers.success(res, {
+      return utils.handlers.success(req, res, {
         message: "query successful",
         data: filtered,
         count,
       });
     }
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `school not found`,
       status: 404,
     });
@@ -36,13 +36,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
   count = schools.length;
   if (count) {
     filtered = await db.client.filterModels(schools);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "query successful",
       data: filtered,
       count,
     });
   }
-  return utils.handlers.error(res, "general", {
+  return utils.handlers.error(req, res, "general", {
     message: "no schools created yet",
     status: 404,
     count: 0,

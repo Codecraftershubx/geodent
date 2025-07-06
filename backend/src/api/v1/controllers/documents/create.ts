@@ -8,7 +8,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -16,7 +16,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   }
   const array = req?.files || null;
   if (!array || !Array.isArray(array) || !array.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "no file uploaded",
     });
   }
@@ -31,11 +31,11 @@ const create = async (req: Request, res: Response): Promise<void> => {
     if (result.details.data) {
       errData.data = result.details.data;
     }
-    return utils.handlers.error(res, `${result.details.type}`, {
+    return utils.handlers.error(req, res, `${result.details.type}`, {
       ...errData,
     });
   }
-  return utils.handlers.success(res, { ...result.data });
+  return utils.handlers.success(req, res, { ...result.data });
 };
 
 export default create;

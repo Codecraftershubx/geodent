@@ -10,7 +10,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -25,7 +25,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     include: db.client.include.chatroom,
   });
   if (!chatroom) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `chatroom not found`,
       status: 404,
     });
@@ -41,12 +41,12 @@ const create = async (req: Request, res: Response): Promise<void> => {
       !content &&
       (!filesArray || !Array.isArray(filesArray) || !filesArray.length)
     ) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: "message requires 'content' and/or 'files'",
       });
     }
     if (filesArray && (filesArray.length as number) > 1) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: "message document can only be 1",
       });
     }
@@ -96,7 +96,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
     // return created message with/without document
     filtered = await db.client.filterModels(message);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "message created successfully",
       count: 1,
       data: filtered,
@@ -110,7 +110,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     if (err?.data || null) {
       errData.data = err.data;
     }
-    return utils.handlers.error(res, `${err?.type ?? "general"}`, {
+    return utils.handlers.error(req, res, `${err?.type ?? "general"}`, {
       message: err?.message ?? "an error occured",
     });
   }

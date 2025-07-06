@@ -8,7 +8,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -20,7 +20,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     where: { numericCode: data.numericCode },
   });
   if (existingCountry.length) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: "country already exists",
       status: 400,
     });
@@ -38,13 +38,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
       include: db.client.include.country,
     });
     const filtered = await db.client.filterModels([country]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "country created successfully",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
     });

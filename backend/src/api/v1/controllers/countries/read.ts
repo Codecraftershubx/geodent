@@ -15,13 +15,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
     count = country.length;
     if (count) {
       filtered = await db.client.filterModels(country);
-      return utils.handlers.success(res, {
+      return utils.handlers.success(req, res, {
         message: "query successful",
         data: filtered,
         count,
       });
     }
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `country not found`,
       status: 404,
     });
@@ -34,13 +34,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
   count = countries.length;
   if (count) {
     filtered = await db.client.filterModels(countries);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "query success",
       data: filtered,
       count,
     });
   }
-  return utils.handlers.error(res, "general", {
+  return utils.handlers.error(req, res, "general", {
     message: "no country created yet",
     status: 404,
     count: 0,

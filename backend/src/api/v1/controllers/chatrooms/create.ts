@@ -9,7 +9,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -30,14 +30,14 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
 
     const filtered = await db.client.filterModels([chatroom]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "chatroom created successfully",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
     });

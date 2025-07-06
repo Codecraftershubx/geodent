@@ -10,7 +10,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -47,7 +47,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const password = await utils.passwords.hash(data.password);
     if (!password) {
-      utils.handlers.error(res, "general", {
+      utils.handlers.error(req, res, "general", {
         message: "Sorry, some error occured. Try again later.",
       });
     }
@@ -84,7 +84,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
       include: db.client.include.user,
     });
     const filtered = await db.client.filterModels([newUser]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       data: filtered,
       message: "user created successfully",
       status: 201,
@@ -98,7 +98,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
     if (err?.code || null === "P2002") {
       resOptions["status"] = 400;
     }
-    return utils.handlers.error(res, "general", resOptions);
+    return utils.handlers.error(req, res, "general", resOptions);
   }
 };
 

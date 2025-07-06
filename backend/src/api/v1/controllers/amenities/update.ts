@@ -8,7 +8,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -23,7 +23,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
     where: { id, isDeleted: false },
   });
   if (!amenity.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `amenity not found`,
     });
@@ -34,7 +34,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
     data,
   });
   const filtered = await db.client.filterModels([updated]);
-  return utils.handlers.success(res, {
+  return utils.handlers.success(req, res, {
     message: "update successful",
     count: 1,
     data: filtered,

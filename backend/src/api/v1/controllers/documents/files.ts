@@ -6,7 +6,7 @@ import config from "../../../../config.js";
 const read = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): Promise<void> => {
   // get one country by id
   const { id } = req.params;
@@ -18,7 +18,7 @@ const read = async (
   });
 
   if (!document.length) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `file ${id} not found`,
       status: 404,
       count: 0,
@@ -37,7 +37,7 @@ const read = async (
   };
   if (download) {
     if (!file.isDownloadable) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: `denied. not downloadable`,
         status: 401,
       });
@@ -52,7 +52,7 @@ const read = async (
       next(err);
     } else {
       console.log(
-        `file ${id} ${download ? "downloaded" : "sent"} successfully`,
+        `file ${id} ${download ? "downloaded" : "sent"} successfully`
       );
     }
   });

@@ -16,18 +16,18 @@ const read = async (req: Request, res: Response): Promise<void> => {
       });
       if (chatroom) {
         filtered = await db.client.filterModels([chatroom]);
-        return utils.handlers.success(res, {
+        return utils.handlers.success(req, res, {
           message: "query successful",
           data: filtered,
           count,
         });
       }
-      return utils.handlers.error(res, "general", {
+      return utils.handlers.error(req, res, "general", {
         message: `chatroom not found`,
         status: 404,
       });
     } catch (err: any) {
-      return utils.handlers.error(res, "general", {
+      return utils.handlers.error(req, res, "general", {
         message: err?.message ?? "some error occured",
       });
     }
@@ -46,20 +46,20 @@ const read = async (req: Request, res: Response): Promise<void> => {
     filtered = await db.client.filterModels(chatrooms);
     count = chatrooms.length;
     if (count) {
-      return utils.handlers.success(res, {
+      return utils.handlers.success(req, res, {
         message: "query success",
         data: filtered,
         count,
       });
     }
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: "no chatroom created yet",
       status: 404,
       count: 0,
       data: [],
     });
   } catch (err: any) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
     });
   }

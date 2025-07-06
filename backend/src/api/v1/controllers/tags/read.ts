@@ -21,13 +21,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
     count = tag.length;
     if (count) {
       filtered = await db.client.filterModels(tag);
-      return utils.handlers.success(res, {
+      return utils.handlers.success(req, res, {
         message: "query successful",
         data: filtered,
         count,
       });
     }
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `tag not found`,
       status: 404,
     });
@@ -40,13 +40,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
   filtered = await db.client.filterModels(tags);
   count = tags.length;
   if (count) {
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "query success",
       data: filtered,
       count,
     });
   }
-  return utils.handlers.error(res, "general", {
+  return utils.handlers.error(req, res, "general", {
     message: "no tag created yet",
     status: 404,
     count: 0,

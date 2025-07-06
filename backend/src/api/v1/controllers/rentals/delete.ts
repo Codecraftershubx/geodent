@@ -11,7 +11,7 @@ const deleteRental = async (req: Request, res: Response): Promise<void> => {
       where: { id, isDeleted: false },
     });
     if (!rental) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         status: 404,
         message: `rental ${id} not found`,
       });
@@ -24,13 +24,13 @@ const deleteRental = async (req: Request, res: Response): Promise<void> => {
         deletedAt: new Date().toISOString(),
       },
     });
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "delete successful",
       count: 1,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
     });
   }

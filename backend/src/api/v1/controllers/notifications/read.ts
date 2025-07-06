@@ -11,12 +11,12 @@ const read = async (req: Request, res: Response): Promise<void> => {
       include: { receiver: { omit: db.client.omit.user } },
     });
     if (!notification) {
-      return utils.handlers.error(res, "general", {
+      return utils.handlers.error(req, res, "general", {
         message: `notification ${id} not found`,
         status: 404,
       });
     }
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "query successful",
       data: await db.client.filterModels([notification]),
       count: 1,
@@ -29,13 +29,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
   });
   const count = notifications.length;
   if (count) {
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "query success",
       data: await db.client.filterModels(notifications),
       count,
     });
   }
-  return utils.handlers.error(res, "general", {
+  return utils.handlers.error(req, res, "general", {
     message: "no notification created yet",
     status: 404,
     count: 0,

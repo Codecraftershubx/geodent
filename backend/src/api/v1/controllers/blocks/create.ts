@@ -9,7 +9,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -48,7 +48,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     },
   });
   if (existingBlock.length) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: "block already exists",
       status: 400,
     });
@@ -75,14 +75,14 @@ const create = async (req: Request, res: Response): Promise<void> => {
       include: db.client.include.block,
     });
     const filtered = await db.client.filterModels([block]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "block created successfully",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
     });

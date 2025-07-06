@@ -21,13 +21,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
     count = amenity.length;
     if (count) {
       filtered = await db.client.filterModels(amenity);
-      return utils.handlers.success(res, {
+      return utils.handlers.success(req, res, {
         message: "query successful",
         data: filtered,
         count,
       });
     }
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `amenity not found`,
       status: 404,
     });
@@ -40,13 +40,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
   filtered = await db.client.filterModels(amenities);
   count = amenities.length;
   if (count) {
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "query success",
       data: filtered,
       count,
     });
   }
-  return utils.handlers.error(res, "general", {
+  return utils.handlers.error(req, res, "general", {
     message: "no amenity created yet",
     status: 404,
     count: 0,

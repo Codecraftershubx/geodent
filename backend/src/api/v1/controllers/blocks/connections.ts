@@ -11,7 +11,7 @@ const updateConnections = async (
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -29,7 +29,7 @@ const updateConnections = async (
     where: { id, isDeleted: false },
   });
   if (!block.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `block not found`,
     });
@@ -65,14 +65,14 @@ const updateConnections = async (
       include: db.client.include.block,
     });
     const filtered = await db.client.filterModels([updated]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "update successful",
       count: 1,
       data: filtered,
     });
   } catch (err: any) {
     console.log(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? err.toString(),
       data: [{ details: err }],
     });

@@ -9,7 +9,7 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -24,7 +24,7 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
       where: { id: data.listingId, isDeleted: false },
     });
     if (!listing) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: `listing ${data.listingId} not found`,
       });
     }
@@ -32,19 +32,19 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
     const endTime = new Date(data.endsAt).getTime();
     const todayTime = new Date().getTime();
     if (todayTime - startTime > 0) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: "startsAt in the past",
       });
     }
 
     if (todayTime - endTime > 0) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: "endsAt in the past",
       });
     }
 
     if (endTime - startTime < 60 * 60 * 24 * 1000) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: "rental must be at least 24 hours",
       });
     }
@@ -54,13 +54,13 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
         where: { id: tenantId },
       });
       if (!tempUser) {
-        return utils.handlers.error(res, "validation", {
+        return utils.handlers.error(req, res, "validation", {
           message: `tenant ${tenantId} not found`,
         });
       }
       // tenant is not landlord
       if (tenantId === listing.userId) {
-        return utils.handlers.error(res, "validation", {
+        return utils.handlers.error(req, res, "validation", {
           message: "landlord cannot be a tenant",
         });
       }
@@ -84,7 +84,7 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
       include: db.client.include.rental,
     });
     const filtered = await db.client.filterModels([rental]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       data: filtered,
       message: "rental created successfully",
       status: 201,
@@ -98,7 +98,7 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
     if (err?.code || null === "P2002") {
       resOptions["status"] = 400;
     }
-    return utils.handlers.error(res, "general", resOptions);
+    return utils.handlers.error(req, res, "general", resOptions);
   }
 };
 

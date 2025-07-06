@@ -11,7 +11,7 @@ const restoreDocument = async (req: Request, res: Response): Promise<void> => {
     where: { id, isDeleted: true },
   });
   if (!document.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `document not found`,
     });
@@ -32,7 +32,7 @@ const restoreDocument = async (req: Request, res: Response): Promise<void> => {
   if (!restored) {
     console.error(`restoring ${filename} failed`);
   }
-  return utils.handlers.success(res, {
+  return utils.handlers.success(req, res, {
     message: "document restored successfully",
     count: 1,
   });

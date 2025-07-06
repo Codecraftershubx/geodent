@@ -10,7 +10,7 @@ const restoreRoom = async (req: Request, res: Response): Promise<void> => {
     where: { id, isDeleted: true },
   });
   if (!document.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `room not found`,
     });
@@ -23,7 +23,7 @@ const restoreRoom = async (req: Request, res: Response): Promise<void> => {
       deletedAt: null,
     },
   });
-  return utils.handlers.success(res, {
+  return utils.handlers.success(req, res, {
     message: "room restored successfully",
     count: 1,
   });

@@ -10,7 +10,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -27,7 +27,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
       },
     });
     if (existingUser) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: `email ${data.email} not available`,
       });
     }
@@ -35,7 +35,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
     // generate password hash
     const password = await utils.passwords.hash(data.password);
     if (!password) {
-      return utils.handlers.error(res, "general", {
+      return utils.handlers.error(req, res, "general", {
         message: "Sorry, some error occured. Try again later.",
       });
     }
@@ -56,13 +56,13 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
       const newUser = result[0] as Record<string, any>;
       const accessToken = result[1] as string;
       // return success
-      return utils.handlers.success(res, {
+      return utils.handlers.success(req, res, {
         data: [{ id: newUser.id, accessToken }],
         status: 201,
         message: "user created successfully",
       });
     } catch (err: any) {
-      utils.handlers.error(res, "authentication", {
+      utils.handlers.error(req, res, "authentication", {
         message: err?.message ?? "user creation failed",
         data: [{ details: err.toString() }],
         code: 500,
@@ -76,7 +76,7 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
     if (err?.code || null === "P2002") {
       resOptions["status"] = 400;
     }
-    return utils.handlers.error(res, "general", resOptions);
+    return utils.handlers.error(req, res, "general", resOptions);
   }
 };
 

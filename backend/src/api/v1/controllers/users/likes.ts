@@ -8,7 +8,7 @@ const like = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -23,7 +23,7 @@ const like = async (req: Request, res: Response): Promise<void> => {
     where: { id, isDeleted: false },
   });
   if (!targetUser.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `user ${id} not found`,
     });
@@ -32,7 +32,7 @@ const like = async (req: Request, res: Response): Promise<void> => {
     where: { id: userId, isDeleted: false },
   });
   if (!likingUser.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `user ${userId} not found`,
     });
@@ -41,13 +41,13 @@ const like = async (req: Request, res: Response): Promise<void> => {
   // update user
   let result = await services.likes(userId, "USER", id);
   if (result.error) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: result.message,
       status: result.status,
     });
   }
   const filtered = await db.client.filterModels([result.data.data]);
-  return utils.handlers.success(res, {
+  return utils.handlers.success(req, res, {
     message: result.data.message,
     count: 1,
     data: filtered,

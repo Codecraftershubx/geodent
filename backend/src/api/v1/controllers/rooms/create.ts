@@ -9,7 +9,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -64,7 +64,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     },
   });
   if (existingRoom.length) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: "room already exists",
       status: 400,
     });
@@ -77,14 +77,14 @@ const create = async (req: Request, res: Response): Promise<void> => {
       include: db.client.include.room,
     });
     const filtered = await db.client.filterModels([room]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "room created successfully",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
     });

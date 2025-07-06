@@ -4,7 +4,7 @@ import utils from "../../../../utils/index.js";
 
 const deleteNotification = async (
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> => {
   const { id } = req.params;
 
@@ -14,7 +14,7 @@ const deleteNotification = async (
       where: { id, isDeleted: false },
     });
     if (!notification) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         status: 404,
         message: `notification ${id} not found`,
       });
@@ -27,13 +27,13 @@ const deleteNotification = async (
         deletedAt: new Date().toISOString(),
       },
     });
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "delete successful",
       count: 1,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
     });
   }

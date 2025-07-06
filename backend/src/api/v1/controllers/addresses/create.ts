@@ -8,7 +8,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -54,7 +54,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     (data.roomId && !room) ||
     (data.blockId && !block)
   ) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "owner not found",
       status: 404,
     });
@@ -64,7 +64,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     where: { id: cityId, isDeleted: false },
   });
   if (!city) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `city ${cityId} not found`,
       status: 404,
     });
@@ -74,7 +74,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     where: { id: stateId, isDeleted: false, cities: { some: { id: cityId } } },
   });
   if (!state) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `state: ${stateId} not found or city{cityId} not in state`,
       status: 404,
     });
@@ -84,7 +84,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     where: { id: countryId, states: { some: { id: stateId } } },
   });
   if (!country) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `country ${countryId} not found or state ${stateId} not in country`,
     });
   }
@@ -105,7 +105,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     },
   });
   if (existingAddress.length) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: "address already exists",
       status: 400,
     });
@@ -151,13 +151,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
       data: createData,
     });
     const filtered = await db.client.filterModels([address]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "address created successfully",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
     });

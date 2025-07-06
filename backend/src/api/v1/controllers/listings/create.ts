@@ -10,7 +10,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -36,7 +36,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     include: db.client.include.country,
   });
   if (!country.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `country ${data.countryId} not found`,
       status: 404,
     });
@@ -48,13 +48,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
     include: db.client.include.state,
   });
   if (!state.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `state ${data.stateId} not found`,
       status: 404,
     });
   }
   if (state[0].countryId !== country[0].id) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `state ${data.stateId} not in country ${data.countryId}`,
       status: 404,
     });
@@ -66,13 +66,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
     include: db.client.include.city,
   });
   if (!city.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `city ${data.cityId} not found`,
       status: 404,
     });
   }
   if (city[0].stateId !== state[0].id) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `city ${data.cityId} not in state ${data.stateId}`,
       status: 404,
     });
@@ -84,13 +84,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
     include: db.client.include.school,
   });
   if (!school.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `school ${data.schoolId} not found`,
       status: 404,
     });
   }
   if (school[0].cityId !== city[0].id) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `school ${data.schoolId} not in city ${data.cityId}`,
       status: 404,
     });
@@ -102,13 +102,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
       where: { id: data.campusId, isDeleted: false },
     });
     if (!campus.length) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: `campus ${data.campusId} not found`,
         status: 404,
       });
     }
     if (campus[0].schoolId !== school[0].id) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: `campus ${data.campusId} not in school ${data.schoolId}`,
         status: 404,
       });
@@ -120,7 +120,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     where: { id: data.userId, isDeleted: false },
   });
   if (!user.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `user ${data.userId} not found`,
       status: 404,
     });
@@ -132,7 +132,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
       where: { id, isDeleted: false },
     });
     if (!tag.length) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: `tag ${id} not found`,
         status: 404,
       });
@@ -147,7 +147,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
         where: { id, isDeleted: false },
       });
       if (!block.length) {
-        return utils.handlers.error(res, "validation", {
+        return utils.handlers.error(req, res, "validation", {
           message: `block ${id} not found`,
           status: 404,
         });
@@ -163,7 +163,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
         where: { id, isDeleted: false },
       });
       if (!room.length) {
-        return utils.handlers.error(res, "validation", {
+        return utils.handlers.error(req, res, "validation", {
           message: `room ${id} not found`,
           status: 404,
         });
@@ -179,7 +179,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
         where: { id, isDeleted: false },
       });
       if (!flat.length) {
-        return utils.handlers.error(res, "validation", {
+        return utils.handlers.error(req, res, "validation", {
           message: `room ${id} not found`,
           status: 404,
         });
@@ -265,7 +265,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     },
   });
   if (exitingListing.length) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: "listing already exists",
       status: 400,
     });
@@ -279,14 +279,14 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
 
     const filtered = await db.client.filterModels([listing]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "listing created successfully",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
     });

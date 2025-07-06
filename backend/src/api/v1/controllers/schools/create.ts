@@ -10,7 +10,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -24,7 +24,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   });
 
   if (!country.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `country ${data.countryId} not found`,
       status: 404,
     });
@@ -36,7 +36,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   });
 
   if (!state.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `state ${data.stateId} not found`,
       status: 404,
     });
@@ -47,7 +47,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   });
 
   if (!city.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `city ${data.cityId} not found`,
       status: 404,
     });
@@ -77,7 +77,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     },
   });
   if (existingSchool.length) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: "school already exists",
       status: 400,
     });
@@ -106,13 +106,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
       include: db.client.include.school,
     });
     const filtered = await db.client.filterModels([school]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "school created successfully",
       data: filtered,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
     });

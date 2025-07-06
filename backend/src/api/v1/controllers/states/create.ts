@@ -8,7 +8,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -21,7 +21,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   });
 
   if (!country.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `country ${data.countryId} not found`,
       status: 404,
     });
@@ -35,7 +35,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     },
   });
   if (existingState.length) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: "state already exists",
       status: 400,
     });
@@ -53,13 +53,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
       include: db.client.include.state,
     });
     const filtered = await db.client.filterModels([state]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "state created successfully",
       data: filtered,
       count: 1,
     });
   } catch (err: any) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
     });

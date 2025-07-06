@@ -10,7 +10,7 @@ const deleteFlat = async (req: Request, res: Response): Promise<void> => {
     where: { id, isDeleted: false },
   });
   if (!flat.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `flat not found`,
     });
@@ -23,7 +23,7 @@ const deleteFlat = async (req: Request, res: Response): Promise<void> => {
       deletedAt: new Date().toISOString(),
     },
   });
-  return utils.handlers.success(res, {
+  return utils.handlers.success(req, res, {
     message: "delete successful",
     count: 1,
   });

@@ -12,7 +12,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
     include: db.client.include.chatroom,
   });
   if (!chatroom) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `chatroom not found`,
       status: 404,
     });
@@ -28,13 +28,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
         include: db.client.include.message,
       });
       if (!message) {
-        return utils.handlers.error(res, "validation", {
+        return utils.handlers.error(req, res, "validation", {
           message: `message ${req.query.id} not found`,
           status: 404,
         });
       }
       filtered = await db.client.filterModels([message]);
-      return utils.handlers.success(res, {
+      return utils.handlers.success(req, res, {
         message: "query successful",
         data: filtered,
         count,
@@ -48,19 +48,19 @@ const read = async (req: Request, res: Response): Promise<void> => {
     filtered = await db.client.filterModels(messages);
     count = filtered.length;
     if (!count) {
-      return utils.handlers.error(res, "general", {
+      return utils.handlers.error(req, res, "general", {
         message: "no message created yet",
         satus: 404,
       });
     }
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "query successful",
       count,
       data: filtered,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "an error occured",
     });
   }

@@ -11,7 +11,7 @@ const updateConnections = async (
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -30,7 +30,7 @@ const updateConnections = async (
       where: { id, isDeleted: false },
     });
     if (!chatroom) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         status: 404,
         message: `chatroom not found`,
       });
@@ -50,7 +50,7 @@ const updateConnections = async (
                   where: { id: fieldId, isDeleted: false },
                 });
           if (!tempItem) {
-            return utils.handlers.error(res, "validation", {
+            return utils.handlers.error(req, res, "validation", {
               message: `${field.slice(0, field.length - 2)} ${id} not found`,
               status: 404,
             });
@@ -83,14 +83,14 @@ const updateConnections = async (
       include: db.client.include.chatroom,
     });
     const filtered = await db.client.filterModels([updated]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "update successful",
       count: 1,
       data: filtered,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? err.toString(),
       data: [{ details: err }],
     });

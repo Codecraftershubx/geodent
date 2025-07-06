@@ -10,7 +10,7 @@ const deleteDocument = async (req: Request, res: Response): Promise<void> => {
     where: { id, isDeleted: false },
   });
   if (!document.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `document not found`,
     });
@@ -27,7 +27,7 @@ const deleteDocument = async (req: Request, res: Response): Promise<void> => {
   if (!trashed) {
     console.error(`trashing ${document[0].localPath} failed`);
   }
-  return utils.handlers.success(res, {
+  return utils.handlers.success(req, res, {
     message: "document deleted",
     count: 1,
   });

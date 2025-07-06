@@ -11,7 +11,7 @@ const restore = async (req: Request, res: Response): Promise<void> => {
       where: { id, isDeleted: true },
     });
     if (!notification) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         status: 404,
         message: `notification ${id} not found`,
       });
@@ -24,13 +24,13 @@ const restore = async (req: Request, res: Response): Promise<void> => {
         deletedAt: null,
       },
     });
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "notification restored successfully",
       count: 1,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "an error occured",
     });
   }

@@ -11,7 +11,7 @@ const deleteChatroom = async (req: Request, res: Response): Promise<void> => {
     include: db.client.include.chatroom,
   });
   if (!chatroom) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `chatroom ${id} not found`,
       status: 404,
     });
@@ -22,7 +22,7 @@ const deleteChatroom = async (req: Request, res: Response): Promise<void> => {
   });
 
   if (!message) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: `message ${messageId} not found or not not in chatroom`,
       status: 404,
     });
@@ -36,7 +36,7 @@ const deleteChatroom = async (req: Request, res: Response): Promise<void> => {
       deletedAt: new Date().toISOString(),
     },
   });
-  return utils.handlers.success(res, {
+  return utils.handlers.success(req, res, {
     message: "delete successful",
     count: 1,
   });

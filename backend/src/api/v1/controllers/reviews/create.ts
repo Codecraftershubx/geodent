@@ -8,7 +8,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -42,7 +42,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
       });
     }
     if (!targetItem.length) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         status: 404,
         message: `${utils.text.lowerCase(target)} ${id} not found`,
       });
@@ -53,7 +53,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
       where: { id: reviewerId, isDeleted: false },
     });
     if (!reviewer.length) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         status: 404,
         message: `user ${reviewerId} not found`,
       });
@@ -64,19 +64,19 @@ const create = async (req: Request, res: Response): Promise<void> => {
       message,
     });
     if (result.error) {
-      return utils.handlers.error(res, "general", {
+      return utils.handlers.error(req, res, "general", {
         message: result.message,
         status: result.status,
       });
     }
     const filtered = await db.client.filterModels([result.data.data]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: result.data.message,
       count: 1,
       data: filtered,
     });
   } catch (err: any) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `${err?.message || "some error occured"}`,
       status: 500,
     });

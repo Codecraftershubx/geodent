@@ -9,7 +9,7 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -24,7 +24,7 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
       where: { id: data.receiverId, isDeleted: false },
     });
     if (!receiver) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: `receiver ${data.listingId} not found`,
       });
     }
@@ -38,7 +38,7 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
       include: { receiver: { omit: db.client.omit.user } },
     });
     const filtered = await db.client.filterModels([notification]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       data: filtered,
       message: "notification created successfully",
       status: 201,
@@ -52,7 +52,7 @@ const createNewRental = async (req: Request, res: Response): Promise<void> => {
     if (err?.code || null === "P2002") {
       resOptions["status"] = 400;
     }
-    return utils.handlers.error(res, "general", resOptions);
+    return utils.handlers.error(req, res, "general", resOptions);
   }
 };
 

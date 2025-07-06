@@ -15,13 +15,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
     count = block.length;
     if (count) {
       filtered = await db.client.filterModels(block);
-      return utils.handlers.success(res, {
+      return utils.handlers.success(req, res, {
         message: "query successful",
         data: filtered,
         count,
       });
     }
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `block not found`,
       status: 404,
     });
@@ -34,13 +34,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
   filtered = await db.client.filterModels(blocks);
   count = blocks.length;
   if (count) {
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "query success",
       data: filtered,
       count,
     });
   }
-  return utils.handlers.error(res, "general", {
+  return utils.handlers.error(req, res, "general", {
     message: "no block created yet",
     status: 404,
     count: 0,

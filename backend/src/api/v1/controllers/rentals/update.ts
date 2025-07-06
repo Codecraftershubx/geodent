@@ -8,7 +8,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -24,7 +24,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
       where: { id, isDeleted: false },
     });
     if (!rental) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         status: 404,
         message: `rental ${id} not found`,
       });
@@ -35,7 +35,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
         where: { id: data.listingId, isDeleted: false },
       });
       if (!listing) {
-        return utils.handlers.error(res, "validation", {
+        return utils.handlers.error(req, res, "validation", {
           message: `listing ${data.listingId} not found`,
         });
       }
@@ -45,7 +45,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
         where: { id: data.landlordId, isDeleted: false },
       });
       if (!landlord) {
-        return utils.handlers.error(res, "validation", {
+        return utils.handlers.error(req, res, "validation", {
           message: `user ${data.landlordid} not found`,
         });
       }
@@ -55,19 +55,19 @@ const update = async (req: Request, res: Response): Promise<void> => {
     const endTime = new Date(data?.endsAt ?? rental.endsAt).getTime();
     const todayTime = new Date().getTime();
     if (todayTime - startTime > 0) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: "startsAt in the past",
       });
     }
 
     if (todayTime - endTime > 0) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: "endsAt in the past",
       });
     }
 
     if (endTime - startTime < 60 * 60 * 24 * 1000) {
-      return utils.handlers.error(res, "validation", {
+      return utils.handlers.error(req, res, "validation", {
         message: "rental must be at least 24 hours",
       });
     }
@@ -98,14 +98,14 @@ const update = async (req: Request, res: Response): Promise<void> => {
       data: updateData,
     });
     const filtered = await db.client.filterModels([updatedRental]);
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "update successful",
       count: 1,
       data: filtered,
     });
   } catch (err: any) {
     console.error(err);
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "an error occured",
     });
   }

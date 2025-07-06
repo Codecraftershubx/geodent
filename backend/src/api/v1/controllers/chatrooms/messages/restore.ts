@@ -10,7 +10,7 @@ const restore = async (req: Request, res: Response): Promise<void> => {
     where: { id, isDeleted: false },
   });
   if (!chatroom) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `chatroom ${id} not found`,
     });
@@ -20,7 +20,7 @@ const restore = async (req: Request, res: Response): Promise<void> => {
     where: { id: messageId, isDeleted: true, chatroomId: chatroom.id },
   });
   if (!message) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `message ${messageId} doesn't exist or not in chatroom`,
     });
@@ -33,7 +33,7 @@ const restore = async (req: Request, res: Response): Promise<void> => {
       deletedAt: null,
     },
   });
-  return utils.handlers.success(res, {
+  return utils.handlers.success(req, res, {
     message: `message ${messageId} restored successfully`,
     count: 1,
   });

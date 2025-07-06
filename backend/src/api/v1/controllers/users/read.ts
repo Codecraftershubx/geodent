@@ -7,7 +7,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -30,13 +30,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
     });
     count = user.length;
     if (count) {
-      return utils.handlers.success(res, {
+      return utils.handlers.success(req, res, {
         message: "query successful",
         data: await db.client.filterModels(user),
         count,
       });
     }
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: `user not found`,
       status: 404,
     });
@@ -50,13 +50,13 @@ const read = async (req: Request, res: Response): Promise<void> => {
 
   count = users.length;
   if (count) {
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "query success",
       data: await db.client.filterModels(users),
       count,
     });
   }
-  return utils.handlers.error(res, "general", {
+  return utils.handlers.error(req, res, "general", {
     message: "no users created yet",
     status: 404,
     count: 0,

@@ -8,7 +8,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       message: "validation error",
       data: validationErrors,
       count: validationErrors.length,
@@ -25,7 +25,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     },
   });
   if (existingAmenity.length) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: "amenity already exists",
       status: 400,
     });
@@ -36,13 +36,13 @@ const create = async (req: Request, res: Response): Promise<void> => {
     const amenity = await db.client.client.amenity.create({
       data: { ...data, name },
     });
-    return utils.handlers.success(res, {
+    return utils.handlers.success(req, res, {
       message: "amenity created successfully",
       data: [{ id: amenity.id }],
       status: 201,
     });
   } catch (err: any) {
-    return utils.handlers.error(res, "general", {
+    return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
       data: [{ details: err }],
     });

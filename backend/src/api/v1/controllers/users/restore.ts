@@ -10,7 +10,7 @@ const restore = async (req: Request, res: Response): Promise<void> => {
     where: { id, isDeleted: true },
   });
   if (!user.length) {
-    return utils.handlers.error(res, "validation", {
+    return utils.handlers.error(req, res, "validation", {
       status: 404,
       message: `user not found`,
     });
@@ -23,7 +23,7 @@ const restore = async (req: Request, res: Response): Promise<void> => {
       deletedAt: null,
     },
   });
-  return utils.handlers.success(res, {
+  return utils.handlers.success(req, res, {
     message: "user restored successfully",
     count: 1,
   });
