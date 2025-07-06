@@ -14,13 +14,13 @@ if (!conf) {
 let dbUrl;
 let serverPort;
 let serverHost;
-const mode = process.env.MODE;
+const mode = process.env.NODE_ENV;
 
-if (mode === "DEV") {
+if (mode === "dev") {
   dbUrl = process.env.DB_DEV_URL || undefined;
   serverPort = process.env.DEV_SERVER_PORT;
   serverHost = process.env.DEV_SERVER_HOST;
-} else if (mode === "TEST") {
+} else if (mode === "test") {
   dbUrl = process.env.DB_TEST_URL || undefined;
   serverPort = process.env.TEST_SERVER_PORT;
   serverHost = process.env.TEST_SERVER_HOST;
@@ -90,7 +90,7 @@ const envs = {
   mode,
   expirations,
   refreshSecret,
-	refreshCacheSuffix: ":RToken",
+  refreshCacheSuffix: ":RToken",
   serverHost,
   serverPort,
   trashPath: "/var/geodent/.trash",
