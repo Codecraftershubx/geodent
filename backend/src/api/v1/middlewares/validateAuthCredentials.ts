@@ -2,27 +2,31 @@ import { Request, Response, NextFunction } from "express";
 import db from "../../../db/utils/index.js";
 import utils from "../../../utils/index.js";
 
-const validateTokenPayload = async (
+const validateAuthCredentials = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.body.auth.strictMode) {
-    console.log("Backend: Using credentials");
-    const { email, password } = req.body;
-    console.log(email, password);
-    if (!email || !password) {
-      const field = email
-        ? "password"
-        : password
-          ? "email"
-          : "email and password";
-      console.log("returning missing credential");
-      return utils.handlers.error(req, res, "authentication", {
-        message: `${field} not provided`,
-      });
-    }
-    // verify credentials
+  if (req.body.auth.strictMode) {
+    console.log("\tFAILED: CREDENTIALS USE NOT ALLOWED");
+    return utils.handlers.error(req, res, "authentication", {
+      message: "Unauthorised!",
+      status: 403,
+    });
+  }
+  const { email, password } = req.body;
+  if (!email || !password) {
+    const field = email
+      ? "password"
+      : password
+        ? "email"
+        : "email and password";
+    return utils.handlers.error(req, res, "authentication", {
+      message: `${field} not provided`,
+    });
+  }
+  // verify credentials
+  try {
     const user = await db.client.client.user.findUnique({
       where: { email },
     });
@@ -34,15 +38,19 @@ const validateTokenPayload = async (
     // verify password
     const match = await utils.passwords.verify(user.password, password);
     if (!match) {
-      console.log("returning wrong password");
       return utils.handlers.error(req, res, "authentication", {
         message: "wrong password",
       });
     }
     const filtered = await db.client.filterModels([user]);
     req.body.auth.user = filtered;
+    next();
+  } catch (err: any) {
+    return utils.handlers.error(req, res, "authentication", {
+      message: "Unauthorised!",
+      status: 403,
+    });
   }
-  next();
 };
 
-export default validateTokenPayload;
+export default validateAuthCredentials;

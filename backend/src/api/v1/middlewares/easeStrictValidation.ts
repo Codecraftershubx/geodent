@@ -5,6 +5,7 @@ const easeStrictValidation = (
   _: Response,
   next: NextFunction
 ) => {
+  console.log("EASING STRICT VALIDATION");
   req.body.auth.strictMode = false;
   next();
 };

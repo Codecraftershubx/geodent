@@ -6,9 +6,11 @@ const validateAuthToken = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log("VALIDATING AUTH TOKEN");
   // validate headers sent
   const authHeader = req.headers.authorization;
   if (authHeader) {
+    console.log("\tAUTH HEADER PROVIDED");
     // validate header in right format and in header
     const [title, aT] = authHeader.split(" ");
     if (!aT || title !== "Bearer") {
@@ -36,11 +38,13 @@ const validateAuthToken = async (
     }
   } else {
     if (req.body.auth.strictMode) {
+      console.log("\tFAILED: NO CREDENTIALS PROVIDED");
       return utils.handlers.error(req, res, "authentication", {
         message: "Unauthorised!",
         status: 403,
       });
     }
+    console.log("\tPROCEEDING TO NEXT MIDDLEWARE");
     next();
   }
 };
