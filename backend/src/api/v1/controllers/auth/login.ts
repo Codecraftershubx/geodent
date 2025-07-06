@@ -22,7 +22,6 @@ const login = async (req: Request, res: Response): Promise<void> => {
   // use auth token if provided
   try {
     if (authHeader) {
-      console.log("using auth token");
       aT = authHeader.split(" ")[1];
       // verify user not already logged in
       const loggedInUser = (await utils.cache.get(aT)) as string | null;
@@ -34,7 +33,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
         }
       }
     } else {
-      // generate new access token for user authenticated by credentials
+      // generate new access token for user authenticated with credentials - email + password
       aT = await utils.tokens.generate.accessToken({ id: user.id });
     }
     // generate refreshToken and cache results
@@ -54,9 +53,8 @@ const login = async (req: Request, res: Response): Promise<void> => {
     if (!cacheATRes || !cacheRTRes) {
       throw new Error("Error! Login failed");
     }
-    console.log("cacheATRes:", cacheATRes, "cacheRTRes:", cacheRTRes);
     return utils.handlers.success(req, res, {
-      data: user,
+      data: [{ accessToken: aT }],
       message: "login success",
     });
   } catch (err: any) {

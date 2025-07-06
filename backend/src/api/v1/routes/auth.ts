@@ -1,22 +1,24 @@
 import express, { Response, Request, Router, NextFunction } from "express";
 import { body } from "express-validator";
 import controllers from "../controllers/index.js";
-import {
-  validateAuthToken,
-  easeStrictValidation,
-  validateTokenPayload,
-} from "../middlewares/index.js";
+import middlewares from "../middlewares/index.js";
 
 const router: Router = express.Router();
 
 router.post(
   /^\/(signin|login)\/?$/,
-  easeStrictValidation,
-  validateAuthToken,
-  validateTokenPayload,
+  middlewares.easeStrictValidation,
+  middlewares.validateAuthToken,
+  middlewares.validateTokenPayload,
+  middlewares.validateAuthCredentials,
   controllers.auth.login
 );
-router.post(/^\/(signout|logout)\/?$/, controllers.auth.logout);
+router.post(
+  /^\/(signout|logout)\/?$/,
+  middlewares.validateAuthToken,
+  middlewares.validateTokenPayload,
+  controllers.auth.logout
+);
 router.post("/refresh", controllers.auth.refreshAccessToken);
 router.post(
   "/signup",
