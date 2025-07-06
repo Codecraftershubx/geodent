@@ -3,14 +3,10 @@ import routes from "./routes/index.js";
 
 const router: Router = Router();
 
-router.use((req: Request, _: Response, next: NextFunction) => {
-  req.body.timestamp = new Date();
-  req.body.auth = {
-    strictMode: true,
-  };
-});
-router.use("/status", (_: Request, res: Response) => {
+router.get(["/status", "/"], (_: Request, res: Response) => {
+  console.log("status check endpoint called");
   res.json({ status: "OK", apiVersion: "1" });
+  return;
 });
 router.use("/address", routes.address);
 router.use("/amenities", routes.amenities);
