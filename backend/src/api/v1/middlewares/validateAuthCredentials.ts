@@ -14,42 +14,47 @@ const validateAuthCredentials = async (
       status: 403,
     });
   }
-  const { email, password } = req.body;
-  if (!email || !password) {
-    const field = email
-      ? "password"
-      : password
-        ? "email"
-        : "email and password";
-    return utils.handlers.error(req, res, "authentication", {
-      message: `${field} not provided`,
-    });
-  }
-  // verify credentials
-  try {
-    const user = await db.client.client.user.findUnique({
-      where: { email },
-    });
-    if (!user) {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "Unauthorised: user doesn't exist",
-      });
-    }
-    // verify password
-    const match = await utils.passwords.verify(user.password, password);
-    if (!match) {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "wrong password",
-      });
-    }
-    const filtered = await db.client.filterModels([user]);
-    req.body.auth.user = filtered;
+  if (req.headers.authorization) {
     next();
-  } catch (err: any) {
-    return utils.handlers.error(req, res, "authentication", {
-      message: "Unauthorised!",
-      status: 403,
-    });
+  } else {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      const field = email
+        ? "password"
+        : password
+          ? "email"
+          : "email and password";
+      return utils.handlers.error(req, res, "authentication", {
+        message: `${field} not provided`,
+      });
+    }
+    // verify credentials
+    try {
+      const user = await db.client.client.user.findUnique({
+        where: { email },
+      });
+      if (!user) {
+        return utils.handlers.error(req, res, "authentication", {
+          message: "Unauthorised: user doesn't exist",
+        });
+      }
+      // verify password
+      const match = await utils.passwords.verify(user.password, password);
+      if (!match) {
+        return utils.handlers.error(req, res, "authentication", {
+          message: "wrong password",
+        });
+      }
+      const filtered = await db.client.filterModels([user]);
+      req.body.auth.user = filtered[0];
+      console.log("authed user:", filtered);
+      next();
+    } catch (err: any) {
+      return utils.handlers.error(req, res, "authentication", {
+        message: "Unauthorised!",
+        status: 403,
+      });
+    }
   }
 };
 

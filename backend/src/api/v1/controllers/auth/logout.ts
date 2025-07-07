@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 import config from "../../../../config.js";
 
 const logout = async (req: Request, res: Response): Promise<void> => {
+  console.log("LOGOUT CALLED...");
   // get auth token from request
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -19,37 +19,34 @@ const logout = async (req: Request, res: Response): Promise<void> => {
   }
   try {
     // verify user is logged in
-    const cachedUserId = await utils.cache.get(accessToken);
-    if (!cachedUserId) {
+    const cachedData = (await utils.cache.get(accessToken)) as string;
+    console.log("    => cachedUser [cache]", cachedData);
+    if (!cachedData) {
       return utils.handlers.error(req, res, "authentication", {
         message: "Unauthorised: user not logged in",
       });
     }
-    // extract user id from token and
-    const { payload: aTData } = utils.tokens.decompose.accessToken(accessToken);
-    if (aTData === null) {
+    // get validated user
+    const { user: aTData } = req.body.auth;
+    const cachedUser = JSON.parse(cachedData);
+    if (!aTData) {
       return utils.handlers.error(req, res, "authentication", {
-        message: "Unauthorised: session expired",
+        message: "Unauthorised! Bad request",
       });
     }
-    // validate payload id matches cached user id
-    if (aTData.id !== cachedUserId) {
+    console.log("    => parsed cachedUser data:", cachedUser);
+    console.log("    => user from auth obj:", aTData);
+    if (aTData.id !== cachedUser?.id) {
+      console.log("aTData != cachedUserId: ", aTData.id, cachedUser);
       return utils.handlers.error(req, res, "authentication", {
         message: "Unauthorised: unknown user",
       });
     }
     // clear tokens from cache
-    const clearSuccess = await utils.cache.delete(
+    await utils.cache.delete(
       accessToken,
       `${accessToken}${config.refreshCacheSuffix}`
     );
-    if (!clearSuccess) {
-      return utils.handlers.error(req, res, "general", {
-        message: "Error: logout failed",
-        code: 500,
-      });
-    }
-
     return utils.handlers.success(req, res, {
       message: "Logout success",
     });

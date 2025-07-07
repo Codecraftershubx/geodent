@@ -9,6 +9,7 @@ const validateTokenPayload = async (
 ) => {
   console.log("VALIDATING TOKEN PAYLOAD");
   const { payload: aTData } = req.body.auth;
+  console.log(aTData);
   if (aTData) {
     try {
       // get user profile
@@ -21,9 +22,10 @@ const validateTokenPayload = async (
         });
       }
       const filtered = await db.client.filterModels([user]);
-      req.body.auth.user = filtered;
+      req.body.auth.user = filtered[0];
       next();
     } catch (err: any) {
+      console.log(err);
       return utils.handlers.error(req, res, "general", {
         message: "Some error occured",
         status: 500,
