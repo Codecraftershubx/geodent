@@ -78,7 +78,7 @@ class Cache {
    * CACHE OPERATION HANDLERS
    *----------------------------*/
   // Safe operation wraper
-  async safeOperation(operation: () => Promise<string | boolean | null>) {
+  async safeOperation(operation: () => Promise<string | null>) {
     if (!this.#alive) {
       throw new Error("Error! Cache not ready");
     }
@@ -90,10 +90,7 @@ class Cache {
   }
 
   // get string value from cache
-  async get(
-    key: string,
-    buffers: boolean = false
-  ): Promise<string | boolean | null> {
+  async get(key: string, buffers: boolean = false): Promise<string | null> {
     try {
       const data = await this.safeOperation(async () => {
         if (!this.#client) {
@@ -113,21 +110,21 @@ class Cache {
     key: string,
     value: string,
     ex: number = this.#defaultExpiry
-  ): Promise<string | boolean | null> {
+  ): Promise<string | null> {
     if (!this.#client) {
-      return false;
+      throw new Error("Error! Cache not ready");
     }
     try {
       const res = await this.#client.set(key, value, { EX: ex });
       return res;
     } catch (err: any) {
       console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
-      return false;
+      throw err;
     }
   }
 
   // delete a string value(s) from cache
-  async delete(...keys: string[]) {
+  async delete(...keys: string[]): Promise<null> {
     try {
       const res = await this.safeOperation(async () => {
         const promises = keys.map((key: string) => {
@@ -137,11 +134,12 @@ class Cache {
           return this.#client.del(key);
         });
         await Promise.all(promises);
-        return true;
+        return null;
       });
+      return null;
     } catch (err: any) {
       console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
-      return false;
+      return Promise.reject(err);
     }
   }
 }

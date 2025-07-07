@@ -41,6 +41,7 @@ export default {
           token,
           config.authSecret
         ) as TAccessTokenPayload;
+        console.log("decompose res::", payload);
         return { payload };
       } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
