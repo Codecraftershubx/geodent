@@ -7,7 +7,7 @@ import Components from "./index.js";
 import Hamburger from "./Hamburger";
 
 const NavBar: React.FC = () => {
-  const { isLoggedIn, isLoading } = useAppSelector(
+  const { accessToken, isLoggedIn, isLoading } = useAppSelector(
     (store: RootState) => store.auth
   );
   const dispatch = useAppDispatch();
@@ -21,7 +21,7 @@ const NavBar: React.FC = () => {
   };
   const logout = async () => {
     try {
-      await dispatch(logoutUser({})).unwrap();
+      await dispatch(logoutUser({ accessToken })).unwrap();
       dispatch(toggleMessage({ autoHide: true }));
     } catch (error) {
       dispatch(toggleMessage({ autoHide: false }));

@@ -29,10 +29,10 @@ const loginUser = createAsyncThunk<
       };
     } else {
       options.extras = {
-				data: {
-        email: credentials.email,
-        password: credentials.password,
-				}
+        data: {
+          email: credentials.email,
+          password: credentials.password,
+        },
       };
     }
     let response = await api.post("/auth/login", options);
@@ -42,7 +42,6 @@ const loginUser = createAsyncThunk<
       if (message === "Unauthorised: session expired") {
         response.content.header.redirect = "/token/refresh";
       }
-			console.log("LOGIN THUNK HANDLER", response.content);
       return rejectWithValue(response.content);
     }
     data = response.content.data[0];
@@ -59,8 +58,12 @@ const logoutUser = createAsyncThunk<
   boolean,
   Record<string, any>,
   { rejectValue: BEDataType }
->("auth/logout", async ({}, { rejectWithValue }) => {
-  const response = await api.post("/auth/logout", {});
+>("auth/logout", async ({ accessToken }, { rejectWithValue }) => {
+  const response = await api.post("/auth/logout", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
   if (response.error) {
     return rejectWithValue(response.content);
   }
@@ -145,7 +148,7 @@ const authSlice = createSlice({
         };
       })
       .addCase(loginUser.rejected, (state: AuthStateType, { payload }) => {
-        console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
+        //console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
         const value = payload as BEDataType;
         state.isLoading = false;
         state.message = {
