@@ -1,4 +1,4 @@
-import { createClient, RedisClientType } from "redis";
+import { createClient, HashTypes, RedisClientType, RedisArgument } from "redis";
 import config from "../config.js";
 
 // variables
@@ -78,31 +78,35 @@ class Cache {
    * CACHE OPERATION HANDLERS
    *----------------------------*/
   // Safe operation wraper
-  async safeOperation(operation: () => Promise<string | null>) {
+  async safeOperation(operation: () => Promise<CacheOpResType>) {
     if (!this.#alive) {
-      throw new Error("Error! Cache not ready");
+      return { success: false, value: null, message: "Error! Cache not ready" };
     }
     try {
-      return await operation();
+      const res = await operation();
+      return { success: true, value: res, message: "success" };
     } catch (err: any) {
-      throw new Error(...err);
+      console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
+      return {
+        succes: false,
+        value: err,
+        message: err?.message ?? "Cache Error",
+      };
     }
   }
 
   // get string value from cache
-  async get(key: string, buffers: boolean = false): Promise<string | null> {
-    try {
-      const data = await this.safeOperation(async () => {
-        if (!this.#client) {
-          throw new Error("Error! Cache not ready");
-        }
-        return await this.#client.get(key);
-      });
-      return data;
-    } catch (err: any) {
-      console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
-      throw err;
-    }
+  async get(key: string, buffers: boolean = false): Promise<CacheOpResType> {
+    return await this.safeOperation(async () => {
+      return await this.#client.get(key);
+    });
+  }
+
+  // getting a field from a hash
+  async hget(hash: string, field: string): Promise<CacheOpResType> {
+    return this.safeOperation(async () => {
+      await this.#client.hGet(hash, field);
+    });
   }
 
   // save string value to cache
@@ -110,37 +114,44 @@ class Cache {
     key: string,
     value: string,
     ex: number = this.#defaultExpiry
-  ): Promise<string | null> {
-    if (!this.#client) {
-      throw new Error("Error! Cache not ready");
-    }
-    try {
-      const res = await this.#client.set(key, value, { EX: ex });
-      return res;
-    } catch (err: any) {
-      console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
-      throw err;
-    }
+  ): Promise<CacheOpResType> {
+    return this.safeOperation(async () => {
+      await this.#client.set(key, value, { EX: ex });
+    });
   }
 
+  // set string value to hash in cache
+  async hset(
+    h: string,
+    m: Map<string, string>,
+    ex: number = this.#defaultExpiry
+  ): Promise<CacheOpResType> {
+    return await this.safeOperation(async () => {
+      const hash = h as RedisArgument;
+      const map = m as Map<HashTypes, HashTypes>;
+      const r = await this.#client.hSet(hash, map);
+      await this.#client.expire(hash, ex);
+      return r;
+    });
+  }
   // delete a string value(s) from cache
-  async delete(...keys: string[]): Promise<null> {
-    try {
-      const res = await this.safeOperation(async () => {
-        const promises = keys.map((key: string) => {
-          if (!this.#client) {
-            return Promise.reject(new Error("Error! Cache not ready"));
-          }
-          return this.#client.del(key);
-        });
-        await Promise.all(promises);
-        return null;
+  async delete(...keys: string[]): Promise<CacheOpResType> {
+    return await this.safeOperation(async () => {
+      const promises = keys.map((key: string) => {
+        return this.#client.del(key);
       });
+      await Promise.all(promises);
       return null;
-    } catch (err: any) {
-      console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
-      return Promise.reject(err);
-    }
+    });
+  }
+
+  // delete fields from a hash
+  async hdel(h: string, ...keys: string[]): Promise<CacheOpResType> {
+    return await this.safeOperation(async () => {
+      const hash = h as RedisArgument;
+      const keys = keys as HashTypes[];
+      return await this.#client.hDel(hash, [...keys]);
+    });
   }
 }
 
@@ -149,6 +160,8 @@ const cacheInstance = new Cache();
 cacheInstance.init().then(() => {
   cacheInstance.connect();
 });
+
+type CacheOpResType = { success: boolean; value: any; message?: string };
 
 // expose instance
 export default cacheInstance;
