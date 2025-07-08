@@ -107,7 +107,15 @@ class Cache {
   async hget(hash: string, field: string): Promise<CacheOpResType> {
     return this.safeOperation(async () => {
       //@ts-ignore
-      await this.#client.hGet(hash, field);
+      return await this.#client.hGet(hash, field);
+    });
+  }
+
+  // get all fields from a hash
+  async hgetall(hash: string): Promise<CacheOpResType> {
+    return this.safeOperation(async () => {
+      // @ts-ignore
+      return await this.#client.hGetAll(hash);
     });
   }
 
@@ -126,12 +134,12 @@ class Cache {
   // set string value to hash in cache
   async hset(
     h: string,
-    m: Map<string, string>,
+    f: { data: string; [key: string]: string },
     ex: number = this.#defaultExpiry
   ): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
       //@ts-ignore
-      const r = await this.#client.hSet(h, m);
+      const r = await this.#client.hSet(h, f);
       //@ts-ignore
       await this.#client.expire(h, ex);
       return r;
