@@ -20,11 +20,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       aT = authHeader.split(" ")[1];
       // verify user not already logged in
       const cacheGetRes = await utils.cache.hgetall(user.id);
-      if (!cacheGetRes.success) {
-        throw new Error(cacheGetRes.message);
-      }
-      const loggedInUser = cacheGetRes.value.data;
-      if (loggedInUser && JSON.parse(loggedInUser).id === user.id) {
+      if (cacheGetRes.success) {
         return utils.handlers.success(req, res, {
           message: "already loggedd in",
         });
