@@ -21,6 +21,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       // verify user not already logged in
       const cacheGetRes = await utils.cache.hget(user.id, config.aTFieldName);
       if (!cacheGetRes.success) {
+        console.log("LOGIN: CACHEGETRES ERROR", cacheGetRes);
         throw new Error(cacheGetRes.message);
       }
       const loggedInUser = cacheGetRes.value;

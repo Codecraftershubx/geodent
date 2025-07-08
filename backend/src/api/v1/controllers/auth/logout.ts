@@ -3,7 +3,6 @@ import utils from "../../../../utils/index.js";
 import config from "../../../../config.js";
 
 const logout = async (req: Request, res: Response): Promise<void> => {
-  console.log("LOGOUT CALLED...");
   // get auth token from request
   const { user: aTData } = req.body.auth;
   if (!aTData) {
@@ -26,14 +25,11 @@ const logout = async (req: Request, res: Response): Promise<void> => {
         status,
       });
     }
-    console.log("    => cachedUser [cache]", cachedData);
 
     // get validated user
     const cachedUser = JSON.parse(cachedData.value.data);
-    console.log("    => parsed cachedUser data:", cachedUser);
-    console.log("    => user from auth obj:", aTData);
     if (aTData.id !== cachedUser?.id) {
-      console.log("aTData != cachedUserId: ", aTData.id, cachedUser);
+      //console.log("aTData != cachedUserId: ", aTData.id, cachedUser);
       return utils.handlers.error(req, res, "authentication", {
         message: "Unauthorised: unknown user",
       });
