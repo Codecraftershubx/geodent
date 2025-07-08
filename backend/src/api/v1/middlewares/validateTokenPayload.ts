@@ -12,11 +12,12 @@ const validateTokenPayload = async (
     try {
       // get user profile
       const user = await db.client.client.user.findUnique({
-        where: { id: aTData.id },
+        where: { id: aTData.id, isDeleted: false },
+        include: db.client.include.user,
       });
       if (!user || user.id !== aTData.id) {
         return utils.handlers.error(req, res, "authentication", {
-          message: "Unauthorised: unknown user",
+          message: "Unauthorised: user does not exist",
         });
       }
       const filtered = await db.client.filterModels([user]);
