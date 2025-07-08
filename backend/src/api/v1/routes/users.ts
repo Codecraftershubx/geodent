@@ -1,6 +1,7 @@
 import express, { Response, Request, Router } from "express";
 import { body, query } from "express-validator";
 import controllers from "../controllers/index.js";
+import middlewares from "../middlewares/index.js";
 
 const router: Router = express.Router();
 
@@ -36,7 +37,14 @@ router.get(
       ])
       .withMessage("unsupported value"),
   ],
-  controllers.users.get,
+  controllers.users.get
+);
+router.get(
+  "/me",
+  middlewares.validateAuthToken,
+  middlewares.validateTokenPayload,
+  middlewares.validateIsLoggedIn,
+  controllers.users.profile
 );
 router.get(
   "/:id",
@@ -69,7 +77,7 @@ router.get(
       ])
       .withMessage("unsupported value"),
   ],
-  controllers.users.get,
+  controllers.users.get
 );
 router.put(
   "/:id",
@@ -80,7 +88,7 @@ router.put(
       .isObject()
       .withMessage("expects an object"),
   ],
-  controllers.users.update,
+  controllers.users.update
 );
 router.post(
   "/",
@@ -153,7 +161,7 @@ router.post(
       .isUUID()
       .withMessage("expects a uuid"),
   ],
-  controllers.users.create,
+  controllers.users.create
 );
 router.post(
   "/:id/like",
@@ -165,7 +173,7 @@ router.post(
       .isUUID()
       .withMessage("expects a uuid"),
   ],
-  controllers.users.like,
+  controllers.users.like
 );
 
 router.post(
@@ -191,7 +199,7 @@ router.post(
       .isIn(["AGENT", "LANDLORD", "LISTING"])
       .withMessage("invalid value"),
   ],
-  controllers.reviews.create,
+  controllers.reviews.create
 );
 
 router.put(
@@ -275,7 +283,7 @@ router.put(
       .isArray()
       .withMessage("expects an array"),
   ],
-  controllers.users.connections,
+  controllers.users.connections
 );
 router.put("/:id/restore", controllers.users.restore);
 
