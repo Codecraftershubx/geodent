@@ -5,35 +5,31 @@ import config from "../../../../config.js";
 const logout = async (req: Request, res: Response): Promise<void> => {
   console.log("LOGOUT CALLED...");
   // get auth token from request
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return utils.handlers.error(req, res, "authentication", {
-      message: "Unauthorised!",
-    });
-  }
-  const [_, accessToken] = authHeader.split(" ");
-  if (!accessToken) {
+  const { user: aTData } = req.body.auth;
+  if (!aTData) {
     return utils.handlers.error(req, res, "authentication", {
       message: "Unauthorised!",
     });
   }
   try {
-    // verify user is logged in
-    const cachedData = (await utils.cache.get(accessToken)) as string;
+    // verify authed user is logged in
+    const cachedData = await utils.cache.hgetall(aTData.id);
+    if (!cachedData.success) {
+      const status =
+        cachedData?.message === "Error! Cache not ready" ? 500 : 401;
+      const message =
+        cachedData?.message === "Error! Cache not ready"
+          ? cachedData.message
+          : "Unauthorised! Not loggedin";
+      return utils.handlers.error(req, res, "authentication", {
+        message,
+        status,
+      });
+    }
     console.log("    => cachedUser [cache]", cachedData);
-    if (!cachedData) {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "Unauthorised: user not logged in",
-      });
-    }
+
     // get validated user
-    const { user: aTData } = req.body.auth;
-    const cachedUser = JSON.parse(cachedData);
-    if (!aTData) {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "Unauthorised! Bad request",
-      });
-    }
+    const cachedUser = JSON.parse(cachedData.value.data);
     console.log("    => parsed cachedUser data:", cachedUser);
     console.log("    => user from auth obj:", aTData);
     if (aTData.id !== cachedUser?.id) {
@@ -43,10 +39,7 @@ const logout = async (req: Request, res: Response): Promise<void> => {
       });
     }
     // clear tokens from cache
-    await utils.cache.delete(
-      accessToken,
-      `${accessToken}${config.refreshCacheSuffix}`
-    );
+    await utils.cache.delete(aTData.id, `${aTData.id}:${config.rTFieldName}`);
     return utils.handlers.success(req, res, {
       message: "Logout success",
     });

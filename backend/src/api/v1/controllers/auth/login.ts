@@ -41,12 +41,12 @@ const login = async (req: Request, res: Response): Promise<void> => {
       user.id,
       {
         [config.aTFieldName]: aT,
-        profile: JSON.stringify(user),
+        data: JSON.stringify(user),
       },
       config.expirations.accessToken
     );
     const cacheRTRes = await utils.cache.set(
-      `${user.id}${config.rTFieldName}`,
+      `${aT}:${config.rTFieldName}`,
       rT,
       config.expirations.refreshToken
     );

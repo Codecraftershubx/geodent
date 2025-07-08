@@ -27,16 +27,16 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
       });
     }
     // verify refreshToken in cache and not expired
-    const rT = (await utils.cache.get(
-      `${accessToken}${config.refreshCacheSuffix}`
-    )) as string;
-    if (!rT) {
+    const rTRes = await utils.cache.get(`${accessToken}${config.rTFieldName}`);
+    if (!rTRes.success) {
       return utils.handlers.error(req, res, "authentication", {
         message: "Unauthorised: token expired",
       });
     }
     // verify both token payloads match
-    const { payload: rTData } = utils.tokens.decompose.refreshToken(rT);
+    const { payload: rTData } = utils.tokens.decompose.refreshToken(
+      rTRes.value
+    );
     if (!rTData) {
       return utils.handlers.error(req, res, "authentication", {
         message: "Unauthorised: token expired",
@@ -61,16 +61,17 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
       const newAT: string = utils.tokens.generate.accessToken({ id: user.id });
       const newRT: string = utils.tokens.generate.refreshToken({ id: user.id });
       const saveNewRT = await utils.cache.set(
-        `${newAT}${config.refreshCacheSuffix}`,
+        `${newAT}${config.rTFieldName}`,
         newRT
       );
       const delOldRT = await utils.cache.delete(
-        `${accessToken}${config.refreshCacheSuffix}`
+        `${accessToken}${config.rTFieldName}`
       );
       // handle caching failure
       if (!saveNewRT || !delOldRT) {
         return utils.handlers.error(req, res, "general", {
           message: "Error: unable to complete operation",
+          status: 500,
         });
       }
       return utils.handlers.success(req, res, {
