@@ -7,9 +7,7 @@ const validateTokenPayload = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("VALIDATING TOKEN PAYLOAD");
   const { payload: aTData } = req.body.auth;
-  console.log(aTData);
   if (aTData) {
     try {
       // get user profile
@@ -25,7 +23,6 @@ const validateTokenPayload = async (
       req.body.auth.user = filtered[0];
       next();
     } catch (err: any) {
-      console.log(err);
       return utils.handlers.error(req, res, "general", {
         message: "Some error occured",
         status: 500,
@@ -34,13 +31,11 @@ const validateTokenPayload = async (
     }
   } else {
     if (req.body.auth.strictMode) {
-      console.log("\tFAILED: NO AUTH PAYLOAD FOUND");
       return utils.handlers.error(req, res, "authentication", {
         message: "Unauthorised!",
         status: 403,
       });
     }
-    console.log("\tPROCEEDING TO NEXT MIDDLEWARE");
     next();
   }
 };
