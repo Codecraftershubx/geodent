@@ -19,8 +19,19 @@ type TErrNumbers = {
 type THandlerOptions = {
   status?: number;
   data?: Array<Record<string, any>>;
-  message?: String;
+  message?: string;
   [key: string]: any;
+};
+
+type TRequestResData = {
+  header: {
+    status: string;
+    errno: number;
+    message: string;
+    details?: Record<string, any>;
+    [key: string]: any;
+  };
+  data?: Array<Record<string, any>>;
 };
 
 type TUserData = {
@@ -136,6 +147,7 @@ export type {
   TErrNumber,
   TErrNumbers,
   THandlerOptions,
+  TRequestResData,
   TUserData,
   TUserModel,
 };
