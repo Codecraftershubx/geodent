@@ -298,9 +298,9 @@ class DbClient implements Client {
 }
 const client = new DbClient();
 // initialise client
-(async () => {
-  console.log("running necessary migrations...");
-  await client.migrate();
+console.log("running necessary migrations...");
+client.migrate().then(() => {
   console.log("DbClient isReady:", client.isReady);
-})();
+});
+
 export default client;
