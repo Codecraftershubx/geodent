@@ -90,7 +90,7 @@ class Cache {
       return {
         success: false,
         value: err,
-        message: err?.message ?? "Cache Error",
+        message: err === null ? "not found" : (err?.message ?? "Cache Error"),
       };
     }
   }
@@ -115,7 +115,11 @@ class Cache {
   async hgetall(hash: string): Promise<CacheOpResType> {
     return this.safeOperation(async () => {
       // @ts-ignore
-      return await this.#client.hGetAll(hash);
+      const r = await this.#client.hGetAll(hash);
+      if (!Object.keys(r).length) {
+        return Promise.reject(null);
+      }
+      return r;
     });
   }
 

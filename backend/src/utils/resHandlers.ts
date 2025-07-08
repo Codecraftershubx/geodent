@@ -1,11 +1,13 @@
 import { Response, Request } from "express";
 import config from "../config.js";
-import type { THandlerOptions } from "./types.js";
+import type { THandlerOptions, TRequestResData } from "./types.js";
 
 // globals
-const errStatus = "failed";
-const successStatus = "success";
+const errStatus: string = "failed";
+const successStatus: string = "success";
 const errnos = config.errnos;
+
+type TOmitStatus = Omit<Record<string, any>, "status">;
 
 // success response handler
 const success = (
@@ -17,7 +19,7 @@ const success = (
     message: "successful operation",
   }
 ): void => {
-  const status = options?.status ?? errnos.success.statusCode;
+  const resStatus = options?.status ?? errnos.success.statusCode;
   const data = options.data;
   const toDelete = ["data", "message", "status"];
   const message = options?.message ?? errnos.success.desc;
@@ -25,17 +27,17 @@ const success = (
     delete (options as Record<string, any>)[key];
   }
 
-  const payload = {
+  const payload: TRequestResData = {
     header: {
       status: successStatus,
       errno: errnos.success.code,
       message,
-      ...options,
+      ...(options as TOmitStatus),
     },
     data,
   };
   delete req.body?.auth;
-  res.status(status).json(payload);
+  res.status(resStatus).json(payload);
   return;
 };
 
@@ -49,23 +51,30 @@ const error = (
   const toDelete = ["data", "message", "status"];
   const message = options.message ?? errnos[errType].desc;
   const statusCode = options.status ?? errnos[errType].statusCode;
-  const data = options.data || [];
+  const data = options.data
+    ? options.data.length
+      ? options.data[0].details
+      : {}
+    : {};
 
   // Remove internally used options
   for (let key of toDelete) {
     delete (options as Record<string, any>)[key];
   }
 
-  const payload = {
+  // construct response payload
+  const payload: TRequestResData = {
     header: {
       status: errStatus,
       errno: errnos[errType].code,
       message,
-      ...options,
+      ...(options as TOmitStatus),
     },
-    errors: data,
   };
-  console.log(payload);
+  if (Object.keys(data).length && process.env.NODE_ENV === "dev") {
+    payload.header.details = data;
+  }
+
   delete req.body?.auth;
   res.status(statusCode).json(payload);
   return;
