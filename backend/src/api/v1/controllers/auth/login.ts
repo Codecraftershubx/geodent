@@ -1,9 +1,4 @@
 import { Request, Response } from "express";
-import type {
-  TAccessTokenPayload,
-  TDecomposeResult,
-} from "../../../../utils/types.js";
-import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 import config from "../../../../config.js";
 
@@ -24,13 +19,15 @@ const login = async (req: Request, res: Response): Promise<void> => {
     if (authHeader) {
       aT = authHeader.split(" ")[1];
       // verify user not already logged in
-      const loggedInUser = (await utils.cache.get(aT)) as string | null;
-      if (loggedInUser) {
-        if (JSON.parse(loggedInUser).id === user.id) {
-          return utils.handlers.error(req, res, "authentication", {
-            message: "Error: already loggedd in",
-          });
-        }
+      const cacheGetRes = await utils.cache.hget(user.id, config.aTFieldName);
+      if (!cacheGetRes.success) {
+        throw new Error(cacheGetRes.message);
+      }
+      const loggedInUser = cacheGetRes.value;
+      if (loggedInUser && JSON.parse(loggedInUser).id === user.id) {
+        return utils.handlers.success(req, res, {
+          message: "already loggedd in",
+        });
       }
     } else {
       // generate new access token for user authenticated with credentials - email + password
@@ -40,17 +37,20 @@ const login = async (req: Request, res: Response): Promise<void> => {
     const rT: string = await utils.tokens.generate.refreshToken({
       id: user.id,
     });
-    const cacheATRes = await utils.cache.set(
-      aT,
-      JSON.stringify(user),
+    const cacheATRes = await utils.cache.hset(
+      user.id,
+      {
+        [config.aTFieldName]: aT,
+        profile: JSON.stringify(user),
+      },
       config.expirations.accessToken
     );
     const cacheRTRes = await utils.cache.set(
-      `${aT}${config.refreshCacheSuffix}`,
+      `${user.id}${config.rTFieldName}`,
       rT,
       config.expirations.refreshToken
     );
-    if (!cacheATRes || !cacheRTRes) {
+    if (!cacheATRes.success || !cacheRTRes.success) {
       throw new Error("Error! Login failed");
     }
     return utils.handlers.success(req, res, {
