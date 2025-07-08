@@ -17,6 +17,7 @@ router.post(
   /^\/(signout|logout)\/?$/,
   middlewares.validateAuthToken,
   middlewares.validateTokenPayload,
+  middlewares.validateIsLoggedIn,
   controllers.auth.logout
 );
 router.post("/refresh", controllers.auth.refreshAccessToken);

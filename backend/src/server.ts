@@ -30,6 +30,7 @@ app.use((req: Request, _: Response, next: NextFunction) => {
   req.body.timestamp = new Date();
   req.body.auth = {
     strictMode: true,
+    isLoggedIn: false,
   };
   next();
 });

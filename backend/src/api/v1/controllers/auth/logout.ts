@@ -12,23 +12,13 @@ const logout = async (req: Request, res: Response): Promise<void> => {
   }
   try {
     // verify authed user is logged in
-    const cachedData = await utils.cache.hgetall(aTData.id);
-    if (!cachedData.success) {
-      const status =
-        cachedData?.message === "Error! Cache not ready" ? 500 : 401;
-      const message =
-        cachedData.value === null
-          ? "Not logged in"
-          : cachedData?.message === "Error! Cache not ready"
-            ? cachedData.message
-            : "Unauthorised! Not loggedin";
+    if (!req.body.auth.isLoggedIn) {
       return utils.handlers.error(req, res, "authentication", {
-        message,
-        status,
+        message: "Not logged in",
       });
     }
-    // get validated user
-    const cachedUser = JSON.parse(cachedData.value.data);
+    // validate authed user data vs cached user data
+    const cachedUser = req.body.auth.profile;
     if (aTData.id !== cachedUser?.id) {
       return utils.handlers.error(req, res, "authentication", {
         message: "Unauthorised: unknown user",
