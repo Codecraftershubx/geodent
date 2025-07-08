@@ -1,13 +1,16 @@
 import axios from "axios";
 
+// create axios instance
 const api = axios.create({
-  baseURL: "http://0.0.0.0:8082/api/v1",
+  baseURL: "http://0.0.0.0:8083/api/v1",
   timeout: 5000,
   withCredentials: true,
   maxRedirects: 5,
 });
 
+// default export
 export default {
+  // get requests handler
   get: async (url: string, options: Record<string, any>) => {
     try {
       const res = await api({
@@ -19,9 +22,8 @@ export default {
       return { error: true, content: err };
     }
   },
-
+  // post requests handler
   post: async (url: string, options: Record<string, any>) => {
-    console.log("post request", options, url);
     try {
       const res = await api({
         url,
@@ -29,13 +31,11 @@ export default {
         headers: { "Content-Type": "application/json", ...options.headers },
         ...options?.extras,
       });
-      console.log(res);
       return { error: false, content: res.data };
     } catch (err: any) {
-      console.error(err);
       return {
         error: true,
-        content: err?.response?.data ?? { header: { message: err.message} },
+        content: err?.response?.data ?? { header: { message: err.message } },
       };
     }
   },
