@@ -1,4 +1,4 @@
-import { createClient, HashTypes, RedisClientType, RedisArgument } from "redis";
+import { createClient, RedisClientType } from "redis";
 import config from "../config.js";
 
 // variables
@@ -78,8 +78,8 @@ class Cache {
    * CACHE OPERATION HANDLERS
    *----------------------------*/
   // Safe operation wraper
-  async safeOperation(operation: () => Promise<CacheOpResType>) {
-    if (!this.#alive) {
+  async safeOperation(operation: () => Promise<any>): Promise<CacheOpResType> {
+    if (!this.#client || !this.#alive) {
       return { success: false, value: null, message: "Error! Cache not ready" };
     }
     try {
@@ -88,7 +88,7 @@ class Cache {
     } catch (err: any) {
       console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
       return {
-        succes: false,
+        success: false,
         value: err,
         message: err?.message ?? "Cache Error",
       };
@@ -96,8 +96,9 @@ class Cache {
   }
 
   // get string value from cache
-  async get(key: string, buffers: boolean = false): Promise<CacheOpResType> {
+  async get(key: string): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
+      //@ts-ignore
       return await this.#client.get(key);
     });
   }
@@ -105,6 +106,7 @@ class Cache {
   // getting a field from a hash
   async hget(hash: string, field: string): Promise<CacheOpResType> {
     return this.safeOperation(async () => {
+      //@ts-ignore
       await this.#client.hGet(hash, field);
     });
   }
@@ -116,6 +118,7 @@ class Cache {
     ex: number = this.#defaultExpiry
   ): Promise<CacheOpResType> {
     return this.safeOperation(async () => {
+      //@ts-ignore
       await this.#client.set(key, value, { EX: ex });
     });
   }
@@ -127,10 +130,10 @@ class Cache {
     ex: number = this.#defaultExpiry
   ): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
-      const hash = h as RedisArgument;
-      const map = m as Map<HashTypes, HashTypes>;
-      const r = await this.#client.hSet(hash, map);
-      await this.#client.expire(hash, ex);
+      //@ts-ignore
+      const r = await this.#client.hSet(h, m);
+      //@ts-ignore
+      await this.#client.expire(h, ex);
       return r;
     });
   }
@@ -138,6 +141,7 @@ class Cache {
   async delete(...keys: string[]): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
       const promises = keys.map((key: string) => {
+        // @ts-ignore
         return this.#client.del(key);
       });
       await Promise.all(promises);
@@ -148,9 +152,8 @@ class Cache {
   // delete fields from a hash
   async hdel(h: string, ...keys: string[]): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
-      const hash = h as RedisArgument;
-      const keys = keys as HashTypes[];
-      return await this.#client.hDel(hash, [...keys]);
+      // @ts-ignore
+      return await this.#client.hDel(h, [...keys]);
     });
   }
 }
