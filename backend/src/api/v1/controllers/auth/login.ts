@@ -19,12 +19,11 @@ const login = async (req: Request, res: Response): Promise<void> => {
     if (authHeader) {
       aT = authHeader.split(" ")[1];
       // verify user not already logged in
-      const cacheGetRes = await utils.cache.hget(user.id, config.aTFieldName);
+      const cacheGetRes = await utils.cache.hgetall(user.id);
       if (!cacheGetRes.success) {
-        console.log("LOGIN: CACHEGETRES ERROR", cacheGetRes);
         throw new Error(cacheGetRes.message);
       }
-      const loggedInUser = cacheGetRes.value;
+      const loggedInUser = cacheGetRes.value.data;
       if (loggedInUser && JSON.parse(loggedInUser).id === user.id) {
         return utils.handlers.success(req, res, {
           message: "already loggedd in",
