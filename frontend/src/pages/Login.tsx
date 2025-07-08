@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useAppSelector,
@@ -18,6 +18,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const redirectPath = useQueryParams("redirect") || "/listings";
+  const loginIsCalled = useRef(false);
   const { accessToken, isLoggedIn, message } = useAppSelector(
     (store: RootState) => store.auth
   );
@@ -29,16 +30,16 @@ const Login: React.FC = () => {
       ? "Hold on while we sign you in"
       : "Enter your credentials to sign in"
   );
-
-  const login = async (accessToken: string) => {
+  // login handler func
+  const login = useCallback(async (accessToken: string) => {
+    loginIsCalled.current = true;
     try {
       const result = await dispatch(loginUser({ accessToken })).unwrap();
       setHeading(`Welcome ${result.firstName}`);
       setRunner("Taking you in...");
+      navigate("/listings");
     } catch (error: any) {
       // attempt token refresh if token expired
-      // console.error("login page error", error);
-      // console.log("login page result:", result);
       if (error?.header?.redirect) {
         navigate(error.header.redirect);
         return <></>;
@@ -46,7 +47,7 @@ const Login: React.FC = () => {
       setHeading("Login Again");
       setRunner("Auto login failed. Sign in with your credentials.");
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (message && accessToken) {
@@ -66,7 +67,7 @@ const Login: React.FC = () => {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    if (accessToken && !isLoggedIn) {
+    if (accessToken && !isLoggedIn && !loginIsCalled.current) {
       login(accessToken);
     }
   }, []);
