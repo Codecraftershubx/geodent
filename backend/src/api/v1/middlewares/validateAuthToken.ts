@@ -30,8 +30,8 @@ const validateAuthToken = async (
       req.body.auth.payload = aTData;
       next();
     } catch (err: any) {
+			console.error("[VALIDATEAUTHTOKEN]:",err);
       return utils.handlers.error(req, res, "general", {
-				console.error("[VALIDATEAUTHTOKEN]:",err);
         message: "Some error occured",
         status: 500,
         data: [{ details: err }],
