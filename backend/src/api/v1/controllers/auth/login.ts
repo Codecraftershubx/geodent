@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
 import utils from "../../../../utils/index.js";
 import config from "../../../../config.js";
+import type { TJwtPayload, TokenTimesType } from "../../../../utils/types.js";
 
 const login = async (req: Request, res: Response): Promise<void> => {
   // extract access token
   const authHeader = req.headers.authorization;
   // validate middleware validation happened
   const { user } = req.body.auth;
+	const payload: TJwtPayload = req.body.auth.payload;
+	let aTimes: TokenTimesType;
   let aT: string;
   if (!user) {
     return utils.handlers.error(req, res, "authentication", {
@@ -25,13 +28,16 @@ const login = async (req: Request, res: Response): Promise<void> => {
           message: "already loggedd in",
         });
       }
+			aTimes = { iat: payload.iat, exp: payload.exp };
     } else {
       // generate new access token for user authenticated with credentials - email + password
-      aT = await utils.tokens.generate.accessToken({ id: user.id });
+			aTimes = utils.getTokenTimes("accessToken");
+      aT = await utils.tokens.generate.accessToken({ id: user.id, ...aTimes });
     }
     // generate refreshToken and cache results
+		const rTimes = utils.getTokenTimes("refreshToken", aTimes.iat);
     const rT: string = await utils.tokens.generate.refreshToken({
-      id: user.id,
+      id: user.id, ...rTimes,
     });
     const cacheATRes = await utils.cache.hset(
       user.id,
@@ -39,14 +45,16 @@ const login = async (req: Request, res: Response): Promise<void> => {
         [config.aTFieldName]: aT,
         data: JSON.stringify(user),
       },
-      config.expirations.accessToken
+      { EXAT: aTimes.exp },
     );
     const cacheRTRes = await utils.cache.set(
       `${aT}:${config.rTFieldName}`,
       rT,
-      config.expirations.refreshToken
+      { EXAT: rTimes.exp }
     );
+		// handle caching errors
     if (!cacheATRes.success || !cacheRTRes.success) {
+			utils.cache.delete(`${aT}:${config.rTFieldName}`, user.id);
       throw new Error("Error! Login failed");
     }
     return utils.handlers.success(req, res, {
