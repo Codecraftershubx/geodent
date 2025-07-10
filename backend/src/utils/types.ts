@@ -1,9 +1,9 @@
 // error numbers object type
 
-type TAccessTokenPayload = { id: string };
+type TJwtPayload = { id: string; iat: number; exp: number };
 
 type TDecomposeResult = {
-  payload: TAccessTokenPayload | null;
+  payload: TJwtPayload | null;
 };
 
 type TErrNumber = {
@@ -33,6 +33,7 @@ type TRequestResData = {
   };
   data?: Array<Record<string, any>>;
 };
+
 
 type TUserData = {
   firstName: string;
@@ -74,6 +75,10 @@ type TUserModel = {
   rooms: Array<any>;
   flats: Array<any>;
   verifications: Array<any>;
+};
+
+type TokenTimesType = {
+	iat: number; exp: number;
 };
 
 enum SchoolType {
@@ -143,11 +148,12 @@ export type {
   ReviewTarget,
   SchoolType,
   TDecomposeResult,
-  TAccessTokenPayload,
   TErrNumber,
   TErrNumbers,
   THandlerOptions,
+	TJwtPayload,
   TRequestResData,
+	TokenTimesType,
   TUserData,
   TUserModel,
 };
