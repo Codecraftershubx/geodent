@@ -3,28 +3,22 @@ import utils from "../../../../utils/index.js";
 import config from "../../../../config.js";
 
 const logout = async (req: Request, res: Response): Promise<void> => {
-	console.log("LOGOUT");
+  console.log("LOGOUT");
   // get auth token from request
   const { user: aTData } = req.body.auth;
   if (!aTData) {
-    return utils.handlers.error(req, res, "authentication", {
-      message: "Unauthorised!",
-    });
+    return utils.handlers.error(req, res, "authentication", {});
   }
   try {
     // verify authed user is logged in
-		const aT = req.headers.authorization?.split(" ")[1];
+    const aT = req.headers.authorization?.split(" ")[1];
     if (!req.body.auth.isLoggedIn) {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "Not logged in",
-      });
+      return utils.handlers.error(req, res, "authentication", { errno: 7 });
     }
     // validate authed user data vs cached user data
     const cachedUser = req.body.auth.profile;
     if (aTData.id !== cachedUser?.id) {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "Unauthorised: unknown user",
-      });
+      return utils.handlers.error(req, res, "authentication", { errno: 6 });
     }
     // clear tokens from cache
     await utils.cache.delete(aTData.id, `${aT}:${config.rTFieldName}`);
@@ -33,9 +27,9 @@ const logout = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (err) {
     // error deleting from db
-    console.error("[LOGOUT]:",err);
+    console.error("[LOGOUT]:", err);
     return utils.handlers.error(req, res, "general", {
-      message: "Error: logout failed",
+      message: "Logout failed for some reason",
       data: [{ details: err }],
     });
   }

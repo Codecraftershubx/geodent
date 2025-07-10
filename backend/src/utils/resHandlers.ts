@@ -1,11 +1,12 @@
 import { Response, Request } from "express";
 import config from "../config.js";
 import type { THandlerOptions, TRequestResData } from "./types.js";
+import type { TErrorNumbers, TErrorNumberType } from "../config.js";
 
 // globals
 const errStatus: string = "failed";
 const successStatus: string = "success";
-const errnos = config.errnos;
+const errors: TErrorNumbers = config.errors;
 
 type TOmitStatus = Omit<Record<string, any>, "status">;
 
@@ -15,14 +16,14 @@ const success = (
   res: Response,
   options: THandlerOptions = {
     data: [],
-    status: errnos.success.statusCode || 200,
+    status: errors.success.statusCode || 200,
     message: "successful operation",
   }
 ): void => {
-  const resStatus = options?.status ?? errnos.success.statusCode;
+  const resStatus = options?.status ?? errors.success.statusCode;
   const data = options.data;
   const toDelete = ["data", "message", "status"];
-  const message = options?.message ?? errnos.success.desc;
+  const message = options?.message ?? errors.success.errnos.default.desc;
   for (let key of toDelete) {
     delete (options as Record<string, any>)[key];
   }
@@ -30,7 +31,7 @@ const success = (
   const payload: TRequestResData = {
     header: {
       status: successStatus,
-      errno: errnos.success.code,
+      errno: errors.success.errnos.default.code,
       message,
       ...(options as TOmitStatus),
     },
@@ -41,18 +42,28 @@ const success = (
   return;
 };
 
-// error response handler
+/**
+ * @function error
+ * @description Generic Error resoponse handler
+ * Its purpose is to standardise backend response for consistency
+ * @param { object } req express request object
+ * @param { object } res express response object
+ * @returns { void }
+ */
 const error = (
   req: Request,
   res: Response,
-  errType: string,
+  errType: TErrorNumberType,
   options: THandlerOptions
 ): void => {
   const toDelete = ["data", "message", "status"];
-  const message = options.message ?? errnos[errType].desc;
-  const statusCode = options.status ?? errnos[errType].statusCode;
-	const data = options.data;
-	const dataLength = data?.length ?? 0;
+  // construct error message in the form:
+  // Title: message
+  const message = errors[errType].errnos[options?.errno ?? "default"].desc;
+  const statusCode = options.status ?? errors[errType].statusCode;
+  const data = options.data;
+  const dataLength = data?.length ?? 0;
+
   // Remove internally used options
   for (let key of toDelete) {
     delete (options as Record<string, any>)[key];
@@ -61,7 +72,7 @@ const error = (
   const payload: TRequestResData = {
     header: {
       status: errStatus,
-      errno: errnos[errType].code,
+      errno: options?.errno ?? errors[errType].errnos.default.code,
       message,
       ...(options as TOmitStatus),
     },

@@ -6,19 +6,10 @@ type TDecomposeResult = {
   payload: TJwtPayload | null;
 };
 
-type TErrNumber = {
-  code: number;
-  desc: string;
-  statusCode: number;
-};
-
-type TErrNumbers = {
-  [key: string]: TErrNumber;
-};
-
 type THandlerOptions = {
   status?: number;
   data?: Array<Record<string, any>>;
+  errno?: number;
   message?: string;
   [key: string]: any;
 };
@@ -33,7 +24,6 @@ type TRequestResData = {
   };
   data?: Array<Record<string, any>>;
 };
-
 
 type TUserData = {
   firstName: string;
@@ -78,7 +68,8 @@ type TUserModel = {
 };
 
 type TokenTimesType = {
-	iat: number; exp: number;
+  iat: number;
+  exp: number;
 };
 
 enum SchoolType {
@@ -148,12 +139,10 @@ export type {
   ReviewTarget,
   SchoolType,
   TDecomposeResult,
-  TErrNumber,
-  TErrNumbers,
   THandlerOptions,
-	TJwtPayload,
+  TJwtPayload,
   TRequestResData,
-	TokenTimesType,
+  TokenTimesType,
   TUserData,
   TUserModel,
 };

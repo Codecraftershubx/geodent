@@ -1,6 +1,5 @@
 import { config } from "dotenv";
 import { expand } from "dotenv-expand";
-import type { TErrNumbers } from "./utils/types.js";
 
 const conf = config();
 
@@ -38,27 +37,33 @@ if (serverPort) {
 
 // Error numbers
 
-const errnos: TErrNumbers = {
+const errors: TErrorNumbers = {
   authentication: {
-    code: 2,
-    desc: "authentication error",
+    errnos: {
+      "3": { code: 3, desc: "No auth headers sent" },
+      "4": { code: 4, desc: "Badly formatted auth headers" },
+      "5": { code: 5, desc: "Expired access token" },
+      "6": { code: 6, desc: "Inalid access token" },
+      "7": { code: 7, desc: "Not logged in" },
+      "8": { code: 8, desc: "Token not expired" },
+      "9": { code: 9, desc: "Refresh token expired" },
+      default: { code: 2, desc: "Unauthorised!" },
+    },
     statusCode: 401,
   },
   general: {
-    code: 1,
-    desc: "general error",
+    errnos: {
+      default: { code: 1, desc: "Internal server error" },
+    },
     statusCode: 500,
   },
-
   success: {
-    code: 0,
-    desc: "operation success",
+    errnos: { default: { code: 0, desc: "Operation success" } },
     statusCode: 200,
   },
 
   validation: {
-    code: 12,
-    desc: "validation error",
+    errnos: { default: { code: 11, desc: "Validation error" } },
     statusCode: 400,
   },
 };
@@ -83,7 +88,7 @@ const envs = {
   authSecret,
   dbUrl,
   basePath: "/var/geodent",
-  errnos,
+  errors,
   email,
   emailPwd,
   hostname,
@@ -97,4 +102,25 @@ const envs = {
   trashPath: "/var/geodent/.trash",
 };
 
+type TErrorNumberType = "authentication" | "general" | "success" | "validation";
+
+type TErrorNumber = {
+  errnos: TErrNos;
+  statusCode: number;
+};
+type TErrnoItem = {
+  code: number;
+  desc: string;
+};
+
+type TErrNos = {
+  default: TErrnoItem;
+  [key: string]: TErrnoItem;
+};
+
+type TErrorNumbers = {
+  [key in TErrorNumberType]: TErrorNumber;
+};
+
 export default envs;
+export type { TErrorNumbers, TErrorNumberType };

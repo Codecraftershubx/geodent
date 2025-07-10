@@ -9,44 +9,34 @@ const validateAuthToken = async (
 ) => {
   // validate headers sent
   const authHeader = req.headers.authorization;
-	console.log("VALIDATEAUTHTOKEN");
   if (authHeader) {
     // validate header in right format and in header
     const [title, aT] = authHeader.split(" ");
     if (!aT || title !== "Bearer") {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "Unauthorised! Bad headers",
-        status: 403,
-      });
+      return utils.handlers.error(req, res, "authentication", { errno: 4 });
     }
     try {
       // validate token's not expired
-      let { payload: aTData }: TDecomposeResult = utils.tokens.decompose.accessToken(aT);
+      let { payload: aTData }: TDecomposeResult =
+        utils.tokens.decompose.accessToken(aT);
       if (aTData === null) {
-        return utils.handlers.error(req, res, "authentication", {
-          message: "Unauthorised: session expired",
-        });
+        return utils.handlers.error(req, res, "authentication", { errno: 5 });
       }
       req.body.auth.payload = aTData;
       next();
     } catch (err: any) {
-			console.error("[VALIDATEAUTHTOKEN]:",err);
+      console.error("[VALIDATEAUTHTOKEN]:", err);
       return utils.handlers.error(req, res, "general", {
-        message: "Some error occured",
         status: 500,
         data: [{ details: err }],
       });
     }
   } else {
     if (req.body.auth.strictMode) {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "Unauthorised!",
-        status: 403,
-      });
+      return utils.handlers.error(req, res, "authentication", { errno: 3 });
     }
     next();
   }
 };
-
 
 export default validateAuthToken;

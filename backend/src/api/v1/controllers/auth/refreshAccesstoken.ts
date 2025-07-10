@@ -7,70 +7,57 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
   // validate access token sent
   const authHeader = req.headers.authorization;
   if (!authHeader) {
-    return utils.handlers.error(req, res, "authentication", {
-      message: "Unauthorised!",
-    });
+    return utils.handlers.error(req, res, "authentication", { errno: 3 });
   }
   // extract token
-  const [_, accessToken] = authHeader.split(" ");
-  if (!accessToken) {
-    return utils.handlers.error(req, res, "authentication", {
-      message: "Unauthorised!",
-    });
+  const [title, aT] = authHeader.split(" ");
+  if (!aT || title !== "Bearer") {
+    return utils.handlers.error(req, res, "authentication", { errno: 4 });
   }
 
   try {
     // validate token's expired
-    const { payload: aTData } = utils.tokens.decompose.accessToken(accessToken);
+    const { payload: aTData } = utils.tokens.decompose.accessToken(aT);
     if (aTData !== null) {
-			return utils.handlers.error(req, res, "authentication", {
-				message: "Unauthorised: access token not expired",
-      });
+      return utils.handlers.error(req, res, "authentication", { errno: 8 });
     }
     // fetch refresh token from cache
-    const rTRes = await utils.cache.get(`${accessToken}:${config.rTFieldName}`);
+    const rTRes = await utils.cache.get(`${aT}:${config.rTFieldName}`);
     if (!rTRes.success) {
-			return utils.handlers.error(req, res, "authentication", {
-				message: "Failed: login again ", status: 403,
-      });
+      return utils.handlers.error(req, res, "authentication", { errno: 7 });
     }
     // verify refresh token not expired
     const { payload: rTData } = utils.tokens.decompose.refreshToken(
-			rTRes.value
+      rTRes.value
     );
     if (!rTData) {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "Unauthorised: refresh token expired",
-      });
+      return utils.handlers.error(req, res, "authentication", { errno: 9 });
     }
     // validate user exists and owns the refresh token
-		try {
-			const user = await db.client.client.user.findUnique({
-				where: { id: rTData.id, isDeleted: false},
-			});
+    try {
+      const user = await db.client.client.user.findUnique({
+        where: { id: rTData.id, isDeleted: false },
+      });
       if (!user) {
-        return utils.handlers.error(req, res, "authentication", {
-          message: "Unauthorized: user not found",
-        });
+        return utils.handlers.error(req, res, "authentication", { errno: 6 });
       }
       if (user.id !== rTData.id) {
-        return utils.handlers.error(req, res, "authentication", {
-          message: "Unauthorized: unknown user",
-        });
+        return utils.handlers.error(req, res, "authentication", {});
       }
-			const filtered = await db.client.filterModels([user]);
+      const filtered = await db.client.filterModels([user]);
       // generate new auth token and delete old refresh token from cache
-			const aTimes = utils.getTokenTimes("accessToken");
-      const newAT: string = utils.tokens.generate.accessToken({ id: user.id, ...aTimes });
+      const aTimes = utils.getTokenTimes("accessToken");
+      const newAT: string = utils.tokens.generate.accessToken({
+        id: user.id,
+        ...aTimes,
+      });
       const delOldTokens = await utils.cache.delete(
-        rTData.id, `${accessToken}:${config.rTFieldName}`,
+        rTData.id,
+        `${aT}:${config.rTFieldName}`
       );
       // handle caching failure
       if (!delOldTokens.success) {
-        return utils.handlers.error(req, res, "general", {
-          message: "Refresh failed",
-          status: 500,
-        });
+        return utils.handlers.error(req, res, "general", { status: 500 });
       }
       return utils.handlers.success(req, res, {
         message: "Refresh success",
@@ -79,14 +66,11 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
     } catch (err: any) {
       // handle unique db constraint error
       return utils.handlers.error(req, res, "general", {
-        message: "Error: unable to complete operation",
         data: [{ details: err }],
       });
     }
   } catch (_) {
-    return utils.handlers.error(req, res, "authentication", {
-      message: "Unauthorised: invalid token",
-    });
+    return utils.handlers.error(req, res, "authentication", { errno: 6 });
   }
 };
 

@@ -8,14 +8,11 @@ const login = async (req: Request, res: Response): Promise<void> => {
   const authHeader = req.headers.authorization;
   // validate middleware validation happened
   const { user } = req.body.auth;
-	const payload: TJwtPayload = req.body.auth.payload;
-	let aTimes: TokenTimesType;
+  const payload: TJwtPayload = req.body.auth.payload;
+  let aTimes: TokenTimesType;
   let aT: string;
   if (!user) {
-    return utils.handlers.error(req, res, "authentication", {
-      message: "Unauthorised!",
-      status: 403,
-    });
+    return utils.handlers.error(req, res, "authentication", {});
   }
   // use auth token if provided
   try {
@@ -28,16 +25,17 @@ const login = async (req: Request, res: Response): Promise<void> => {
           message: "already loggedd in",
         });
       }
-			aTimes = { iat: payload.iat, exp: payload.exp };
+      aTimes = { iat: payload.iat, exp: payload.exp };
     } else {
       // generate new access token for user authenticated with credentials - email + password
-			aTimes = utils.getTokenTimes("accessToken");
+      aTimes = utils.getTokenTimes("accessToken");
       aT = await utils.tokens.generate.accessToken({ id: user.id, ...aTimes });
     }
     // generate refreshToken and cache results
-		const rTimes = utils.getTokenTimes("refreshToken", aTimes.iat);
+    const rTimes = utils.getTokenTimes("refreshToken", aTimes.iat);
     const rT: string = await utils.tokens.generate.refreshToken({
-      id: user.id, ...rTimes,
+      id: user.id,
+      ...rTimes,
     });
     const cacheATRes = await utils.cache.hset(
       user.id,
@@ -45,17 +43,17 @@ const login = async (req: Request, res: Response): Promise<void> => {
         [config.aTFieldName]: aT,
         data: JSON.stringify(user),
       },
-      { EXAT: aTimes.exp },
+      { EXAT: aTimes.exp }
     );
     const cacheRTRes = await utils.cache.set(
       `${aT}:${config.rTFieldName}`,
       rT,
       { EXAT: rTimes.exp }
     );
-		// handle caching errors
+    // handle caching errors
     if (!cacheATRes.success || !cacheRTRes.success) {
-			utils.cache.delete(`${aT}:${config.rTFieldName}`, user.id);
-      throw new Error("Error! Login failed");
+      utils.cache.delete(`${aT}:${config.rTFieldName}`, user.id);
+      throw new Error("Login failed");
     }
     return utils.handlers.success(req, res, {
       data: [{ accessToken: aT }],
@@ -63,9 +61,9 @@ const login = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (err: any) {
     // error occured while fetching data from cache
-		console.error("[LOGOUT]:",err);
+    console.error("[LOGOUT]:", err);
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? "Error: An internal error occured",
+      message: err?.message ?? "Internal server error",
       status: 500,
       data: [{ details: err }],
     });
