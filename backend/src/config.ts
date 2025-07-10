@@ -69,9 +69,9 @@ const emailPwd = process.env.EMAIL_PWD;
 const authSecret = process.env.AUTH_SECRET;
 const refreshSecret = process.env.REFRESH_SECRET;
 const expirations = {
-  refreshToken: 3600 * 24 * 7, // 7 days
-  accessToken: 3600 * 24, // 1 day
-  cacheDefault: 3600 * 24 * 7, // 7 days
+  refreshToken: 3600 * 24 * 7, // 7 days in s
+  accessToken: 3600 * 24, // 1 day in s
+  cacheDefault: 3600 * 24 * 7, // 7 days in s
 };
 const hostname =
   process.env.MODE === "DEV"

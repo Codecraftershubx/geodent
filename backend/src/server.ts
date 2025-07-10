@@ -37,10 +37,6 @@ app.use((req: Request, _: Response, next: NextFunction) => {
 // route api/v1 requests
 app.use(
   "/api/v1",
-  (_: Request, __: Response, next: NextFunction) => {
-    console.log("/api/v1 root called");
-    next();
-  },
   apis.v1
 );
 // handle 404
