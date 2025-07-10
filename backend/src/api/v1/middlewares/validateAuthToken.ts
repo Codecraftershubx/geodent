@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import utils from "../../../utils/index.js";
+import type { TDecomposeResult } from "../../../utils/types.js";
 
 const validateAuthToken = async (
   req: Request,
@@ -19,7 +20,7 @@ const validateAuthToken = async (
     }
     try {
       // validate token's not expired
-      let { payload: aTData } = utils.tokens.decompose.accessToken(aT);
+      let { payload: aTData }: TDecomposeResult = utils.tokens.decompose.accessToken(aT);
       if (aTData === null) {
         return utils.handlers.error(req, res, "authentication", {
           message: "Unauthorised: session expired",
@@ -44,5 +45,6 @@ const validateAuthToken = async (
     next();
   }
 };
+
 
 export default validateAuthToken;

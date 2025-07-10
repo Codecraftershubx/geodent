@@ -48,7 +48,8 @@ const createNewUser = async (req: Request, res: Response): Promise<void> => {
             password,
           },
         });
-        const aT = utils.tokens.generate.accessToken({ id: user.id });
+				const aTimes = utils.getTokenTimes("accessToken");
+        const aT = utils.tokens.generate.accessToken({ id: user.id, ...aTimes });
         return [user, aT];
       });
       const newUser = result[0] as Record<string, any>;
