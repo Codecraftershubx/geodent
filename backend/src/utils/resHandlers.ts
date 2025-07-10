@@ -51,17 +51,12 @@ const error = (
   const toDelete = ["data", "message", "status"];
   const message = options.message ?? errnos[errType].desc;
   const statusCode = options.status ?? errnos[errType].statusCode;
-  const data = options.data
-    ? options.data.length
-      ? options.data[0].details
-      : {}
-    : {};
-
+	const data = options.data;
+	const dataLength = data?.length ?? 0;
   // Remove internally used options
   for (let key of toDelete) {
     delete (options as Record<string, any>)[key];
   }
-
   // construct response payload
   const payload: TRequestResData = {
     header: {
@@ -71,10 +66,9 @@ const error = (
       ...(options as TOmitStatus),
     },
   };
-  if (Object.keys(data).length && process.env.NODE_ENV === "dev") {
-    payload.header.details = data;
+  if (process.env.NODE_ENV === "dev" && data && dataLength) {
+    payload.header.details = { stack: data[0].details.stack };
   }
-
   delete req.body?.auth;
   res.status(statusCode).json(payload);
   return;
