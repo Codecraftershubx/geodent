@@ -9,6 +9,7 @@ const validateAuthToken = async (
 ) => {
   // validate headers sent
   const authHeader = req.headers.authorization;
+	console.log("VALIDATEAUTHTOKEN");
   if (authHeader) {
     // validate header in right format and in header
     const [title, aT] = authHeader.split(" ");
@@ -30,6 +31,7 @@ const validateAuthToken = async (
       next();
     } catch (err: any) {
       return utils.handlers.error(req, res, "general", {
+				console.error("[VALIDATEAUTHTOKEN]:",err);
         message: "Some error occured",
         status: 500,
         data: [{ details: err }],

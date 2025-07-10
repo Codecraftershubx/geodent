@@ -86,7 +86,9 @@ class Cache {
       const res = await operation();
       return { success: true, value: res, message: "success" };
     } catch (err: any) {
-      console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
+			if (process.env.NODE_ENV === "dev") {
+				console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
+			}
       return {
         success: false,
         value: err,
@@ -153,7 +155,7 @@ class Cache {
   // delete a string value(s) from cache
   async delete(...keys: string[]): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
-      return this.#client?.del(keys);
+      return await this.#client?.del(keys);
     });
   }
 

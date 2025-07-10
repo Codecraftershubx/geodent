@@ -24,6 +24,7 @@ const validateTokenPayload = async (
       req.body.auth.user = filtered[0];
       next();
     } catch (err: any) {
+			console.error("[VALIDATETOKENPAYLOAD]:",err);
       return utils.handlers.error(req, res, "general", {
         message: "Some error occured",
         status: 500,

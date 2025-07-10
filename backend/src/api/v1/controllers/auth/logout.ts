@@ -3,6 +3,7 @@ import utils from "../../../../utils/index.js";
 import config from "../../../../config.js";
 
 const logout = async (req: Request, res: Response): Promise<void> => {
+	console.log("LOGOUT");
   // get auth token from request
   const { user: aTData } = req.body.auth;
   if (!aTData) {
@@ -12,6 +13,7 @@ const logout = async (req: Request, res: Response): Promise<void> => {
   }
   try {
     // verify authed user is logged in
+		const aT = req.headers.authorization?.split(" ")[1];
     if (!req.body.auth.isLoggedIn) {
       return utils.handlers.error(req, res, "authentication", {
         message: "Not logged in",
@@ -25,13 +27,13 @@ const logout = async (req: Request, res: Response): Promise<void> => {
       });
     }
     // clear tokens from cache
-    await utils.cache.delete(aTData.id, `${aTData.id}:${config.rTFieldName}`);
+    await utils.cache.delete(aTData.id, `${aT}:${config.rTFieldName}`);
     return utils.handlers.success(req, res, {
       message: "Logout success",
     });
   } catch (err) {
     // error deleting from db
-    console.error(err);
+    console.error("[LOGOUT]:",err);
     return utils.handlers.error(req, res, "general", {
       message: "Error: logout failed",
       data: [{ details: err }],

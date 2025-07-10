@@ -63,6 +63,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (err: any) {
     // error occured while fetching data from cache
+		console.error("[LOGOUT]:",err);
     return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "Error: An internal error occured",
       status: 500,
