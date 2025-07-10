@@ -98,25 +98,22 @@ class Cache {
   // get string value from cache
   async get(key: string): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
-      //@ts-ignore
-      return await this.#client.get(key);
+      return await this.#client?.get(key);
     });
   }
 
   // getting a field from a hash
   async hget(hash: string, field: string): Promise<CacheOpResType> {
     return this.safeOperation(async () => {
-      //@ts-ignore
-      return await this.#client.hGet(hash, field);
+      return await this.#client?.hGet(hash, field);
     });
   }
 
   // get all fields from a hash
   async hgetall(hash: string): Promise<CacheOpResType> {
     return this.safeOperation(async () => {
-      // @ts-ignore
-      const r = await this.#client.hGetAll(hash);
-      if (!Object.keys(r).length) {
+      const r = await this.#client?.hGetAll(hash);
+      if (!r || !Object.keys(r).length) {
         return Promise.reject(null);
       }
       return r;
@@ -127,11 +124,13 @@ class Cache {
   async set(
     key: string,
     value: string,
-    ex: number = this.#defaultExpiry
+    ex: ExpiryInputType
   ): Promise<CacheOpResType> {
     return this.safeOperation(async () => {
-      //@ts-ignore
-      await this.#client.set(key, value, { EX: ex });
+			if (ex.EXAT) {
+				return await this.#client?.set(key, value, { EXAT: ex.EXAT });
+			}
+      return await this.#client?.set(key, value, { EX: ex?.EX ?? this.#defaultExpiry });
     });
   }
 
@@ -139,33 +138,29 @@ class Cache {
   async hset(
     h: string,
     f: { data: string; [key: string]: string },
-    ex: number = this.#defaultExpiry
+    ex: ExpiryInputType
   ): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
-      //@ts-ignore
-      const r = await this.#client.hSet(h, f);
-      //@ts-ignore
-      await this.#client.expire(h, ex);
+      const r = await this.#client?.hSet(h, f);
+			if (ex.EXAT) {
+				await this.#client?.expireAt(h, ex.EXAT);
+			} else {
+	      await this.#client?.expire(h, ex?.EX ?? this.#defaultExpiry );
+			}
       return r;
     });
   }
   // delete a string value(s) from cache
   async delete(...keys: string[]): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
-      const promises = keys.map((key: string) => {
-        // @ts-ignore
-        return this.#client.del(key);
-      });
-      await Promise.all(promises);
-      return null;
+      return this.#client?.del(keys);
     });
   }
 
   // delete fields from a hash
   async hdel(h: string, ...keys: string[]): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
-      // @ts-ignore
-      return await this.#client.hDel(h, [...keys]);
+      return await this.#client?.hDel(h, [...keys]);
     });
   }
 }
@@ -177,6 +172,10 @@ cacheInstance.init().then(() => {
 });
 
 type CacheOpResType = { success: boolean; value: any; message?: string };
+type ExpiryInputType = {
+	EX?: number;
+	EXAT?: number;
+}
 
 // expose instance
 export default cacheInstance;
