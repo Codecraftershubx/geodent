@@ -78,7 +78,13 @@ const error = (
     },
   };
   if (process.env.NODE_ENV === "dev" && data && dataLength) {
-    payload.header.details = { stack: data[0].details.stack };
+    payload.header.details = {};
+    for (let [key, value] of Object.entries(data[0].details)) {
+      payload.header.details[key] = value;
+    }
+    if (data[0]?.details?.stack) {
+      payload.header.details.stack = data[0].details.stack;
+    }
   }
   delete req.body?.auth;
   res.status(statusCode).json(payload);
