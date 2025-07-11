@@ -177,7 +177,7 @@ cacheInstance.init().then(() => {
 
 type CacheOpResType = {
   success: boolean;
-  value: string | number | null;
+  value: string | number | null | Record<string, any>;
   message?: string;
 };
 type ExpiryInputType = {

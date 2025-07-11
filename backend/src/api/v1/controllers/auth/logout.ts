@@ -3,7 +3,7 @@ import utils from "../../../../utils/index.js";
 import config from "../../../../config.js";
 
 const logout = async (req: Request, res: Response): Promise<void> => {
-  console.log("LOGOUT");
+  //console.log("LOGOUT");
   // get auth token from request
   const { user: aTData } = req.body.auth;
   if (!aTData) {
