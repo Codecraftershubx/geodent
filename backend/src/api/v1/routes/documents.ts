@@ -11,7 +11,7 @@ router.get("/:id", controllers.documents.get);
 router.get(
   "/static/:id",
   [query("download").default(false).toBoolean().isBoolean()],
-  controllers.documents.files,
+  controllers.documents.files
 );
 router.post(
   "/",
@@ -38,17 +38,16 @@ router.post(
       .withMessage("invalid owner passed"),
     body().custom((value) => {
       const key = utils.text.lowerCase(value.owner);
-      if (
-        !value[key] ||
-        !(typeof value[key] === "string") ||
-        !validator.isUUID(value[key])
-      ) {
-        throw new Error(`'${key}' id required for owner ${value.owner}`);
+      if (!value[key] || !(typeof value[key] === "string")) {
+        throw new Error(`${value.owner} id required`);
+      }
+      if (!validator.isUUID(value[key])) {
+        throw new Error(`expects uuid for ${value.owner}`);
       }
       return true;
     }),
   ],
-  controllers.documents.create,
+  controllers.documents.create
 );
 router.put(
   "/:id",
@@ -96,7 +95,7 @@ router.put(
       })
       .withMessage("expects ownerId"),
   ],
-  controllers.documents.update,
+  controllers.documents.update
 );
 router.put(
   "/:id/connections",
@@ -183,7 +182,7 @@ router.put(
       .isUUID()
       .withMessage("expects uuid"),
   ],
-  controllers.documents.connections,
+  controllers.documents.connections
 );
 router.put("/:id/restore", controllers.documents.restore);
 router.delete("/:id", controllers.documents.delete);
