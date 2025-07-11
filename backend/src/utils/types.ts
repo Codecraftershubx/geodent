@@ -50,7 +50,6 @@ type TUserModel = {
   id: String;
   serial: Number;
   documents?: Array<any>;
-  refreshtoken?: String | null;
   isAdmin: Boolean;
   chatrooms: Array<any>;
   createdAt: Date;

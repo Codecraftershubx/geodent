@@ -86,9 +86,9 @@ class Cache {
       const res = await operation();
       return { success: true, value: res, message: "success" };
     } catch (err: any) {
-			if (process.env.NODE_ENV === "dev") {
-				console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
-			}
+      if (process.env.NODE_ENV === "dev") {
+        console.error(`[${this.#name}]: ${err?.message}\n\t${err}`);
+      }
       return {
         success: false,
         value: err,
@@ -129,10 +129,12 @@ class Cache {
     ex: ExpiryInputType
   ): Promise<CacheOpResType> {
     return this.safeOperation(async () => {
-			if (ex.EXAT) {
-				return await this.#client?.set(key, value, { EXAT: ex.EXAT });
-			}
-      return await this.#client?.set(key, value, { EX: ex?.EX ?? this.#defaultExpiry });
+      if (ex.EXAT) {
+        return await this.#client?.set(key, value, { EXAT: ex.EXAT });
+      }
+      return await this.#client?.set(key, value, {
+        EX: ex?.EX ?? this.#defaultExpiry,
+      });
     });
   }
 
@@ -144,11 +146,11 @@ class Cache {
   ): Promise<CacheOpResType> {
     return await this.safeOperation(async () => {
       const r = await this.#client?.hSet(h, f);
-			if (ex.EXAT) {
-				await this.#client?.expireAt(h, ex.EXAT);
-			} else {
-	      await this.#client?.expire(h, ex?.EX ?? this.#defaultExpiry );
-			}
+      if (ex.EXAT) {
+        await this.#client?.expireAt(h, ex.EXAT);
+      } else {
+        await this.#client?.expire(h, ex?.EX ?? this.#defaultExpiry);
+      }
       return r;
     });
   }
@@ -173,11 +175,15 @@ cacheInstance.init().then(() => {
   cacheInstance.connect();
 });
 
-type CacheOpResType = { success: boolean; value: any; message?: string };
+type CacheOpResType = {
+  success: boolean;
+  value: string | number | null;
+  message?: string;
+};
 type ExpiryInputType = {
-	EX?: number;
-	EXAT?: number;
-}
+  EX?: number;
+  EXAT?: number;
+};
 
 // expose instance
 export default cacheInstance;
