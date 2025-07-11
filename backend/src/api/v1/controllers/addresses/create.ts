@@ -9,7 +9,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });

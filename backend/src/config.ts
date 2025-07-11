@@ -63,7 +63,12 @@ const errors: TErrorNumbers = {
   },
 
   validation: {
-    errnos: { default: { code: 11, desc: "Validation error" } },
+    errnos: {
+      default: { code: 11, desc: "Validation error" },
+      "12": { code: 12, desc: "No file uploaded" },
+      "13": { code: 13, desc: "Not found" },
+      "14": { code: 14, desc: "Already exists" },
+    },
     statusCode: 400,
   },
 };

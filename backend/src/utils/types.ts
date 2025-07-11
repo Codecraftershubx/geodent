@@ -1,4 +1,5 @@
 // error numbers object type
+import type { TErrorNumberType } from "../config.js";
 
 type TJwtPayload = { id: string; iat: number; exp: number };
 
@@ -23,6 +24,18 @@ type TRequestResData = {
     [key: string]: any;
   };
   data?: Array<Record<string, any>>;
+};
+
+type TCreateOpRes = {
+  error: boolean;
+  details: {
+    type: TErrorNumberType;
+    count?: number;
+    data?: Array<Record<string, any>>;
+    errno?: number;
+    message?: string;
+    status?: number;
+  };
 };
 
 type TUserData = {
@@ -138,6 +151,7 @@ export type {
   ListingType,
   ReviewTarget,
   SchoolType,
+  TCreateOpRes,
   TDecomposeResult,
   THandlerOptions,
   TJwtPayload,

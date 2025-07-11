@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import config from "../../../../config.js";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
-import type { DocumentOwner } from "../../../../utils/types.js";
+import type { TCreateOpRes, DocumentOwner } from "../../../../utils/types.js";
 
 const create = async ({
   files,
@@ -10,14 +10,13 @@ const create = async ({
 }: {
   files: Express.Multer.File[];
   data: Record<string, any>;
-}): Promise<Record<string, any>> => {
+}): Promise<TCreateOpRes> => {
   // validate sent data
   if (!files || !files.length) {
     return {
       error: true,
       details: {
-        message: "no file provided",
-        status: 400,
+        errno: 12,
         type: "validation",
       },
     };
@@ -101,6 +100,7 @@ const create = async ({
       error: true,
       details: {
         type: "validation",
+        errno: 13,
         message: `${owner} ${data[utils.text.lowerCase(owner)]} not found`,
         status: 404,
       },
@@ -131,7 +131,7 @@ const create = async ({
           },
         });
         if (existingDocument.length) {
-          throw new Error("document already exists");
+          throw new Error("Document already exists");
         }
         // define connection based on ownerId
         const connect = chatroom
@@ -198,22 +198,28 @@ const create = async ({
     const filtered = await db.client.filterModels(createdDocs);
     return {
       error: false,
-      data: {
-        message: `document${count > 1 ? "s" : ""} created successfully`,
+      details: {
+        type: "success",
+        message: `Document${count > 1 ? "s" : ""} created`,
         status: 201,
         data: filtered,
         count,
       },
     };
   } catch (err: any) {
-    return {
+    const isErr = Object.prototype.toString.call(err).slice(8, -1) === "Error";
+    const resp: TCreateOpRes = {
       error: true,
       details: {
-        type: "general",
-        message: err?.message ?? "some error occured",
+        type: isErr ? "validation" : "general",
+        message: err?.message ?? "An error occured",
         data: [{ details: err }],
       },
     };
+    if (isErr) {
+      resp.details.errno = 14;
+    }
+    return resp;
   }
 };
 

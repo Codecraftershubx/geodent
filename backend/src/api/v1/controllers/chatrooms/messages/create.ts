@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import db from "../../../../../db/utils/index.js";
 import utils from "../../../../../utils/index.js";
 import services from "../../services/index.js";
+import type { TErrorNumberType } from "../../../../../config.js";
 
 const create = async (req: Request, res: Response): Promise<void> => {
   // validate sent data
@@ -16,7 +17,6 @@ const create = async (req: Request, res: Response): Promise<void> => {
       count: validationErrors.length,
     });
   }
-
   const { id } = req.params;
   let filtered;
   // verify chatroom
@@ -72,7 +72,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
           files,
           data: req.body,
         });
-        if (document.error) {
+        if (document.error || !document.details.data) {
           throw document.details;
         }
         // update message document
@@ -81,7 +81,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
           data: {
             document: {
               connect: {
-                id: document.data.data[0].id,
+                id: document.details.data[0].id,
               },
             },
           },
@@ -97,22 +97,24 @@ const create = async (req: Request, res: Response): Promise<void> => {
     // return created message with/without document
     filtered = await db.client.filterModels(message);
     return utils.handlers.success(req, res, {
-      message: "message created successfully",
+      message: "Message created",
       count: 1,
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
     console.error(err);
-    const errData: Record<string, any> = {
-      message: err?.message ?? "an error occured",
-    };
-    if (err?.data || null) {
-      errData.data = err.data;
+    // construct error response
+    const errType: TErrorNumberType = err?.type ?? "general";
+    const excluded = ["type"];
+    const errData: Record<string, any> = {};
+    for (let [key, value] of Object.entries(err)) {
+      if (!excluded.includes(key)) {
+        errData[key] = value;
+      }
     }
-    return utils.handlers.error(req, res, `${err?.type ?? "general"}`, {
-      message: err?.message ?? "an error occured",
-    });
+    // send response data
+    return utils.handlers.error(req, res, errType, errData);
   }
 };
 
