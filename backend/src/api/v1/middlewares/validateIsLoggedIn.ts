@@ -28,7 +28,9 @@ const validateIsLoggedIn = async (
       status,
     });
   }
-  req.body.auth.profile = JSON.parse(cachedData.value.data);
+  // since cachedData is successful, we expect its value to be an object {}
+  // so set it as user's profile
+  req.body.auth.profile = JSON.parse(cachedData.value as string).data;
   req.body.auth.isLoggedIn = true;
   next();
 };

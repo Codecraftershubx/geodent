@@ -45,15 +45,19 @@ const login = async (req: Request, res: Response): Promise<void> => {
       },
       { EXAT: aTimes.exp }
     );
-    const cacheRTRes = await utils.cache.set(
-      `${aT}:${config.rTFieldName}`,
-      rT,
-      { EXAT: rTimes.exp }
-    );
-    // handle caching errors
-    if (!cacheATRes.success || !cacheRTRes.success) {
-      utils.cache.delete(`${aT}:${config.rTFieldName}`, user.id);
-      throw new Error("Login failed");
+    // start new session if it's a new auth. skip otherwise
+    const oldSession = await utils.cache.get(`${aT}:${config.rTFieldName}`);
+    if (!oldSession.success) {
+      const cacheRTRes = await utils.cache.set(
+        `${aT}:${config.rTFieldName}`,
+        rT,
+        { EXAT: rTimes.exp }
+      );
+      // handle new session caching errors
+      if (!cacheATRes.success || !cacheRTRes.success) {
+        utils.cache.delete(`${aT}:${config.rTFieldName}`, user.id);
+        throw new Error("Login failed");
+      }
     }
     return utils.handlers.success(req, res, {
       data: [{ accessToken: aT }],

@@ -23,12 +23,12 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
     }
     // fetch refresh token from cache
     const rTRes = await utils.cache.get(`${aT}:${config.rTFieldName}`);
-    if (!rTRes.success) {
+    if (!rTRes.success && rTRes.value) {
       return utils.handlers.error(req, res, "authentication", { errno: 7 });
     }
     // verify refresh token not expired
     const { payload: rTData } = utils.tokens.decompose.refreshToken(
-      rTRes.value
+      rTRes.value as string
     );
     if (!rTData) {
       return utils.handlers.error(req, res, "authentication", { errno: 9 });
@@ -44,13 +44,13 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
       if (user.id !== rTData.id) {
         return utils.handlers.error(req, res, "authentication", {});
       }
-      const filtered = await db.client.filterModels([user]);
       // generate new auth token and delete old refresh token from cache
       const aTimes = utils.getTokenTimes("accessToken");
       const newAT: string = utils.tokens.generate.accessToken({
         id: user.id,
         ...aTimes,
       });
+      // delete old access token's refresh key
       const delOldTokens = await utils.cache.delete(
         rTData.id,
         `${aT}:${config.rTFieldName}`
@@ -58,6 +58,15 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
       // handle caching failure
       if (!delOldTokens.success) {
         return utils.handlers.error(req, res, "general", { status: 500 });
+      }
+      // associate new access token to refresh token if refresh token's exp is valid
+      if (aTimes.exp < rTData.exp) {
+        await utils.cache.set(
+          `${newAT}:${config.rTFieldName}`,
+          rTRes.value as string,
+          { EXAT: rTData.exp }
+        );
+        // future: log error if it occurs
       }
       return utils.handlers.success(req, res, {
         message: "Refresh success",
