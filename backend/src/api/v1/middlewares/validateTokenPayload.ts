@@ -8,6 +8,7 @@ const validateTokenPayload = async (
   next: NextFunction
 ) => {
   const { payload: aTData } = req.body.auth;
+  //console.log("VALIDATE TOKEN PAYLOAD", aTData);
   if (aTData) {
     try {
       // get user profile
@@ -15,7 +16,9 @@ const validateTokenPayload = async (
         where: { id: aTData.id, isDeleted: false },
         include: db.client.include.user,
       });
+      //console.log("\tUSER PROFILE:", user);
       if (!user || user.id !== aTData.id) {
+        console.log("no user found");
         return utils.handlers.error(req, res, "authentication", { errno: 6 });
       }
       const filtered = await db.client.filterModels([user]);

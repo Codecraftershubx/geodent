@@ -11,10 +11,11 @@ const logout = async (req: Request, res: Response): Promise<void> => {
   }
   try {
     // verify authed user is logged in
-    const aT = req.headers.authorization?.split(" ")[1];
+    console.log("isLoggedIn: ", req.body.auth);
     if (!req.body.auth.isLoggedIn) {
       return utils.handlers.error(req, res, "authentication", { errno: 7 });
     }
+    const aT = req.headers.authorization?.split(" ")[1];
     // validate authed user data vs cached user data
     const cachedUser = req.body.auth.profile;
     if (aTData.id !== cachedUser?.id) {

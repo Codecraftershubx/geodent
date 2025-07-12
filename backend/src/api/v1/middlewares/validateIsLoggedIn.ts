@@ -13,24 +13,21 @@ const validateIsLoggedIn = async (
   }
   // validate use is logged in
   const cachedData = await utils.cache.hget(aTData.id, "data");
+  //console.log("cachedData [VALIDATEISLOGGEDIN]", cachedData);
+  if (!cachedData.value) {
+    return utils.handlers.error(req, res, "authentication", { errno: 7 });
+  }
   if (!cachedData.success) {
-    const status = cachedData?.message === "Error! Cache not ready" ? 500 : 401;
-    const errData: Record<string, any> = { status };
-    let errType: TErrorNumberType;
-    if (status === 401) {
-      errType = "authentication";
-      errData.errno = 7;
-    } else {
-      errType = "general";
-    }
-    errData.data = [{ details: { errorMessage: cachedData.message } }];
-    return utils.handlers.error(req, res, errType, errData);
+    return utils.handlers.error(req, res, "general", {
+      status: 500,
+      data: [{ details: { errorMessage: cachedData.message } }],
+    });
   }
   // since cachedData is successful, we expect its value to be an object {}
   // so set it as user's profile
   try {
     const userData = cachedData.value as string;
-    console.log("userData", userData);
+    //console.log("userData", userData);
     req.body.auth.profile = JSON.parse(userData);
     req.body.auth.isLoggedIn = true;
   } catch (err: any) {

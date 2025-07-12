@@ -8,7 +8,7 @@ const validateAuthCredentials = async (
   next: NextFunction
 ) => {
   if (req.body.auth.strictMode) {
-    console.log("\tFAILED: CREDENTIALS USE NOT ALLOWED");
+    //console.log("\tFAILED: CREDENTIALS USE NOT ALLOWED");
     return utils.handlers.error(req, res, "authentication", {
       message: "Unauthorised!",
       status: 403,
