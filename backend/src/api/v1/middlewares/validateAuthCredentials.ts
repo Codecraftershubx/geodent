@@ -47,7 +47,6 @@ const validateAuthCredentials = async (
       }
       const filtered = await db.client.filterModels([user]);
       req.body.auth.user = filtered[0];
-      console.log("authed user:", filtered);
       next();
     } catch (err: any) {
       return utils.handlers.error(req, res, "authentication", {

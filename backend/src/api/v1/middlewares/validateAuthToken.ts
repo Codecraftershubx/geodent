@@ -9,9 +9,11 @@ const validateAuthToken = async (
 ) => {
   // validate headers sent
   const authHeader = req.headers.authorization;
+  //console.log("authHeader:", authHeader);
   if (authHeader) {
     // validate header in right format and in header
     const [title, aT] = authHeader.split(" ");
+    //console.log("TOKEN:", aT);
     if (!aT || title !== "Bearer") {
       return utils.handlers.error(req, res, "authentication", { errno: 4 });
     }

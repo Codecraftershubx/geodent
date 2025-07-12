@@ -47,6 +47,7 @@ const errors: TErrorNumbers = {
       "7": { code: 7, desc: "Not logged in" },
       "8": { code: 8, desc: "Token not expired" },
       "9": { code: 9, desc: "Refresh token expired" },
+      "10": { code: 10, desc: "Already logged in" },
       default: { code: 2, desc: "Unauthorised!" },
     },
     statusCode: 401,

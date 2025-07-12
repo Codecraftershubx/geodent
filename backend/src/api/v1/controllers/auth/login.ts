@@ -21,9 +21,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       // verify user not already logged in
       const cacheGetRes = await utils.cache.get(user.id);
       if (cacheGetRes.success) {
-        return utils.handlers.success(req, res, {
-          message: "already loggedd in",
-        });
+        return utils.handlers.error(req, res, "authentication", { errno: 10 });
       }
       aTimes = { iat: payload.iat, exp: payload.exp };
     } else {
