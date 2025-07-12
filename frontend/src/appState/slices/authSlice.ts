@@ -3,10 +3,12 @@ import type {
   AppDispatchType,
   AuthStateType,
   BEDataType,
-  StoreMessageType,
-  UserType,
-} from "../../utils/types.js";
-import api from "../../utils/api.js";
+  BEDataHeaderType,
+  LoginSuccessPaylodType,
+  MessageType,
+  RefreshSuccessPayloadType,
+} from "@/utils/types.js";
+import api from "@/utils/api.js";
 
 type LoginCredentialsType = {
   accessToken?: string | null;
@@ -16,12 +18,13 @@ type LoginCredentialsType = {
 
 // login user
 const loginUser = createAsyncThunk<
-  UserType,
+  LoginSuccessPaylodType,
   LoginCredentialsType,
-  { rejectValue: BEDataType; dispatch: AppDispatchType }
+  { rejectValue: BEDataHeaderType; dispatch: AppDispatchType }
 >(
   "auth/login",
   async (credentials: LoginCredentialsType, { rejectWithValue, dispatch }) => {
+    console.log("LOGIN THUNK CALLED WITH DATA:", credentials);
     const options: Record<string, any> = {};
     if (credentials.accessToken) {
       options.headers = {
@@ -38,11 +41,10 @@ const loginUser = createAsyncThunk<
     let response = await api.post("/auth/login", options);
     let data;
     if (response.error) {
-      const { message } = response.content.header;
-      if (message === "Unauthorised: session expired") {
-        response.content.header.redirect = "/token/refresh";
+      if (response.content.header.errno === 10) {
+        dispatch(authSlice.actions.setIsLoggedIn());
       }
-      return rejectWithValue(response.content);
+      return rejectWithValue(response.content.header);
     }
     data = response.content.data[0];
     if (data.accessToken) {
@@ -64,10 +66,29 @@ const logoutUser = createAsyncThunk<
       Authorization: `Bearer ${accessToken}`,
     },
   });
+  console.log("logoutUser response", response);
   if (response.error) {
     return rejectWithValue(response.content);
   }
   return true;
+});
+
+// refresh token
+const refreshAccessToken = createAsyncThunk<
+  RefreshSuccessPayloadType,
+  string,
+  { rejectValue: BEDataType; dispatch: AppDispatchType }
+>("auth/refresh", async (token: string, { rejectWithValue }) => {
+  const response = await api.post("/auth/refresh", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (response.error) {
+    return rejectWithValue(response.content);
+  }
+  const data: RefreshSuccessPayloadType = response.content.data[0];
+  return data;
 });
 
 // message toggle
@@ -75,7 +96,7 @@ const toggleMessage = createAsyncThunk<
   Promise<void>,
   { autoHide: boolean; delay?: number },
   { dispatch: AppDispatchType }
->("auth/toggleMessage", async ({ autoHide, delay = 4000 }, { dispatch }) => {
+>("auth/toggleMessage", async ({ autoHide, delay = 2000 }, { dispatch }) => {
   dispatch(authSlice.actions.showMessage());
   if (autoHide) {
     setTimeout(() => {
@@ -103,11 +124,21 @@ const authSlice = createSlice({
       state.accessToken = null;
       window.localStorage.removeItem("accessToken");
     },
-    setMessage: (
-      state: AuthStateType,
-      action: PayloadAction<StoreMessageType>
-    ) => {
-      console.log("setting auth state message!");
+    clearIsLoggedIn: (state: AuthStateType) => {
+      state.isLoggedIn = false;
+      window.localStorage.setItem(
+        "isLoggedIn",
+        JSON.stringify(state.isLoggedIn)
+      );
+    },
+    setIsLoggedIn: (state: AuthStateType) => {
+      state.isLoggedIn = true;
+      window.localStorage.setItem(
+        "isLoggedIn",
+        JSON.stringify(state.isLoggedIn)
+      );
+    },
+    setMessage: (state: AuthStateType, action: PayloadAction<MessageType>) => {
       state.message = action.payload;
     },
     clearMessage: (state: AuthStateType) => {
@@ -120,56 +151,45 @@ const authSlice = createSlice({
     hideMessage: (state: AuthStateType) => {
       state.showMessage = false;
     },
+    setIsLoading: (state: AuthStateType) => {
+      state.isLoading = true;
+    },
+    stopIsLoading: (state: AuthStateType) => {
+      state.isLoading = false;
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.fulfilled, (state: AuthStateType, { payload }) => {
-        // console.log("LOGIN THUNK FULFILLED REDUCER PAYLOAD:", payload);
+        console.log("LOGIN THUNK FULFILLED REDUCER PAYLOAD:", payload);
         const data = payload;
         state.user = data;
         state.isLoggedIn = true;
-        state.message = {
-          type: "success",
-          role: "alert",
-          description: "login successful",
-        };
-        state.isLoading = data.redirect ? true : false;
+        state.isLoading = false;
         window.localStorage.setItem(
           "isLoggedIn",
           JSON.stringify(state.isLoggedIn)
         );
+        if (state.accessToken !== payload.accessToken) {
+          state.accessToken = payload.accessToken;
+        }
       })
       .addCase(loginUser.pending, (state: AuthStateType) => {
+        console.log("LOGIN PENDING HANDLER");
         state.isLoading = true;
-        state.message = {
-          type: "info",
-          role: "alert",
-          description: "logging you in...",
-        };
       })
       .addCase(loginUser.rejected, (state: AuthStateType, { payload }) => {
-        //console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
-        const value = payload as BEDataType;
-        state.isLoading = false;
-        state.message = {
-          type: "error",
-          role: "alert",
-          description: value.header.redirect
-            ? "hold on a little longer..."
-            : `${value.header.message}`,
-          details: value.data,
-          ...value.header,
-        };
+        console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
         state.isLoggedIn = false;
+        if (payload?.errno === 5 || payload?.errno === 10) {
+          state.isLoading = true;
+        } else {
+          state.isLoading = false;
+        }
       })
       .addCase(logoutUser.fulfilled, (state: AuthStateType) => {
         state.isLoading = false;
         state.isLoggedIn = false;
-        state.message = {
-          type: "success",
-          description: "log out successful",
-          role: "alert",
-        };
         state.user = null;
         window.localStorage.setItem(
           "isLoggedIn",
@@ -178,28 +198,24 @@ const authSlice = createSlice({
       })
       .addCase(logoutUser.pending, (state: AuthStateType) => {
         state.isLoading = true;
-        state.message = {
-          type: "info",
-          role: "alert",
-          description: "logging you out...",
-        };
       })
-      .addCase(logoutUser.rejected, (state: AuthStateType, { payload }) => {
+      .addCase(logoutUser.rejected, (state: AuthStateType) => {
         // console.log("LOGOUT THUNK REJECTED ERROR:", payload);
-        const value = payload as BEDataType;
-        state.message = {
-          type: "error",
-          role: "notification",
-          description: `${value.header.message}`,
-          details: value.data,
-          ...value.header,
-        };
         state.isLoading = false;
+      })
+      .addCase(
+        refreshAccessToken.fulfilled,
+        (state: AuthStateType, { payload }) => {
+          state.accessToken = payload.accessToken;
+        }
+      )
+      .addCase(refreshAccessToken.rejected, (state: AuthStateType) => {
+        state.accessToken = null;
       });
   },
 });
 
-export { loginUser, logoutUser, toggleMessage };
+export { loginUser, logoutUser, refreshAccessToken, toggleMessage };
 export const {
   setAccessToken,
   clearAccessToken,
@@ -207,5 +223,8 @@ export const {
   clearMessage,
   showMessage,
   hideMessage,
+  setIsLoading,
+  stopIsLoading,
 } = authSlice.actions;
+
 export default authSlice.reducer;

@@ -35,7 +35,7 @@ const Loader: React.FC<LoaderPropsType> = ({
     >
       <svg
         aria-hidden="true"
-        className={`${sizes[size]} animate-spin fill-inherit inline-blick`}
+        className={`${sizes[size]} animate-spin fill-inherit inline-block`}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

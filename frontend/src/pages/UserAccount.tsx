@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "@/appState/hooks.js";
+import { useAppSelector } from "@/hooks/index.js";
 import type { RootState } from "@/utils/types.js";
 import UserAccountLayout from "@/components/sidebar/user/Layout";
 

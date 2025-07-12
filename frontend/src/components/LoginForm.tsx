@@ -14,18 +14,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { useAppDispatch, useAppSelector } from "../appState/hooks.js";
+import { useAppDispatch, useAppSelector } from "@/hooks/index.js";
 import {
   loginUser,
   showMessage as showAuthMessage,
   toggleMessage,
 } from "../appState/slices/authSlice.js";
 import Alert from "./Alert";
-import type {
-  AuthStateType,
-  RootState,
-  StoreMessageType,
-} from "../utils/types";
+import type { AuthStateType, RootState, MessageType } from "../utils/types";
 
 // form schema
 const formSchema = z.object({
@@ -33,7 +29,7 @@ const formSchema = z.object({
   password: z.string(),
 });
 
-const LoginForm: React.FC<{ to: string }> = ({ to }) => {
+const LoginForm: React.FC<{ redirect: string }> = ({ redirect }) => {
   // states and effect handlers
   const { accessToken, message, showMessage }: AuthStateType = useAppSelector(
     (store: RootState) => store.auth
@@ -64,7 +60,7 @@ const LoginForm: React.FC<{ to: string }> = ({ to }) => {
           password,
         })
       ).unwrap();
-      navigate(to);
+      navigate(redirect);
     } catch (error: any) {
       dispatch(toggleMessage({ autoHide: true, delay: 10000 }));
     }
@@ -93,9 +89,9 @@ const LoginForm: React.FC<{ to: string }> = ({ to }) => {
       {showMessage && message && (
         <Alert
           variant={"plain"}
-          description={(message as StoreMessageType).description}
+          description={(message as MessageType).description}
           fullWidth={true}
-          type={(message as StoreMessageType).type}
+          type={(message as MessageType).type}
         />
       )}
       <form

@@ -20,13 +20,11 @@ type APIResponseType = {
 type RootState = ReturnType<typeof store.getState>;
 type AppDispatchType = typeof store.dispatch;
 
-type StoreMessageType = {
+type MessageType = {
   type: "error" | "success" | "info" | "warning" | "neutral";
   role: "alert" | "notification";
   title?: string;
   description: string;
-  details?: Array<Record<string, any>>;
-  [key: string]: any;
 };
 
 type AuthStateType = {
@@ -35,7 +33,7 @@ type AuthStateType = {
   isLoading: boolean;
   showMessage: boolean;
   user: Record<string, any> | null;
-  message: StoreMessageType | null;
+  message: MessageType | null;
 };
 
 type UserType = {
@@ -47,13 +45,21 @@ type UserType = {
   [key: string]: any;
 };
 
+type LoginSuccessPaylodType = {
+  accessToken: string;
+};
+
+type RefreshSuccessPayloadType = LoginSuccessPaylodType;
+
 export type {
+  APIResponseType,
   AppDispatchType,
   AuthStateType,
-  RootState,
   BEDataType,
   BEDataHeaderType,
-  APIResponseType,
-  StoreMessageType,
+  LoginSuccessPaylodType,
+  MessageType,
+  RefreshSuccessPayloadType,
+  RootState,
   UserType,
 };

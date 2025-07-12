@@ -2,6 +2,8 @@ import {
   Bell,
   CircleCheck,
   CircleX,
+  MoveLeft,
+  MoveRight,
   ThumbsUp,
   TriangleAlert,
   X,
@@ -114,6 +116,38 @@ const Error: React.FC<IconPropsType> = ({
     />
   );
 };
+const ArrowLeft: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={MoveLeft}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+const ArrowRight: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={MoveRight}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
 
 const Warning: React.FC<IconPropsType> = ({
   size = "64px",
@@ -184,6 +218,8 @@ const RingingBell: React.FC<IconPropsType> = ({
 };
 
 export default {
+  ArrowLeft,
+  ArrowRight,
   CircledCheckmark,
   Close,
   Error,

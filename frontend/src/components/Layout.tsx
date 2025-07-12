@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import { useAppSelector } from "../appState/hooks.js";
-import type { RootState, StoreMessageType } from "../utils/types.js";
+import { useAppSelector } from "@/hooks/index.js";
+import type { RootState, MessageType } from "../utils/types.js";
 import Components from "./index";
 
 //type TLayoutProps = {
@@ -17,8 +17,8 @@ const Layout: React.FC = () => {
       <Components.NavBar />
       {show && message && (
         <Components.Alert
-          type={(message as StoreMessageType).type}
-          description={(message as StoreMessageType).description}
+          type={(message as MessageType).type}
+          description={(message as MessageType).description}
           fullWidth={true}
           variant={"plain"}
           rounded={false}

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../appState/hooks.js";
-import { logoutUser, toggleMessage } from "../appState/slices/authSlice.js";
+import { useAppDispatch, useAppSelector } from "@/hooks/index.js";
+import { logoutUser, toggleMessage } from "@/appState/slices/authSlice.js";
 import type { RootState } from "../utils/types.js";
-import Components from "./index.js";
-import Hamburger from "./Hamburger";
+import Components from "@/components/index.js";
+import Hamburger from "@/components/Hamburger";
 
 const NavBar: React.FC = () => {
   const { accessToken, isLoggedIn, isLoading } = useAppSelector(
@@ -69,9 +69,11 @@ const NavBar: React.FC = () => {
         className={`bg-red-600 text-white ${menuIsOpen ? "active:bg-red-900 duration-300" : "hover:bg-red-700"} ${pathname === "/login" && "bg-red-700/90 outline-[1.5px] outline-white/80 -outline-offset-4"}`}
         onClick={(e) => {
           if (e.currentTarget.textContent === "Logout") {
-            logout().then(() => {
-              navigate("/");
-            });
+            logout()
+              .then(() => {
+                navigate("/");
+              })
+              .catch((err) => console.log(err));
           }
           closeMenu();
         }}
