@@ -33,22 +33,25 @@ const appMessageSlice = createSlice({
 // Extra reducers
 const toggleAppMessage = createAsyncThunk<
   Promise<void>,
-  { autoHide: boolean; delay?: number },
+  { autoHide?: boolean; delay?: number },
   { dispatch: AppDispatchType }
->("appMessage/toggle", async ({ autoHide, delay = 4000 }, { dispatch }) => {
-  console.log("toggling app message");
-  const state = appMessageSlice.getInitialState();
-  if (!state.show) {
-    dispatch(appMessageSlice.actions.showAppMessage());
-    if (autoHide) {
-      setTimeout(() => {
-        dispatch(appMessageSlice.actions.hideAppMessage());
-      }, delay);
+>(
+  "appMessage/toggle",
+  async ({ autoHide = true, delay = 4000 }, { dispatch }) => {
+    console.log("toggling app message");
+    const state = appMessageSlice.getInitialState();
+    if (!state.show) {
+      dispatch(appMessageSlice.actions.showAppMessage());
+      if (autoHide) {
+        setTimeout(() => {
+          dispatch(appMessageSlice.actions.hideAppMessage());
+        }, delay);
+      }
+    } else {
+      dispatch(appMessageSlice.actions.hideAppMessage());
     }
-  } else {
-    dispatch(appMessageSlice.actions.hideAppMessage());
   }
-});
+);
 
 type AppMessageType = {
   message: MessageType | null;

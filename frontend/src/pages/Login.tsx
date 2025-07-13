@@ -11,6 +11,7 @@ import {
   stopIsLoading,
   loginUser,
   refreshAccessToken,
+  toggleIsLoggedIn,
 } from "@/appState/slices/authSlice.js";
 //import {
 //  toggleAppMessage,
@@ -38,7 +39,9 @@ const Login: React.FC = () => {
       ? "Hold on while we sign you in"
       : "Enter your credentials to sign in"
   );
-  const [alreadyLoggedIn, setAlreadyLoggeIn] = useState(false);
+  const [alreadyLoggedIn, setAlreadyLoggedIn] = useState(
+    accessToken !== null && isLoggedIn
+  );
   const [useCredentials, setUseCredentials] = useState(false);
   const redirectPath = useQueryParams("redirect") || "/listings";
   // Navigate to a route
@@ -112,24 +115,31 @@ const Login: React.FC = () => {
   //}, [isLoggedIn]);
 
   useEffect(() => {
+    console.log(
+      "already logged in:",
+      alreadyLoggedIn,
+      "using credentials:",
+      useCredentials
+    );
     if (alreadyLoggedIn) {
+      delayedAction(setRunner, { args: ["You're already signed in"] });
     }
-    if (!isLoggedIn && accessToken) {
+    if (!alreadyLoggedIn && accessToken) {
       login(accessToken);
     } else {
-      dispatch(setIsLoading());
-      delayedAction(setRunner, { args: ["You're already signed in"] });
-      dispatch(stopIsLoading());
-      setAlreadyLoggeIn(true);
+      if (isLoggedIn) {
+        dispatch(toggleIsLoggedIn());
+      }
+      setUseCredentials(true);
     }
   }, [alreadyLoggedIn, useCredentials]);
 
   return (
-    <main className="flex flex-col justify-between items-center min-h-screen py-10 px-2 md:p-24 ">
-      <section className="w-9/10 sm:max-w-md max-w-lg">
-        <div className="mb-8 flex flex-col gap-2">
-          <h1 className="text-3xl font-bold text-red-500 mb-4">{heading}</h1>
-          <p className="text-sm text-zinc-500">{runner}</p>
+    <main className="flex flex-col justify-center mt-10 lg:mt-0 items-center min-h-screen p-2 md:p-10">
+      <section className="w-9/10 sm:max-w-md md:max-w-lg">
+        <div className="mb-10 flex flex-col gap-2 items-center">
+          <h1 className="text-3xl font-bold text-primary mb-4">{heading}</h1>
+          <p className="text-md lg:text-sm text-zinc-500">{runner}</p>
         </div>
         {isLoading && <Loader className="text-zinc-200 fill-red-500" />}
         {useCredentials && <Components.LoginForm redirect={redirectPath} />}

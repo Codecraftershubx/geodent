@@ -21,6 +21,7 @@ import {
   toggleMessage,
 } from "../appState/slices/authSlice.js";
 import Alert from "./Alert";
+import { cn } from "@/lib/utils.js";
 import type { AuthStateType, RootState, MessageType } from "../utils/types";
 
 // form schema
@@ -96,7 +97,7 @@ const LoginForm: React.FC<{ redirect: string }> = ({ redirect }) => {
       )}
       <form
         onSubmit={loginForm.handleSubmit(formOnSubmit)}
-        className="space-y-5"
+        className="space-y-7 shadow-lg shadow-neutral-300 p-5 md:p-10 rounded-md border-[.1px] border-neutral-300"
       >
         <div>
           <LoginFormField
@@ -105,7 +106,7 @@ const LoginForm: React.FC<{ redirect: string }> = ({ redirect }) => {
             inputType="email"
             control={loginForm.control}
             label="Email"
-            inputClassName="py-5"
+            autocomplete="current-email"
           />
         </div>
         <div>
@@ -115,19 +116,30 @@ const LoginForm: React.FC<{ redirect: string }> = ({ redirect }) => {
             inputType="password"
             control={loginForm.control}
             label="Password"
-            inputClassName="py-5"
+            autocomplete="current-password"
           />
         </div>
-        <Button type="submit" className="bg-red-600 hover:bg-red-700">
-          {" "}
-          Login{" "}
-        </Button>
+        <div className="flex justify-between items-center mt-5 md:mt-10 flex-col gap-5 md:flex-row">
+          <Button
+            type="submit"
+            className="bg-primary hover:bg-primary-600 py-5 cursor-pointer w-full md:w-1/3 lg:w-1/4"
+          >
+            {" "}
+            Login{" "}
+          </Button>
+          <p className="text-muted-600 text-sm text-center md:text-left">
+            Don't have an account?&nbsp;&nbsp;
+            <span className="font-semibold text-primary hover:underline hover:underline-offset-4 hover:decoration-2 hover:cursor-pointer">
+              Sign up
+            </span>
+          </p>
+        </div>
       </form>
     </Form>
   );
 };
 
-type LoginFormType = {
+type LoginFormPropsType = {
   name: FieldPath<z.infer<typeof formSchema>>;
   control: Control<z.infer<typeof formSchema>, any>;
   placeholder?: string;
@@ -135,9 +147,10 @@ type LoginFormType = {
   description?: string;
   label?: string;
   inputClassName?: string;
+  autocomplete?: string;
 };
 
-const LoginFormField: React.FC<LoginFormType> = ({
+const LoginFormField: React.FC<LoginFormPropsType> = ({
   inputClassName,
   control,
   description,
@@ -145,6 +158,7 @@ const LoginFormField: React.FC<LoginFormType> = ({
   label,
   name,
   placeholder,
+  autocomplete,
 }) => {
   return (
     <FormField
@@ -152,13 +166,20 @@ const LoginFormField: React.FC<LoginFormType> = ({
       control={control}
       render={({ field }) => (
         <FormItem>
-          <FormLabel> {label} </FormLabel>
+          <FormLabel className="text-neutral-800 font-medium mb-1">
+            {" "}
+            {label}{" "}
+          </FormLabel>
           <FormControl>
             <Input
               placeholder={placeholder}
               {...field}
               type={inputType}
-              className={inputClassName || ""}
+              className={cn(
+                "py-6 [&::placeholder]:text-sm [&::placeholder]:text-muted",
+                inputClassName
+              )}
+              autoComplete={autocomplete}
             />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}

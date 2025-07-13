@@ -4,7 +4,8 @@ type BEDataHeaderType = {
   errno: Number;
   status: String;
   message: String;
-  redirect?: String;
+  details?: Record<string, any>;
+  [key: string]: any;
 };
 
 type BEDataType = {

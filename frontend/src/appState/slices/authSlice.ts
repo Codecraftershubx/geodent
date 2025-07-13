@@ -39,10 +39,12 @@ const loginUser = createAsyncThunk<
       };
     }
     let response = await api.post("/auth/login", options);
+    console.log(response);
     let data;
     if (response.error) {
+      // update user's logged in state if already logged in on server
       if (response.content.header.errno === 10) {
-        dispatch(authSlice.actions.setIsLoggedIn());
+        dispatch(authSlice.actions.toggleIsLoggedIn());
       }
       return rejectWithValue(response.content.header);
     }
@@ -137,15 +139,8 @@ const authSlice = createSlice({
       state.accessToken = null;
       window.localStorage.removeItem("accessToken");
     },
-    clearIsLoggedIn: (state: AuthStateType) => {
-      state.isLoggedIn = false;
-      window.localStorage.setItem(
-        "isLoggedIn",
-        JSON.stringify(state.isLoggedIn)
-      );
-    },
-    setIsLoggedIn: (state: AuthStateType) => {
-      state.isLoggedIn = true;
+    toggleIsLoggedIn: (state: AuthStateType) => {
+      state.isLoggedIn = !state.isLoggedIn;
       window.localStorage.setItem(
         "isLoggedIn",
         JSON.stringify(state.isLoggedIn)
@@ -235,6 +230,7 @@ export const {
   hideMessage,
   setIsLoading,
   stopIsLoading,
+  toggleIsLoggedIn,
 } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/index.js";
-import { logoutUser } from "@/appState/slices/authSlice.js";
+import { clearAccessToken, logoutUser } from "@/appState/slices/authSlice.js";
 import Components from "@/components/index.js";
 import Hamburger from "@/components/Hamburger";
 import {
@@ -9,8 +9,9 @@ import {
   clearAppMessage,
   setAppMessage,
   toggleAppMessage,
-} from "@/appState/slices/appMessageSlice.js";
-import { MessageType, RootState } from "@/utils/types";
+} from "@/appState/slices/appMessageSlice";
+import { toggleIsLoggedIn } from "@/appState/slices/authSlice";
+import { BEDataHeaderType, RootState } from "@/utils/types";
 
 const NavBar: React.FC = () => {
   const { accessToken, isLoggedIn, isLoading } = useAppSelector(
@@ -23,7 +24,7 @@ const NavBar: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const [logoutFailed, setLogoutFailed] = useState<undefined | boolean>(
+  const [logoutError, setLogoutError] = useState<BEDataHeaderType | undefined>(
     undefined
   );
   const closeMenu = () => {
@@ -33,19 +34,18 @@ const NavBar: React.FC = () => {
   };
   // logout handler function
   const logout = async () => {
-    setLogoutFailed(undefined);
+    setLogoutError(undefined);
     dispatch(clearAppMessage());
     try {
       if (!isLoggedIn || !accessToken) {
-        setLogoutFailed(true);
+        // set error to not logged in errno
+        setLogoutError({ errno: 7, status: "", message: "" });
       } else {
         const res = await dispatch(logoutUser(accessToken)).unwrap();
         console.log("logout res:", res);
       }
     } catch (error: any) {
-      if (error?.errno === 7) {
-        setLogoutFailed(true);
-      }
+      setLogoutError(error);
       console.error(error);
     }
   };
@@ -54,10 +54,10 @@ const NavBar: React.FC = () => {
     console.log(
       "reloading. appmessage is not null",
       appMessage !== null,
-      "logout failed?",
-      logoutFailed
+      "logout error:",
+      logoutError
     );
-    if (logoutFailed === true) {
+    if (logoutError && logoutError.errno == 7) {
       dispatch(
         setAppMessage({
           type: "error",
@@ -65,10 +65,13 @@ const NavBar: React.FC = () => {
           role: "alert",
         })
       );
-      dispatch(toggleAppMessage({ autoHide: false }));
-      setLogoutFailed(false);
+      dispatch(toggleAppMessage({}));
+      // set user's logout state to false in ui
+      dispatch(toggleIsLoggedIn());
+      dispatch(clearAccessToken());
+      setLogoutError(undefined);
     }
-  }, [logoutFailed]);
+  }, [logoutError]);
 
   // manage menu visibility when switch is toggled
   useEffect(() => {
