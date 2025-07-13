@@ -1,31 +1,102 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/index.js";
-import { logoutUser, toggleMessage } from "@/appState/slices/authSlice.js";
-import type { RootState } from "../utils/types.js";
+import { logoutUser } from "@/appState/slices/authSlice.js";
 import Components from "@/components/index.js";
 import Hamburger from "@/components/Hamburger";
+import {
+  AppMessageType,
+  clearAppMessage,
+  setAppMessage,
+  toggleAppMessage,
+} from "@/appState/slices/appMessageSlice.js";
+import { MessageType, RootState } from "@/utils/types";
 
 const NavBar: React.FC = () => {
   const { accessToken, isLoggedIn, isLoading } = useAppSelector(
     (store: RootState) => store.auth
   );
+  const { message: appMessage }: AppMessageType = useAppSelector(
+    (store: RootState) => store.appMessage
+  );
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const [logoutFailed, setLogoutFailed] = useState<undefined | boolean>(
+    undefined
+  );
   const closeMenu = () => {
     if (menuIsOpen) {
       setMenuIsOpen(false);
     }
   };
+  // logout handler function
   const logout = async () => {
+    setLogoutFailed(undefined);
+    dispatch(clearAppMessage());
     try {
-      await dispatch(logoutUser({ accessToken })).unwrap();
-      dispatch(toggleMessage({ autoHide: true }));
-    } catch (error) {
-      dispatch(toggleMessage({ autoHide: false }));
+      if (!isLoggedIn || !accessToken) {
+        setLogoutFailed(true);
+      } else {
+        const res = await dispatch(logoutUser(accessToken)).unwrap();
+        console.log("logout res:", res);
+      }
+    } catch (error: any) {
+      if (error?.errno === 7) {
+        setLogoutFailed(true);
+      }
+      console.error(error);
     }
+  };
+
+  useEffect(() => {
+    console.log(
+      "reloading. appmessage is not null",
+      appMessage !== null,
+      "logout failed?",
+      logoutFailed
+    );
+    if (logoutFailed === true) {
+      dispatch(
+        setAppMessage({
+          type: "error",
+          description: "You're not logged in",
+          role: "alert",
+        })
+      );
+      dispatch(toggleAppMessage({ autoHide: false }));
+      setLogoutFailed(false);
+    }
+  }, [logoutFailed]);
+
+  // manage menu visibility when switch is toggled
+  useEffect(() => {
+    if (!menuIsOpen) {
+      hideMenu(280);
+    } else {
+      showMenu();
+    }
+  }, [menuIsOpen, isLoading]);
+
+  // hide menu handler
+  const hideMenu = (delay: number = 0) => {
+    const e = document.getElementById("nav-items-container") as HTMLElement;
+    e.classList.remove("max-md:animate-slide_in_rtl");
+    e.classList.add("max-md:animate-slide_out_ltr");
+    setTimeout(() => {
+      e.classList.add("max-md:hidden");
+    }, delay);
+  };
+
+  // show menu handler
+  const showMenu = (delay: number = 0) => {
+    const e = document.getElementById("nav-items-container") as HTMLElement;
+    e.classList.remove("max-md:animate-slide_out_ltr");
+    e.classList.add("max-md:animate-slide_in_rtl");
+    setTimeout(() => {
+      e.classList.remove("max-md:hidden");
+    }, delay);
   };
 
   const navLinks = (
@@ -81,39 +152,10 @@ const NavBar: React.FC = () => {
     </>
   );
 
-  // hide menu handler
-  const hideMenu = (delay: number = 0) => {
-    const e = document.getElementById("nav-items-container") as HTMLElement;
-    e.classList.remove("max-md:animate-slide_in_rtl");
-    e.classList.add("max-md:animate-slide_out_ltr");
-    setTimeout(() => {
-      e.classList.add("max-md:hidden");
-    }, delay);
-  };
-
-  // show menu handler
-  const showMenu = (delay: number = 0) => {
-    const e = document.getElementById("nav-items-container") as HTMLElement;
-    e.classList.remove("max-md:animate-slide_out_ltr");
-    e.classList.add("max-md:animate-slide_in_rtl");
-    setTimeout(() => {
-      e.classList.remove("max-md:hidden");
-    }, delay);
-  };
-
-  // manage menu visibility when switch is toggled
-  useEffect(() => {
-    if (!menuIsOpen) {
-      hideMenu(280);
-    } else {
-      showMenu();
-    }
-  }, [menuIsOpen, isLoading]);
-
   return (
     <>
       <div
-        className={`shadow-md shadow-zinc-100 relative py-3 md:py-5`}
+        className={`shadow-md shadow-zinc-200/40 relative py-3 md:py-5`}
         id="navbar"
       >
         <Components.Wrapper>
@@ -155,6 +197,10 @@ const NavBar: React.FC = () => {
           </nav>
         </Components.Wrapper>
       </div>
+      <div className="border-1 border-blue-500 h-10"></div>
+      {appMessage && (appMessage as AppMessageType).show && (
+        <div className="w-1/2 border-2 border-orange-600 h-20"></div>
+      )}
     </>
   );
 };
