@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import type { AppDispatchType, StoreMessageType } from "../../utils/types.js";
+import type { AppDispatchType, MessageType } from "../../utils/types.js";
 
 const messageSlice = createSlice({
   name: "appMessage",
@@ -9,28 +9,26 @@ const messageSlice = createSlice({
   },
   reducers: {
     setAppMessage: (
-      state: MessageStateType,
-      action: PayloadAction<StoreMessageType>,
+      state: AppMessageType,
+      action: PayloadAction<MessageType>
     ) => {
+      console.log("setting app message...");
       state.message = action.payload;
     },
-    showAppMessage: (state: MessageStateType) => {
+    showAppMessage: (state: AppMessageType) => {
+      console.log("\tshowing app message");
       state.show = true;
     },
-    hideAppMessage: (state: MessageStateType) => {
+    hideAppMessage: (state: AppMessageType) => {
+      console.log("\thiding app message");
       state.show = false;
     },
-    clearAppMessage: (state: MessageStateType) => {
+    clearAppMessage: (state: AppMessageType) => {
       state.message = null;
       state.show = false;
     },
   },
 });
-
-type MessageStateType = {
-  message: StoreMessageType | null;
-  show: boolean;
-};
 
 // Extra reducers
 const toggleAppMessage = createAsyncThunk<
@@ -38,13 +36,24 @@ const toggleAppMessage = createAsyncThunk<
   { autoHide: boolean; delay?: number },
   { dispatch: AppDispatchType }
 >("appMessage/toggle", async ({ autoHide, delay = 4000 }, { dispatch }) => {
-  dispatch(messageSlice.actions.showAppMessage());
-  if (autoHide) {
-    setTimeout(() => {
-      dispatch(messageSlice.actions.hideAppMessage());
-    }, delay);
+  console.log("toggling app message");
+  const state = messageSlice.getInitialState();
+  if (!state.show) {
+    dispatch(messageSlice.actions.showAppMessage());
+    if (autoHide) {
+      setTimeout(() => {
+        dispatch(messageSlice.actions.hideAppMessage());
+      }, delay);
+    }
+  } else {
+    dispatch(messageSlice.actions.hideAppMessage());
   }
 });
+
+type AppMessageType = {
+  message: MessageType | null;
+  show: boolean;
+};
 
 export { toggleAppMessage };
 export const {
@@ -53,5 +62,5 @@ export const {
   showAppMessage,
   hideAppMessage,
 } = messageSlice.actions;
-
 export default messageSlice.reducer;
+export type { AppMessageType };
