@@ -55,12 +55,18 @@ const loginUser = createAsyncThunk<
   }
 );
 
-// logout sequence
+/**
+ * @function logoutUser
+ * @descrition Redux async thun to log out a user from the application
+ * @param accessToken access token to use for logout auth
+ * @param thunkapi createAsyncThunk api class
+ * @returns { boolean } true on logout success, and false otherwise
+ */
 const logoutUser = createAsyncThunk<
   boolean,
-  Record<string, any>,
-  { rejectValue: BEDataType }
->("auth/logout", async ({ accessToken }, { rejectWithValue }) => {
+  string,
+  { rejectValue: BEDataHeaderType }
+>("auth/logout", async (accessToken, { rejectWithValue }) => {
   const response = await api.post("/auth/logout", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -68,12 +74,19 @@ const logoutUser = createAsyncThunk<
   });
   console.log("logoutUser response", response);
   if (response.error) {
-    return rejectWithValue(response.content);
+    return rejectWithValue(response.content.header);
   }
   return true;
 });
 
-// refresh token
+/**
+ * @function refreshAccessToken
+ * @descrition Redux async thun to handle expired tokens refresh
+ * @param accessToken access token to use for logout auth
+ * @param thunkapi createAsyncThunk api class
+ * @returns { RefreshSuccessPayloadType } an object containing the accessToken as key on success
+ * @returns { BEDataHeaderType } an object with error details on error
+ */
 const refreshAccessToken = createAsyncThunk<
   RefreshSuccessPayloadType,
   string,
@@ -191,10 +204,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isLoggedIn = false;
         state.user = null;
-        window.localStorage.setItem(
-          "isLoggedIn",
-          JSON.stringify(state.isLoggedIn)
-        );
+        window.localStorage.setItem("isLoggedIn", JSON.stringify(false));
       })
       .addCase(logoutUser.pending, (state: AuthStateType) => {
         state.isLoading = true;
