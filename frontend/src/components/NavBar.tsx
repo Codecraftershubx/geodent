@@ -197,10 +197,6 @@ const NavBar: React.FC = () => {
           </nav>
         </Components.Wrapper>
       </div>
-      <div className="border-1 border-blue-500 h-10"></div>
-      {appMessage && (appMessage as AppMessageType).show && (
-        <div className="w-1/2 border-2 border-orange-600 h-20"></div>
-      )}
     </>
   );
 };

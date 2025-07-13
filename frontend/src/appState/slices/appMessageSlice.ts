@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import type { AppDispatchType, MessageType } from "../../utils/types.js";
 
-const messageSlice = createSlice({
+const appMessageSlice = createSlice({
   name: "appMessage",
   initialState: {
     message: null,
@@ -37,16 +37,16 @@ const toggleAppMessage = createAsyncThunk<
   { dispatch: AppDispatchType }
 >("appMessage/toggle", async ({ autoHide, delay = 4000 }, { dispatch }) => {
   console.log("toggling app message");
-  const state = messageSlice.getInitialState();
+  const state = appMessageSlice.getInitialState();
   if (!state.show) {
-    dispatch(messageSlice.actions.showAppMessage());
+    dispatch(appMessageSlice.actions.showAppMessage());
     if (autoHide) {
       setTimeout(() => {
-        dispatch(messageSlice.actions.hideAppMessage());
+        dispatch(appMessageSlice.actions.hideAppMessage());
       }, delay);
     }
   } else {
-    dispatch(messageSlice.actions.hideAppMessage());
+    dispatch(appMessageSlice.actions.hideAppMessage());
   }
 });
 
@@ -61,6 +61,6 @@ export const {
   clearAppMessage,
   showAppMessage,
   hideAppMessage,
-} = messageSlice.actions;
-export default messageSlice.reducer;
+} = appMessageSlice.actions;
+export default appMessageSlice.reducer;
 export type { AppMessageType };

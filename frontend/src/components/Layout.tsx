@@ -22,6 +22,7 @@ const Layout: React.FC = () => {
           fullWidth={true}
           variant={"plain"}
           rounded={false}
+          withTitle={true}
         />
       )}
       <Outlet />

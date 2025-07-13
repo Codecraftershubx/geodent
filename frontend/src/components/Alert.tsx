@@ -1,6 +1,7 @@
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Wrapper from "./Wrapper";
 import Icons from "./Icons";
+import { cn } from "@/lib/utils";
 
 type AlertPropsType = {
   isClosable?: boolean;
@@ -12,6 +13,8 @@ type AlertPropsType = {
   title?: string;
   description?: string;
   className?: string;
+  bodyClassName?: string;
+  alertClassName?: string;
 };
 
 const alertTypes = {
@@ -89,15 +92,23 @@ const AppAlert: React.FC<AlertPropsType> = ({
   type = "neutral",
   variant = "plain",
   fullWidth = false,
-  withTitle = false,
+  withTitle,
   title,
   description,
   className,
+  bodyClassName,
+  alertClassName,
 }) => {
   return (
-    <Wrapper fullWidth={fullWidth} className={`mb-5 ${className}`}>
+    <Wrapper
+      fullWidth={fullWidth}
+      className={cn("mb-5 animate-fade_in !duration-500", className)}
+    >
       <Alert
-        className={`${rounded ? "rounded-lg" : ""} py-2 @container ${alertTypes[type].styles[variant]}`}
+        className={cn(
+          `${rounded ? "rounded-lg" : ""} py-2 @container ${alertTypes[type].styles[variant]}`,
+          alertClassName
+        )}
       >
         <Wrapper className="flex justify-between items-center @max-lg:w-95/100">
           <div
@@ -112,10 +123,13 @@ const AppAlert: React.FC<AlertPropsType> = ({
             >
               {alertTypes[type].icon}
             </div>
-            <div item-role="alert-body">
+            <div
+              item-role="alert-body"
+              className={cn("flex gap-1", bodyClassName)}
+            >
               {withTitle && (
                 <AlertTitle>
-                  {title || alertTypes[type].content.title}
+                  {title || alertTypes[type].content.title}:
                 </AlertTitle>
               )}
               <AlertDescription>

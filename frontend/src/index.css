@@ -184,6 +184,7 @@
   --animate-slide_in_rtl: slide-in-rtl 0.25s ease-in forwards;
   --animate-slide_out_ltr: slide-out-ltr 0.25s ease-in forwards;
   --animate-fade_out: fade-out 0.25s ease-out forwards;
+  --animate-fade_in: fade-in 0.25s ease-in forwards;
   --breakpoint-xs: 30rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -297,7 +298,6 @@
     transform: translateX(100vw);
     opacity: 0;
   }
-
   100% {
     transform: translateX(0);
     opacity: 1;
@@ -309,11 +309,9 @@
     transform: translateX(0);
     opacity: 1;
   }
-
   70% {
     opacity: 1;
   }
-
   100% {
     transform: translateX(100vw);
     opacity: 0;
@@ -324,8 +322,16 @@
   0% {
     opacity: 1;
   }
-
   100% {
     opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
