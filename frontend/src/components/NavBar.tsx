@@ -12,6 +12,7 @@ import {
 } from "@/appState/slices/appMessageSlice";
 import { toggleIsLoggedIn } from "@/appState/slices/authSlice";
 import { BEDataHeaderType, RootState } from "@/utils/types";
+import { current } from "@reduxjs/toolkit";
 
 const NavBar: React.FC = () => {
   const { accessToken, isLoggedIn, isLoading } = useAppSelector(
@@ -22,8 +23,10 @@ const NavBar: React.FC = () => {
   );
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const [currentPath, setCurrentPath] = useState<string>(
+    useLocation().pathname
+  ); // current path
+  const [menuIsOpen, setMenuIsOpen] = useState(false); // menu trigger
   const [logoutError, setLogoutError] = useState<BEDataHeaderType | undefined>(
     undefined
   );
@@ -65,6 +68,7 @@ const NavBar: React.FC = () => {
           role: "alert",
         })
       );
+      console.log("NAVBRR toggling isLoggedIn");
       dispatch(toggleAppMessage({}));
       // set user's logout state to false in ui
       dispatch(toggleIsLoggedIn());
@@ -105,18 +109,21 @@ const NavBar: React.FC = () => {
   const navLinks = (
     <>
       <Components.NavItems.Link
-        target="/home"
+        target={{ pathname: "/home", search: `?back_target=${currentPath}` }}
         text="Home"
         onClick={closeMenu}
       />
       <Components.NavItems.Link
-        target="/listings"
+        target={{
+          pathname: "/listings",
+          search: `?back_target=${currentPath}`,
+        }}
         text="Listings"
-        className={pathname === "/" ? "text-red-600" : ""}
+        className={currentPath === "/" ? "text-primary-600" : ""}
         onClick={closeMenu}
       />
       <Components.NavItems.Link
-        target="/users/me"
+        target={{ pathname: "/me", search: `?back_target=${currentPath}` }}
         text="Account"
         onClick={closeMenu}
       />
@@ -127,9 +134,9 @@ const NavBar: React.FC = () => {
     <>
       {!isLoggedIn && (
         <Components.NavItems.Button
-          target="/signup"
+          target={encodeURIComponent(`/signup?back_target=${currentPath}`)}
           text="Signup"
-          className={`text-black/80 hover:text-red-600 ${menuIsOpen ? "bg-zinc-100 active:bg-zinc-500 active:text-white/90 duration-300" : "bg-white !shadow-lg"} ${pathname === "/signup" && "outline-[1.5px] outline-zinc-700 -outline-offset-4"}`}
+          className={`text-black/80 hover:text-primary-600 ${menuIsOpen ? "bg-zinc-100 active:bg-zinc-500 active:text-white/90 duration-300" : "bg-white !shadow-lg"} ${currentPath === "/signup" && "outline-[1.5px] outline-zinc-700 -outline-offset-4"}`}
           onClick={closeMenu}
         />
       )}
@@ -138,9 +145,13 @@ const NavBar: React.FC = () => {
           <Components.Loader size={"4"} className="text-white/50 fill-white" />
         }
         showAside={isLoading}
-        target={isLoggedIn ? "#" : "/login"}
+        target={
+          isLoggedIn
+            ? "#"
+            : { pathname: "/login", search: `?back_target=${currentPath}` }
+        }
         text={isLoggedIn ? "Logout" : "Login"}
-        className={`bg-red-600 text-white ${menuIsOpen ? "active:bg-red-900 duration-300" : "hover:bg-red-700"} ${pathname === "/login" && "bg-red-700/90 outline-[1.5px] outline-white/80 -outline-offset-4"}`}
+        className={`bg-red-600 text-white ${menuIsOpen ? "active:bg-red-900 duration-300" : "hover:bg-primary-700"} ${currentPath === "/login" && "bg-primary-700/90 outline-[1.5px] outline-white/80 -outline-offset-4"}`}
         onClick={(e) => {
           if (e.currentTarget.textContent === "Logout") {
             logout()
@@ -158,7 +169,7 @@ const NavBar: React.FC = () => {
   return (
     <>
       <div
-        className={`shadow-md shadow-zinc-200/40 relative py-3 md:py-5`}
+        className={`shadow-md shadow-neutral-300/60 relative py-3 md:py-5`}
         id="navbar"
       >
         <Components.Wrapper>

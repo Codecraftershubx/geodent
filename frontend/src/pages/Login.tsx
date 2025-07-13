@@ -39,11 +39,11 @@ const Login: React.FC = () => {
       ? "Hold on while we sign you in"
       : "Enter your credentials to sign in"
   );
-  const [alreadyLoggedIn, setAlreadyLoggedIn] = useState(
+  const [alreadyLoggedIn, setAlreadyLoggedIn] = useState<boolean>(
     accessToken !== null && isLoggedIn
   );
   const [useCredentials, setUseCredentials] = useState(false);
-  const redirectPath = useQueryParams("redirect") || "/listings";
+  const redirectPath = useQueryParams("back_target") || "/listings";
   // Navigate to a route
   const redirectTo = useCallback((path: string = "/listings") => {
     setTimeout(() => {
@@ -61,7 +61,7 @@ const Login: React.FC = () => {
       console.log("LOGIN SUCCESS", response);
       setHeading(`Successful`);
       setRunner("We're now taking you in");
-      redirectTo("/listings");
+      redirectTo(redirectPath);
     } catch (error: any) {
       if (error.errno === 10) {
         console.log("setting runner text...");
@@ -122,9 +122,8 @@ const Login: React.FC = () => {
       useCredentials
     );
     if (alreadyLoggedIn) {
-      delayedAction(setRunner, { args: ["You're already signed in"] });
-    }
-    if (!alreadyLoggedIn && accessToken) {
+      setRunner("You're already signed in");
+    } else if (!alreadyLoggedIn && accessToken) {
       login(accessToken);
     } else {
       if (isLoggedIn) {
@@ -135,18 +134,20 @@ const Login: React.FC = () => {
   }, [alreadyLoggedIn, useCredentials]);
 
   return (
-    <main className="flex flex-col justify-center mt-10 lg:mt-0 items-center min-h-screen p-2 md:p-10">
-      <section className="w-9/10 sm:max-w-md md:max-w-lg">
-        <div className="mb-10 flex flex-col gap-2 items-center">
-          <h1 className="text-3xl font-bold text-primary mb-4">{heading}</h1>
+    <main className="flex flex-col justify-center md:justify-start items-center mt-5 md:mt-10 min-h-screen p-2 lg:p-10">
+      <section className="w-9/10 sm:max-w-md md:max-w-lg flex flex-col items-center justify-center gap-10">
+        <div className="flex flex-col gap-4 items-center">
+          <h1 className="text-3xl font-bold text-primary">{heading}</h1>
           <p className="text-md lg:text-sm text-zinc-500">{runner}</p>
         </div>
-        {isLoading && <Loader className="text-zinc-200 fill-red-500" />}
-        {useCredentials && <Components.LoginForm redirect={redirectPath} />}
-        {alreadyLoggedIn && (
+        {isLoading && (
+          <Loader className="text-zinc-200 fill-red-500 self-center" />
+        )}
+        {useCredentials && <Components.LoginForm />}
+        {!isLoading && alreadyLoggedIn === true && (
           <Button
             asChild
-            className="cursor-pointer bg-red-500 text-white hover:bg-red-600 hover:text-white"
+            className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary-600"
           >
             <NavLink to={`${redirectPath}`}>
               <span>

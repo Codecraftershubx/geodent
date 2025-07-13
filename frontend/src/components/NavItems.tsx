@@ -4,7 +4,7 @@ type AppNavLinkPropsType = {
   text: string;
   className?: string;
   onClick?: React.MouseEventHandler<HTMLElement>;
-  target: string;
+  target: string | Record<string, string>;
   aside?: React.ReactElement;
   showAside?: boolean;
 };

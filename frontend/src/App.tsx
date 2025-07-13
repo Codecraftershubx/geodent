@@ -60,7 +60,7 @@ function App() {
           <Route path="/signup" element={<Pages.Signup />} />
           <Route path="/home" element={<Pages.Home />} />
           <Route path="/about" element={<Pages.About />} />
-          <Route path="/users/me" element={<Pages.UserAccount />} />
+          <Route path="/me" element={<Pages.UserAccount />} />
         </Route>
       </Routes>
     </Router>

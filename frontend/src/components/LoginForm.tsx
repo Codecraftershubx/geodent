@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, FieldPath, useForm } from "react-hook-form";
 import {
@@ -14,7 +15,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { useAppDispatch, useAppSelector } from "@/hooks/index.js";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useQueryParams,
+} from "@/hooks/index.js";
 import {
   loginUser,
   showMessage as showAuthMessage,
@@ -30,13 +35,14 @@ const formSchema = z.object({
   password: z.string(),
 });
 
-const LoginForm: React.FC<{ redirect: string }> = ({ redirect }) => {
+const LoginForm: React.FC = () => {
   // states and effect handlers
   const { accessToken, message, showMessage }: AuthStateType = useAppSelector(
     (store: RootState) => store.auth
   );
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const redirectPath = useQueryParams("back_target") || "/";
 
   useEffect(() => {
     if (showMessage && message) {
@@ -61,7 +67,7 @@ const LoginForm: React.FC<{ redirect: string }> = ({ redirect }) => {
           password,
         })
       ).unwrap();
-      navigate(redirect);
+      navigate({ pathname: redirectPath, search: `?back_target=/login` });
     } catch (error: any) {
       dispatch(toggleMessage({ autoHide: true, delay: 10000 }));
     }
@@ -130,7 +136,7 @@ const LoginForm: React.FC<{ redirect: string }> = ({ redirect }) => {
           <p className="text-muted-600 text-sm text-center md:text-left">
             Don't have an account?&nbsp;&nbsp;
             <span className="font-semibold text-primary hover:underline hover:underline-offset-4 hover:decoration-2 hover:cursor-pointer">
-              Sign up
+              <Link to="/signup">Sign up</Link>
             </span>
           </p>
         </div>

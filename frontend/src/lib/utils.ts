@@ -14,7 +14,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function delayedAction(
   func: (...args: any[]) => void,
-  { args, delay = 500 }: { args: any[]; delay?: number }
+  { args, delay = 300 }: { args: any[]; delay?: number }
 ) {
   setTimeout(() => {
     func(...args);
