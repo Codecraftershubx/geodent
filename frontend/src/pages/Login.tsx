@@ -113,6 +113,7 @@ const Login: React.FC = () => {
             })
           );
         }, 500);
+        dispatch(toggleIsLoggedIn());
       }
       //// attempt token refresh if token expired
       //if (error?.header) {
@@ -195,6 +196,7 @@ const Login: React.FC = () => {
               role: "alert",
             })
           );
+          dispatch(toggleIsLoggedIn());
         }, 100);
         dispatch(stopIsLoading());
       } else if (!isLoggedIn && accessToken) {

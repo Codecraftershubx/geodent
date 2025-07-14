@@ -42,10 +42,6 @@ const loginUser = createAsyncThunk<
     console.log(response);
     let data;
     if (response.error) {
-      // update user's logged in state if already logged in on server
-      if (response.content.header.errno === 10) {
-        dispatch(authSlice.actions.toggleIsLoggedIn());
-      }
       return rejectWithValue(response.content.header);
     }
     data = response.content.data[0];

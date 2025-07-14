@@ -4,6 +4,7 @@ import { useAppSelector } from "@/hooks/index.js";
 import Components from "@/components/index.js";
 import Hamburger from "@/components/Hamburger";
 import { RootState } from "@/utils/types";
+import { cn } from "@/lib/utils";
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const NavBar: React.FC = () => {
     } else {
       showMenu();
     }
-  }, [menuIsOpen, isLoading]);
+  }, [menuIsOpen, isLoading, isLoggedIn, currentPath]);
 
   // hide menu handler
   const hideMenu = (delay: number = 0) => {
@@ -77,7 +78,12 @@ const NavBar: React.FC = () => {
         <Components.NavItems.Button
           target={{ pathname: "/signup" }}
           text="Signup"
-          className={`text-black/80 hover:text-primary-600 ${menuIsOpen ? "bg-zinc-100 active:bg-zinc-500 active:text-white/90 duration-300" : "bg-white !shadow-lg"} ${currentPath === "/signup" && "outline-[1.5px] outline-zinc-700 -outline-offset-4"}`}
+          className={cn(
+            "text-black/80 hover:text-primary-600 bg-white !shadow-lg",
+            `${menuIsOpen && "bg-zinc-100 active:bg-zinc-500 active:text-white/90 duration-300"}`,
+            `${currentPath === "/signup" && "outline-[1.5px] outline-zinc-700 -outline-offset-4"}`,
+            ""
+          )}
           onClick={closeMenu}
         />
       )}
@@ -88,7 +94,11 @@ const NavBar: React.FC = () => {
         showAside={isLoading}
         target={isLoggedIn ? "/logout" : { pathname: "/login" }}
         text={isLoggedIn ? "Logout" : "Login"}
-        className={`bg-primary text-white ${menuIsOpen ? "active:bg-primary-600 duration-300" : "hover:bg-primary-700/90"} ${currentPath === "/login" && "bg-primary-600 outline-[1.2px] outline-white/80 -outline-offset-4"}`}
+        className={cn(
+          "bg-primary text-white hover:bg-primary-700/90",
+          `${menuIsOpen && "active:bg-primary-600 duration-300"}`,
+          `${currentPath === "/login" && "bg-primary-600 outline-[1.5px] outline-white/90 -outline-offset-4"}`
+        )}
         onClick={(e) => {
           if (e.currentTarget.textContent === "Logout") {
             navigate("/logout");
