@@ -11,7 +11,7 @@ const logout = async (req: Request, res: Response): Promise<void> => {
   }
   try {
     // verify authed user is logged in
-    console.log("isLoggedIn: ", req.body.auth);
+    console.log("LOGOUT AUTH BODY: ", req.body.auth);
     if (!req.body.auth.isLoggedIn) {
       return utils.handlers.error(req, res, "authentication", { errno: 7 });
     }
@@ -23,6 +23,7 @@ const logout = async (req: Request, res: Response): Promise<void> => {
     }
     // clear tokens from cache
     await utils.cache.delete(aTData.id, `${aT}:${config.rTFieldName}`);
+		console.log("LOGOUT SUCCESS");
     return utils.handlers.success(req, res, {
       message: "Logout success",
     });

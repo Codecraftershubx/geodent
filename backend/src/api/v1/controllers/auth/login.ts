@@ -19,22 +19,21 @@ const login = async (req: Request, res: Response): Promise<void> => {
     if (authHeader) {
       aT = authHeader.split(" ")[1];
       // verify user not already logged in
-      const cacheGetRes = await utils.cache.get(user.id);
-      if (cacheGetRes.success) {
+      const cacheGetRes = await utils.cache.hget(user.id, "data");
+      console.log("LOGIN: cacheGetRes:", cacheGetRes);
+      if (cacheGetRes.value !== null) {
         return utils.handlers.error(req, res, "authentication", { errno: 10 });
       }
       aTimes = { iat: payload.iat, exp: payload.exp };
+      console.log(
+        "user not ALREADY LOGGED IN...proceeding to login: aTimes:",
+        aTimes
+      );
     } else {
       // generate new access token for user authenticated with credentials - email + password
       aTimes = utils.getTokenTimes("accessToken");
       aT = await utils.tokens.generate.accessToken({ id: user.id, ...aTimes });
     }
-    // generate refreshToken and cache results
-    const rTimes = utils.getTokenTimes("refreshToken", aTimes.iat);
-    const rT: string = await utils.tokens.generate.refreshToken({
-      id: user.id,
-      ...rTimes,
-    });
     const cacheATRes = await utils.cache.hset(
       user.id,
       {
@@ -45,21 +44,31 @@ const login = async (req: Request, res: Response): Promise<void> => {
     );
     // start new session if it's a new auth. skip otherwise
     const oldSession = await utils.cache.get(`${aT}:${config.rTFieldName}`);
-    if (!oldSession.success) {
+    console.log("old session:", oldSession);
+    if (oldSession.value === null) {
+      // generate refreshToken and cache results
+      const rTimes = utils.getTokenTimes("refreshToken", aTimes.iat);
+      const rT: string = await utils.tokens.generate.refreshToken({
+        id: user.id,
+        ...rTimes,
+      });
       const cacheRTRes = await utils.cache.set(
         `${aT}:${config.rTFieldName}`,
         rT,
         { EXAT: rTimes.exp }
       );
       // handle new session caching errors
-      if (!cacheATRes.success || !cacheRTRes.success) {
+      if (!cacheRTRes.success) {
         utils.cache.delete(`${aT}:${config.rTFieldName}`, user.id);
         throw new Error("Login failed");
       }
     }
+    if (!cacheATRes.success) {
+      utils.cache.delete(`${aT}:${config.rTFieldName}`, user.id);
+      throw new Error("Login failed");
+    }
     return utils.handlers.success(req, res, {
       data: [{ accessToken: aT }],
-      message: "login success",
     });
   } catch (err: any) {
     // error occured while fetching data from cache
