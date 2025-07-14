@@ -71,6 +71,7 @@ const Login: React.FC = () => {
     setter: React.Dispatch<React.SetStateAction<string>>,
     delay: number = 500
   ) => {
+    console.log("hidding runner");
     const r = document.getElementById("runner-text");
     if (r) {
       r.classList.add("animate-fade_out");
@@ -83,7 +84,7 @@ const Login: React.FC = () => {
   // Login handler function
   const login = useCallback(async (accessToken: string) => {
     dispatch(clearMessage());
-    setRunner("");
+    setRunner("Hold on while we sign you in");
     try {
       console.log("LOGIN CALLED");
       const response = await dispatch(loginUser({ accessToken })).unwrap();
@@ -101,6 +102,7 @@ const Login: React.FC = () => {
       if (error.errno === 10) {
         console.log("ALREADY LOGGED IN: setting message");
         setLoginState({ error, success: false });
+        hideRunner(setRunner);
         setTimeout(() => {
           dispatch(stopIsLoading());
           dispatch(
@@ -174,6 +176,7 @@ const Login: React.FC = () => {
     dispatch(setIsLoading());
     setTimeout(() => {
       if (accessToken && isLoggedIn) {
+        console.log("hiding runner and setting message");
         hideRunner(setRunner);
         setTimeout(() => {
           setLoginState({
@@ -203,22 +206,24 @@ const Login: React.FC = () => {
         setUseCredentials(true);
         dispatch(stopIsLoading());
       }
-    }, 1000);
+    }, 1100);
   }, []);
+
   return (
     <main className="flex flex-col justify-center md:justify-start items-center mt-5 min-h-screen p-3 lg:p-10">
-      <section className="w-full max-w-[360px] md:max-w-md lg:max-w-xl flex flex-col items-center justify-center gap-10 p-0 md:p-5">
+      <section className="w-full max-w-[360px] md:max-w-md lg:max-w-xl flex flex-col items-center justify-center gap-6 p-0 md:p-5">
         <div className="flex flex-col gap-4 items-center">
           <h1 className="text-3xl font-bold text-primary">{heading}</h1>
           <p
             id="runner-text"
-            className="transition-all duration-500 text-md lg:text-sm text-neutral-600"
+            className="min-h-18px transition-all !duration-300 text-md lg:text-sm text-neutral-600"
           >
             {runner}
           </p>
         </div>
-        {/* Icons */}
+        {/* Activity Area */}
         <div className="flex items-center gap-2 justify-center">
+          {/* Icons */}
           <div>
             {isLoading && <Loader />}
             {loginState.success && (
@@ -242,7 +247,7 @@ const Login: React.FC = () => {
             )}
           </div>
           {/* Message */}
-          <div className="animate-fade_in duration-500">
+          <div className="animate-fade_in !duration-500">
             {message && !isLoading && (
               <p
                 className={cn(
@@ -255,18 +260,21 @@ const Login: React.FC = () => {
             )}
           </div>
         </div>
+        {/* Button Area */}
         {!isLoading && loginState.error?.errno === 10 && (
-          <Button
-            asChild
-            className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary-600"
-          >
-            <NavLink to={`${redirectPath}`}>
-              <span>
-                <Icons.ArrowLeft className="border-red-400" />
-              </span>
-              Back
-            </NavLink>
-          </Button>
+          <div className="mt-5">
+            <Button
+              asChild
+              className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary-600"
+            >
+              <NavLink to={`${redirectPath}`}>
+                <span>
+                  <Icons.ArrowLeft className="border-red-400" />
+                </span>
+                Back
+              </NavLink>
+            </Button>
+          </div>
         )}
         {useCredentials && <Components.LoginForm />}
       </section>
