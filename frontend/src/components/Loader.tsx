@@ -31,7 +31,7 @@ const Loader: React.FC<LoaderPropsType> = ({
   return (
     <div
       role="status"
-      className={`flex flex-col justify-center items-${justify[align]} ${className}`}
+      className={`flex flex-col text-neutral-300 fill-primary justify-center items-${justify[align]} ${className}`}
     >
       <svg
         aria-hidden="true"

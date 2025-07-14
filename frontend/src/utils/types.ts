@@ -2,8 +2,8 @@ import store from "../appState/store.js";
 
 type BEDataHeaderType = {
   errno: Number;
-  status: String;
-  message: String;
+  status: string;
+  message: string;
   details?: Record<string, any>;
   [key: string]: any;
 };

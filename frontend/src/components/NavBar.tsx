@@ -1,81 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "@/hooks/index.js";
-import { clearAccessToken, logoutUser } from "@/appState/slices/authSlice.js";
+import { useAppSelector } from "@/hooks/index.js";
 import Components from "@/components/index.js";
 import Hamburger from "@/components/Hamburger";
-import {
-  AppMessageType,
-  clearAppMessage,
-  setAppMessage,
-  toggleAppMessage,
-} from "@/appState/slices/appMessageSlice";
-import { toggleIsLoggedIn } from "@/appState/slices/authSlice";
-import { BEDataHeaderType, RootState } from "@/utils/types";
-import { current } from "@reduxjs/toolkit";
+import { RootState } from "@/utils/types";
 
 const NavBar: React.FC = () => {
-  const { accessToken, isLoggedIn, isLoading } = useAppSelector(
+  const navigate = useNavigate();
+  const { isLoading, isLoggedIn } = useAppSelector(
     (store: RootState) => store.auth
   );
-  const { message: appMessage }: AppMessageType = useAppSelector(
-    (store: RootState) => store.appMessage
-  );
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const [currentPath, setCurrentPath] = useState<string>(
-    useLocation().pathname
-  ); // current path
+  const [currentPath, _] = useState<string>(useLocation().pathname);
   const [menuIsOpen, setMenuIsOpen] = useState(false); // menu trigger
-  const [logoutError, setLogoutError] = useState<BEDataHeaderType | undefined>(
-    undefined
-  );
+
   const closeMenu = () => {
     if (menuIsOpen) {
       setMenuIsOpen(false);
     }
   };
-  // logout handler function
-  const logout = async () => {
-    setLogoutError(undefined);
-    dispatch(clearAppMessage());
-    try {
-      if (!isLoggedIn || !accessToken) {
-        // set error to not logged in errno
-        setLogoutError({ errno: 7, status: "", message: "" });
-      } else {
-        const res = await dispatch(logoutUser(accessToken)).unwrap();
-        console.log("logout res:", res);
-      }
-    } catch (error: any) {
-      setLogoutError(error);
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    console.log(
-      "reloading. appmessage is not null",
-      appMessage !== null,
-      "logout error:",
-      logoutError
-    );
-    if (logoutError && logoutError.errno == 7) {
-      dispatch(
-        setAppMessage({
-          type: "error",
-          description: "You're not logged in",
-          role: "alert",
-        })
-      );
-      console.log("NAVBRR toggling isLoggedIn");
-      dispatch(toggleAppMessage({}));
-      // set user's logout state to false in ui
-      dispatch(toggleIsLoggedIn());
-      dispatch(clearAccessToken());
-      setLogoutError(undefined);
-    }
-  }, [logoutError]);
 
   // manage menu visibility when switch is toggled
   useEffect(() => {
@@ -109,21 +51,20 @@ const NavBar: React.FC = () => {
   const navLinks = (
     <>
       <Components.NavItems.Link
-        target={{ pathname: "/home", search: `?back_target=${currentPath}` }}
+        target={{ pathname: "/home" }}
         text="Home"
         onClick={closeMenu}
       />
       <Components.NavItems.Link
         target={{
           pathname: "/listings",
-          search: `?back_target=${currentPath}`,
         }}
         text="Listings"
         className={currentPath === "/" ? "text-primary-600" : ""}
         onClick={closeMenu}
       />
       <Components.NavItems.Link
-        target={{ pathname: "/me", search: `?back_target=${currentPath}` }}
+        target={{ pathname: "/me" }}
         text="Account"
         onClick={closeMenu}
       />
@@ -134,7 +75,7 @@ const NavBar: React.FC = () => {
     <>
       {!isLoggedIn && (
         <Components.NavItems.Button
-          target={encodeURIComponent(`/signup?back_target=${currentPath}`)}
+          target={{ pathname: "/signup" }}
           text="Signup"
           className={`text-black/80 hover:text-primary-600 ${menuIsOpen ? "bg-zinc-100 active:bg-zinc-500 active:text-white/90 duration-300" : "bg-white !shadow-lg"} ${currentPath === "/signup" && "outline-[1.5px] outline-zinc-700 -outline-offset-4"}`}
           onClick={closeMenu}
@@ -145,20 +86,12 @@ const NavBar: React.FC = () => {
           <Components.Loader size={"4"} className="text-white/50 fill-white" />
         }
         showAside={isLoading}
-        target={
-          isLoggedIn
-            ? "#"
-            : { pathname: "/login", search: `?back_target=${currentPath}` }
-        }
+        target={isLoggedIn ? "/logout" : { pathname: "/login" }}
         text={isLoggedIn ? "Logout" : "Login"}
-        className={`bg-red-600 text-white ${menuIsOpen ? "active:bg-red-900 duration-300" : "hover:bg-primary-700"} ${currentPath === "/login" && "bg-primary-700/90 outline-[1.5px] outline-white/80 -outline-offset-4"}`}
+        className={`bg-primary text-white ${menuIsOpen ? "active:bg-primary-600 duration-300" : "hover:bg-primary-700/90"} ${currentPath === "/login" && "bg-primary-600 outline-[1.2px] outline-white/80 -outline-offset-4"}`}
         onClick={(e) => {
           if (e.currentTarget.textContent === "Logout") {
-            logout()
-              .then(() => {
-                navigate("/");
-              })
-              .catch((err) => console.log(err));
+            navigate("/logout");
           }
           closeMenu();
         }}
@@ -206,7 +139,7 @@ const NavBar: React.FC = () => {
             <Hamburger
               toggled={menuIsOpen}
               toggle={setMenuIsOpen}
-              className={`justify-self-end z-30 ${menuIsOpen ? "text-white" : "text-red-600 min-md:hidden"}`}
+              className={`justify-self-end z-30 ${menuIsOpen ? "text-white" : "text-primary min-md:hidden"}`}
             />
           </nav>
         </Components.Wrapper>

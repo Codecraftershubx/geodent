@@ -103,7 +103,7 @@ const LoginForm: React.FC = () => {
       )}
       <form
         onSubmit={loginForm.handleSubmit(formOnSubmit)}
-        className="space-y-7 shadow-lg shadow-neutral-300 p-5 md:p-10 rounded-md border-[.1px] border-neutral-300"
+        className="space-y-7 shadow-lg shadow-neutral-300 p-4 md:p-6 xl:px-10 rounded-md border-[.1px] border-neutral-300 w-full md:w-9/10"
       >
         <div>
           <LoginFormField
@@ -125,7 +125,7 @@ const LoginForm: React.FC = () => {
             autocomplete="current-password"
           />
         </div>
-        <div className="flex justify-between items-center mt-5 md:mt-10 flex-col gap-5 md:flex-row">
+        <div className="flex flex-col items-center mt-5 md:flex-row md:justify-between md:mt-10 gap-5">
           <Button
             type="submit"
             className="bg-primary hover:bg-primary-600 py-5 cursor-pointer w-full md:w-1/3 lg:w-1/4"
@@ -133,7 +133,7 @@ const LoginForm: React.FC = () => {
             {" "}
             Login{" "}
           </Button>
-          <p className="text-muted-600 text-sm text-center md:text-left">
+          <p className="text-muted-600 text-sm text-center md:text-right">
             Don't have an account?&nbsp;&nbsp;
             <span className="font-semibold text-primary hover:underline hover:underline-offset-4 hover:decoration-2 hover:cursor-pointer">
               <Link to="/signup">Sign up</Link>

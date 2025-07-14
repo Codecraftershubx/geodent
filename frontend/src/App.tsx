@@ -57,6 +57,7 @@ function App() {
           <Route index element={<Pages.Listings />} />
           <Route path="/listings" element={<Pages.Listings />} />
           <Route path="/login" element={<Pages.Login />} />
+          <Route path="/logout" element={<Pages.Logout />} />
           <Route path="/signup" element={<Pages.Signup />} />
           <Route path="/home" element={<Pages.Home />} />
           <Route path="/about" element={<Pages.About />} />
