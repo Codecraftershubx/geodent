@@ -7,12 +7,10 @@ const validateAuthCredentials = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log("[VERIFY AUTH CREDENTIALS]");
   if (req.body.auth.strictMode) {
-    //console.log("\tFAILED: CREDENTIALS USE NOT ALLOWED");
-    return utils.handlers.error(req, res, "authentication", {
-      message: "Unauthorised!",
-      status: 403,
-    });
+    console.log("\tFAILED: CREDENTIALS USE NOT ALLOWED");
+    return utils.handlers.error(req, res, "authentication", {});
   }
   if (req.headers.authorization) {
     next();
@@ -26,6 +24,7 @@ const validateAuthCredentials = async (
           : "email and password";
       return utils.handlers.error(req, res, "authentication", {
         message: `${field} not provided`,
+        errno: 15,
       });
     }
     // verify credentials
@@ -34,25 +33,19 @@ const validateAuthCredentials = async (
         where: { email },
       });
       if (!user) {
-        return utils.handlers.error(req, res, "authentication", {
-          message: "Unauthorised: user doesn't exist",
-        });
+        return utils.handlers.error(req, res, "authentication", { errno: 16 });
       }
       // verify password
       const match = await utils.passwords.verify(user.password, password);
       if (!match) {
-        return utils.handlers.error(req, res, "authentication", {
-          message: "wrong password",
-        });
+        return utils.handlers.error(req, res, "authentication", { errno: 17 });
       }
       const filtered = await db.client.filterModels([user]);
       req.body.auth.user = filtered[0];
+      console.log("\tSUCCESS");
       next();
     } catch (err: any) {
-      return utils.handlers.error(req, res, "authentication", {
-        message: "Unauthorised!",
-        status: 403,
-      });
+      return utils.handlers.error(req, res, "authentication", {});
     }
   }
 };
