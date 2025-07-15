@@ -13,7 +13,7 @@ export function cn(...inputs: ClassValue[]) {
  * passed to the function.
  */
 export function delayedAction(
-  func: (...args: any[]) => void,
+  func: (...args: any[]) => any,
   { args, delay = 300 }: { args: any[]; delay?: number }
 ) {
   setTimeout(() => {
