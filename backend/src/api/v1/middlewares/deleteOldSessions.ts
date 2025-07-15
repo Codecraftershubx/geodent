@@ -12,6 +12,9 @@ const deleteOldSessions = async (
     console.log("\tFAILED: CREDENTIALS USE NOT ALLOWED");
     return utils.handlers.error(req, res, "authentication", {});
   }
+	if (!req.body.auth.usingCredentials) {
+		next();
+	} else {
   // verify credentials
   const { user }: { user: { id: string; [key: string]: any } | undefined } =
     req.body.auth;
@@ -30,6 +33,7 @@ const deleteOldSessions = async (
   } catch (err: any) {
     return utils.handlers.error(req, res, "general", {});
   }
+}
 };
 
 export default deleteOldSessions;

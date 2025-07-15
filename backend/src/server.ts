@@ -30,15 +30,13 @@ app.use((req: Request, _: Response, next: NextFunction) => {
   req.body.timestamp = new Date();
   req.body.auth = {
     strictMode: true,
+    usingCredentials: false,
     isLoggedIn: false,
   };
   next();
 });
 // route api/v1 requests
-app.use(
-  "/api/v1",
-  apis.v1
-);
+app.use("/api/v1", apis.v1);
 // handle 404
 app.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({
