@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   useAppSelector,
   useAppDispatch,
   useQueryParams,
 } from "@/hooks/index.js";
 import {
-  clearAccessToken,
   setIsLoading,
   stopIsLoading,
   loginUser,
@@ -14,6 +13,7 @@ import {
   toggleIsLoggedIn,
   clearMessage,
   setMessage,
+  showMessage as ShowAuthMessage,
 } from "@/appState/slices/authSlice.js";
 //import {
 //  toggleAppMessage,
@@ -22,25 +22,29 @@ import {
 //} from "@/appState/slices/appMessageSlice.js";
 import type {
   BEDataHeaderType,
-  BEDataType,
   MessageType,
   RootState,
 } from "@/utils/types.js";
-import { cn, delayedAction } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import Components from "@/components/index";
 import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import Icons from "@/components/Icons";
-import { Message } from "react-hook-form";
+import { LoginFormValuesType } from "@/components/LoginForm";
 
 const Login: React.FC = () => {
+  /**
+   * States
+   */
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { accessToken, isLoading, isLoggedIn, message } = useAppSelector(
-    (store: RootState) => store.auth
-  );
+  const { accessToken, isLoading, isLoggedIn, message, showMessage } =
+    useAppSelector((store: RootState) => store.auth);
   const [heading, setHeading] = useState(
     accessToken ? "Welcome Back" : "Welcome"
+  );
+  const [credentials, setCredentials] = useState<LoginFormValuesType | null>(
+    null
   );
   const [runner, setRunner] = useState<string | undefined>(undefined);
   const [loginState, setLoginState] = useState<{
@@ -50,8 +54,8 @@ const Login: React.FC = () => {
     success: undefined,
     error: null,
   });
-  const [useCredentials, setUseCredentials] = useState(false);
-  const redirectPath = useQueryParams("back_target") || "/listings";
+  const [useCredentials, setUseCredentials] = useState<boolean>(false);
+  const [showForm, setShowForm] = useState<boolean>(false);
   // Navigate to a route
   const redirectTo = useCallback((path: string = "/listings") => {
     setTimeout(() => {
@@ -115,6 +119,7 @@ const Login: React.FC = () => {
         setLoginState({ error: null, success: true });
         dispatch(toggleIsLoggedIn(true));
       } else {
+        console.log("SOME OTHER ERROR DURING LOGIN");
         setLoginState({ success: false, error });
       }
       dispatch(stopIsLoading());
@@ -177,6 +182,17 @@ const Login: React.FC = () => {
   }, [loginState, message, isLoading, useCredentials, runner]);
 
   useEffect(() => {
+    if (credentials) {
+      dispatch(setIsLoading());
+      setTimeout(() => {
+        console.log("USING CREDENTIALS FOR LOGIN =>", credentials);
+        dispatch(stopIsLoading());
+      }, 5000);
+    } else {
+    }
+  }, [credentials]);
+
+  useEffect(() => {
     if (loginState.error) {
       let msg: string;
       let errType: "error" | "success" | "info" | "warning" | "neutral";
@@ -203,21 +219,32 @@ const Login: React.FC = () => {
         console.log("handling invalid token error");
         setTimeout(() => {
           showRunner(setRunner, "Try using your email and password to sign in");
-          setTimeout(() => {
-            setUseCredentials(true);
-          }, 500);
-        }, 1500);
+        }, 500);
+        setTimeout(() => {
+          setUseCredentials(true);
+        }, 1100);
       }
+      dispatch(ShowAuthMessage());
     } else if (loginState.success) {
-      dispatch(
-        setMessage({
-          type: "success",
-          description: "Login success",
-          role: "alert",
-        })
-      );
-      console.log("redirecting to listings.....");
-      redirectTo("/listings");
+      console.log("LOGIN SUCCESS");
+      if (useCredentials) {
+        setUseCredentials(false);
+      }
+      hideRunner(setRunner);
+      setTimeout(() => {
+        dispatch(
+          setMessage({
+            type: "success",
+            description: "Login success",
+            role: "alert",
+          })
+        );
+      }, 1000);
+      dispatch(ShowAuthMessage());
+      setTimeout(() => {
+        //redirectTo("/listings");
+        console.log("redirecting to listings");
+      }, 3000);
     }
   }, [loginState]);
 
@@ -226,39 +253,46 @@ const Login: React.FC = () => {
     // avoid calling backend if already logged in on frontend
     console.log("***LOGIN PAGE DEFAULT LOAD***");
     if (accessToken) {
+      if (useCredentials) {
+        setUseCredentials(false);
+      }
       dispatch(setIsLoading());
       setHeading("Welcome back");
       setRunner("Hold on while we sign you in");
-      setTimeout(() => {
-        if (isLoggedIn) {
-          console.log("hiding runner and setting message");
-          hideRunner(setRunner);
-          setTimeout(() => {
-            setLoginState({
-              success: false,
-              error: {
-                status: "",
-                message: "",
-                errno: 10,
-              },
-            });
-          }, 100);
-          dispatch(stopIsLoading());
-        } else {
-          login(accessToken);
-        }
-      }, 500);
+      setTimeout(
+        () => {
+          if (isLoggedIn) {
+            console.log("hiding runner and setting message");
+            hideRunner(setRunner);
+            setTimeout(() => {
+              setLoginState({
+                success: false,
+                error: {
+                  status: "",
+                  message: "",
+                  errno: 10,
+                },
+              });
+            }, 100);
+            dispatch(stopIsLoading());
+          } else {
+            login(accessToken);
+          }
+        },
+        isLoading ? 500 : 0
+      );
     } else {
       setTimeout(
         () => {
           if (isLoggedIn) {
+            console.log("toggling off isLoggedIn");
             dispatch(toggleIsLoggedIn(false));
           }
-          setUseCredentials(true);
           if (isLoading) {
             dispatch(stopIsLoading());
           }
           setRunner("Enter your credentials to sign in");
+          setUseCredentials(true);
         },
         isLoading ? 500 : 0
       );
@@ -279,53 +313,20 @@ const Login: React.FC = () => {
         </div>
         {/* Activity Area */}
         <div className="flex items-center gap-2 justify-center">
-          {isLoading && (
+          {isLoading && !useCredentials && (
             <div>
               <Loader />
             </div>
           )}
           {/* Message area */}
-          {message && !isLoading && (
-            <div className="flex items-center gap-2 justify-center animate-fade_in !duration-300">
-              {/* Message Icon */}
-              <div>
-                {loginState.success && (
-                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-success p-[1.1px] rounded-full size-[24px]">
-                    <Icons.CircledCheckmark />
-                  </div>
-                )}
-                {loginState.error && (
-                  <div
-                    className={cn(
-                      "flex flex-col items-center justify-center rounded-full size-[24px] text-neutral-200 bg-destructive p-[1.1px]",
-                      (message as MessageType).type === "info"
-                        ? "bg-info-400"
-                        : (message as MessageType).type === "warning"
-                          ? "bg-warning-400"
-                          : (message as MessageType).type === "neutral"
-                            ? "bg-neutral-600"
-                            : ""
-                    )}
-                  >
-                    {loginState.error?.errno === 10 ? (
-                      <Icons.Warning />
-                    ) : (
-                      <Icons.Error />
-                    )}
-                  </div>
-                )}
-              </div>
-              {/* Message body */}
-              <div className="animate-fade_in !duration-500">
-                <p
-                  className={cn(
-                    "text-md lg:text-sm text-neutral-600",
-                    `${(message as MessageType).type === "error" ? "text-destructive" : (message as MessageType).type === "info" ? "text-info-400" : (message as MessageType).type === "warning" ? "text-warning-400" : (message as MessageType).type === "success" ? "text-success-400" : ""}`
-                  )}
-                >
-                  {(message as MessageType).description}
-                </p>
-              </div>
+          {showMessage && message && !isLoading && (
+            <div className="flex flex-col items-center gap-2 justify-center animate-fade_in !duration-300 w-[300px] md:w-[420px]">
+              <Components.Alert
+                variant={"plain"}
+                description={(message as MessageType).description}
+                fullWidth={true}
+                type={(message as MessageType).type}
+              />
             </div>
           )}
         </div>
@@ -359,7 +360,12 @@ const Login: React.FC = () => {
           </div>
         )}
         {/* Form area */}
-        {useCredentials && !isLoading && <Components.LoginForm />}
+        {useCredentials && (
+          <Components.LoginForm
+            setFormCredentials={setCredentials}
+            disabled={isLoading}
+          />
+        )}
       </section>
     </main>
   );

@@ -1,6 +1,4 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link, useParams } from "react-router";
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, FieldPath, useForm } from "react-hook-form";
 import {
@@ -15,19 +13,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import {
-  useAppDispatch,
-  useAppSelector,
-  useQueryParams,
-} from "@/hooks/index.js";
-import {
-  loginUser,
-  showMessage as showAuthMessage,
-  toggleMessage,
-} from "../appState/slices/authSlice.js";
-import Alert from "./Alert";
 import { cn } from "@/lib/utils.js";
-import type { AuthStateType, RootState, MessageType } from "../utils/types";
+import { Link } from "react-router-dom";
+import Loader from "./Loader";
 
 // form schema
 const formSchema = z.object({
@@ -35,44 +23,10 @@ const formSchema = z.object({
   password: z.string(),
 });
 
-const LoginForm: React.FC = () => {
-  // states and effect handlers
-  const { accessToken, message, showMessage }: AuthStateType = useAppSelector(
-    (store: RootState) => store.auth
-  );
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const redirectPath = useQueryParams("back_target") || "/";
-
-  useEffect(() => {
-    if (showMessage && message) {
-      dispatch(toggleMessage({ autoHide: true, delay: 5000 }));
-    } else {
-      //dispatch(clearMessage());
-    }
-  }, [showMessage]);
-
-  const login = async ({
-    email,
-    password,
-  }: {
-    email: string;
-    password: string;
-  }) => {
-    try {
-      dispatch(showAuthMessage());
-      await dispatch(
-        loginUser({
-          email,
-          password,
-        })
-      ).unwrap();
-      navigate({ pathname: redirectPath, search: `?back_target=/login` });
-    } catch (error: any) {
-      dispatch(toggleMessage({ autoHide: true, delay: 10000 }));
-    }
-  };
-
+const LoginForm: React.FC<LoginPagePropsType> = ({
+  disabled,
+  setFormCredentials,
+}) => {
   // Form Definition
   const loginForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -84,26 +38,14 @@ const LoginForm: React.FC = () => {
 
   // form action
   const formOnSubmit = (values: z.infer<typeof formSchema>) => {
-    login({ ...values });
+    setFormCredentials({ ...values });
   };
-
-  //if (accessToken) {
-  //  return <></>;
-  //}
 
   return (
     <Form {...loginForm}>
-      {showMessage && message && (
-        <Alert
-          variant={"plain"}
-          description={(message as MessageType).description}
-          fullWidth={true}
-          type={(message as MessageType).type}
-        />
-      )}
       <form
         onSubmit={loginForm.handleSubmit(formOnSubmit)}
-        className="space-y-7 shadow-lg shadow-neutral-300 p-4 md:p-6 xl:px-10 rounded-md border-[.1px] border-neutral-300 w-full md:w-9/10"
+        className="space-y-7 shadow-lg shadow-neutral-300 p-4 md:p-6 xl:px-10 rounded-md border-[.1px] border-neutral-300 w-full"
       >
         <div>
           <LoginFormField
@@ -113,6 +55,7 @@ const LoginForm: React.FC = () => {
             control={loginForm.control}
             label="Email"
             autocomplete="current-email"
+            disabled={disabled}
           />
         </div>
         <div>
@@ -123,15 +66,22 @@ const LoginForm: React.FC = () => {
             control={loginForm.control}
             label="Password"
             autocomplete="current-password"
+            disabled={disabled}
           />
         </div>
         <div className="flex flex-col items-center mt-5 md:flex-row md:justify-between md:mt-10 gap-5">
           <Button
             type="submit"
-            className="bg-primary hover:bg-primary-600 py-5 cursor-pointer w-full md:w-1/3 lg:w-1/4"
+            className="bg-primary hover:bg-primary-600 disabled:bg-primary-600 py-5 cursor-pointer w-full md:w-1/3 lg:w-1/4 flex gap-3"
+            disabled={disabled}
           >
-            {" "}
-            Login{" "}
+            {disabled && (
+              <Loader
+                size={"4"}
+                className="text-neutral-300 fill-neutral-100"
+              />
+            )}
+            Login
           </Button>
           <p className="text-muted-600 text-sm text-center md:text-right">
             Don't have an account?&nbsp;&nbsp;
@@ -145,17 +95,9 @@ const LoginForm: React.FC = () => {
   );
 };
 
-type LoginFormPropsType = {
-  name: FieldPath<z.infer<typeof formSchema>>;
-  control: Control<z.infer<typeof formSchema>, any>;
-  placeholder?: string;
-  inputType: string;
-  description?: string;
-  label?: string;
-  inputClassName?: string;
-  autocomplete?: string;
-};
-
+/**
+ * @func LoginFormField form field component
+ */
 const LoginFormField: React.FC<LoginFormPropsType> = ({
   inputClassName,
   control,
@@ -165,6 +107,7 @@ const LoginFormField: React.FC<LoginFormPropsType> = ({
   name,
   placeholder,
   autocomplete,
+  disabled,
 }) => {
   return (
     <FormField
@@ -186,6 +129,8 @@ const LoginFormField: React.FC<LoginFormPropsType> = ({
                 inputClassName
               )}
               autoComplete={autocomplete}
+              disabled={disabled}
+              aria-disabled={disabled}
             />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
@@ -196,4 +141,30 @@ const LoginFormField: React.FC<LoginFormPropsType> = ({
   );
 };
 
+// types
+type LoginFormValuesType = {
+  email: string;
+  password: string;
+};
+
+type LoginFormPropsType = {
+  name: FieldPath<z.infer<typeof formSchema>>;
+  control: Control<z.infer<typeof formSchema>, any>;
+  placeholder?: string;
+  inputType: string;
+  description?: string;
+  label?: string;
+  inputClassName?: string;
+  autocomplete?: string;
+  disabled: boolean;
+};
+
+type LoginPagePropsType = {
+  disabled: boolean;
+  setFormCredentials: React.Dispatch<
+    React.SetStateAction<LoginFormValuesType | null>
+  >;
+};
+
 export default LoginForm;
+export type { LoginFormValuesType };
