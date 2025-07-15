@@ -2,6 +2,7 @@ import {
   Bell,
   CircleCheck,
   CircleX,
+  LogOut,
   MoveLeft,
   MoveRight,
   ThumbsUp,
@@ -63,6 +64,40 @@ const AppIcon: React.FC<IconGenPropsType> = ({
   );
 };
 
+const ArrowLeft: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={MoveLeft}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+
+const ArrowRight: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={MoveRight}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+
 // specific icons
 const Close: React.FC<IconPropsType> = ({
   size,
@@ -116,40 +151,8 @@ const Error: React.FC<IconPropsType> = ({
     />
   );
 };
-const ArrowLeft: React.FC<IconPropsType> = ({
-  size = "64px",
-  variant = "default",
-  className,
-  hoverable,
-}) => {
-  return (
-    <AppIcon
-      Icon={MoveLeft}
-      size={size}
-      variant={variant}
-      className={className}
-      hoverable={hoverable}
-    />
-  );
-};
-const ArrowRight: React.FC<IconPropsType> = ({
-  size = "64px",
-  variant = "default",
-  className,
-  hoverable,
-}) => {
-  return (
-    <AppIcon
-      Icon={MoveRight}
-      size={size}
-      variant={variant}
-      className={className}
-      hoverable={hoverable}
-    />
-  );
-};
 
-const Warning: React.FC<IconPropsType> = ({
+const LogOutIcon: React.FC<IconPropsType> = ({
   size = "64px",
   variant = "default",
   className,
@@ -157,7 +160,7 @@ const Warning: React.FC<IconPropsType> = ({
 }) => {
   return (
     <AppIcon
-      Icon={TriangleAlert}
+      Icon={LogOut}
       size={size}
       variant={variant}
       className={className}
@@ -183,6 +186,23 @@ const NormalBell: React.FC<IconPropsType> = ({
   );
 };
 
+const RingingBell: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={TriangleAlert}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+
 const ThumbUp: React.FC<IconPropsType> = ({
   size = "64px",
   variant = "default",
@@ -200,7 +220,7 @@ const ThumbUp: React.FC<IconPropsType> = ({
   );
 };
 
-const RingingBell: React.FC<IconPropsType> = ({
+const Warning: React.FC<IconPropsType> = ({
   size = "64px",
   variant = "default",
   className,
@@ -223,6 +243,7 @@ export default {
   CircledCheckmark,
   Close,
   Error,
+  LogOutIcon,
   NormalBell,
   RingingBell,
   ThumbUp,

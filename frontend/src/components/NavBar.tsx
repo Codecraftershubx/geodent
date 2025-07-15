@@ -8,17 +8,12 @@ import { cn } from "@/lib/utils";
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoading, isLoggedIn } = useAppSelector(
     (store: RootState) => store.auth
   );
-  const [currentPath, _] = useState<string>(useLocation().pathname);
-  const [menuIsOpen, setMenuIsOpen] = useState(false); // menu trigger
-
-  const closeMenu = () => {
-    if (menuIsOpen) {
-      setMenuIsOpen(false);
-    }
-  };
+  const [currentPath, _] = useState<string>(location.pathname);
+  const [menuIsOpen, setMenuIsOpen] = useState<boolean>(false); // menu trigger
 
   // manage menu visibility when switch is toggled
   useEffect(() => {
@@ -27,7 +22,14 @@ const NavBar: React.FC = () => {
     } else {
       showMenu();
     }
-  }, [menuIsOpen, isLoading, isLoggedIn, currentPath]);
+  }, [menuIsOpen, isLoading, isLoggedIn]);
+
+  // close menu handle
+  const closeMenu = () => {
+    if (menuIsOpen) {
+      setMenuIsOpen(false);
+    }
+  };
 
   // hide menu handler
   const hideMenu = (delay: number = 0) => {
@@ -81,7 +83,6 @@ const NavBar: React.FC = () => {
           className={cn(
             "text-black/80 hover:text-primary-600 bg-white !shadow-lg",
             `${menuIsOpen && "bg-zinc-100 active:bg-zinc-500 active:text-white/90 duration-300"}`,
-            `${currentPath === "/signup" && "outline-[1.5px] outline-zinc-700 -outline-offset-4"}`,
             ""
           )}
           onClick={closeMenu}
@@ -96,8 +97,7 @@ const NavBar: React.FC = () => {
         text={isLoggedIn ? "Logout" : "Login"}
         className={cn(
           "bg-primary text-white hover:bg-primary-700/90",
-          `${menuIsOpen && "active:bg-primary-600 duration-300"}`,
-          `${currentPath === "/login" && "bg-primary-600 outline-[1.5px] outline-white/90 -outline-offset-4"}`
+          `${menuIsOpen && "active:bg-primary-600 duration-300"}`
         )}
         onClick={(e) => {
           if (e.currentTarget.textContent === "Logout") {
