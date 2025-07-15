@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import utils from "../../../utils/index.js";
+import jwt from "jsonwebtoken";
 import type { TDecomposeResult } from "../../../utils/types.js";
 
 const validateAuthToken = async (
@@ -28,10 +29,17 @@ const validateAuthToken = async (
       next();
     } catch (err: any) {
       console.error("[VALIDATEAUTHTOKEN]:", err);
-      return utils.handlers.error(req, res, "general", {
-        status: 500,
-        data: [{ details: err }],
-      });
+      const isBadToken = err instanceof jwt.JsonWebTokenError;
+      return utils.handlers.error(
+        req,
+        res,
+        isBadToken ? "authentication" : "general",
+        {
+          status: isBadToken ? 401 : 500,
+          errno: isBadToken ? 6 : 1,
+          data: [{ details: err }],
+        }
+      );
     }
   } else {
     if (req.body.auth.strictMode) {
