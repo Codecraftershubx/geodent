@@ -11,6 +11,7 @@ router.post(
   middlewares.validateAuthToken,
   middlewares.validateTokenPayload,
   middlewares.validateAuthCredentials,
+  middlewares.deleteOldSessions,
   controllers.auth.login
 );
 router.post(
