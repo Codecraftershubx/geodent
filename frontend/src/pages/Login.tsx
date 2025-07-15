@@ -4,6 +4,7 @@ import {
   useAppSelector,
   useAppDispatch,
   useQueryParams,
+  UseRedirect,
 } from "@/hooks/index.js";
 import {
   setIsLoading,
@@ -37,7 +38,6 @@ const Login: React.FC = () => {
   /**
    * States
    */
-  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { accessToken, isLoading, isLoggedIn, message, showMessage } =
     useAppSelector((store: RootState) => store.auth);
@@ -57,11 +57,7 @@ const Login: React.FC = () => {
   });
   const [useCredentials, setUseCredentials] = useState<boolean>(false);
   // Navigate to a route
-  const redirectTo = useCallback((path: string = "/listings") => {
-    setTimeout(() => {
-      navigate(path);
-    }, 2000);
-  }, []);
+  const redirectTo = UseRedirect();
 
   /**
    * @function hideRunner Hides Heading's runner text after a delay
@@ -233,11 +229,13 @@ const Login: React.FC = () => {
           setUseCredentials(true);
         }, 1200);
       } else {
-        console.log("hiding and showing runner");
-        hideRunner(setRunner, 200);
-        setTimeout(() => {
-          showRunner(setRunner, "You missed something. Try again.");
-        }, 400);
+        if (loginState.error.errno === 16 || loginState.error.errno === 17) {
+          console.log("hiding and showing runner");
+          hideRunner(setRunner, 200);
+          setTimeout(() => {
+            showRunner(setRunner, "You missed something. Try again.");
+          }, 400);
+        }
       }
       dispatch(ShowAuthMessage());
     } else if (loginState.success) {
@@ -257,7 +255,7 @@ const Login: React.FC = () => {
       }, 1000);
       dispatch(ShowAuthMessage());
       setTimeout(() => {
-        //redirectTo("/listings");
+        redirectTo("/listings");
         console.log("redirecting to listings");
       }, 3000);
     }
