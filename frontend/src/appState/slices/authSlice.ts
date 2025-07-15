@@ -228,3 +228,4 @@ export const {
 } = authSlice.actions;
 
 export default authSlice.reducer;
+export type { LoginCredentialsType };

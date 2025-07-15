@@ -14,6 +14,7 @@ import {
   clearMessage,
   setMessage,
   showMessage as ShowAuthMessage,
+  LoginCredentialsType,
 } from "@/appState/slices/authSlice.js";
 //import {
 //  toggleAppMessage,
@@ -55,7 +56,6 @@ const Login: React.FC = () => {
     error: null,
   });
   const [useCredentials, setUseCredentials] = useState<boolean>(false);
-  const [showForm, setShowForm] = useState<boolean>(false);
   // Navigate to a route
   const redirectTo = useCallback((path: string = "/listings") => {
     setTimeout(() => {
@@ -95,25 +95,29 @@ const Login: React.FC = () => {
     console.log("showing runner");
     const r = document.getElementById("runner-text");
     if (r) {
-      r.classList.remove("animate-fade_out");
+      r.classList.add("animate-fade_in");
     }
+    setter(val);
     setTimeout(() => {
-      setter(val);
+      if (r) {
+        r.classList.remove("animate-fade_out");
+      }
     }, delay);
   };
 
-  // Login handler function
-  const login = useCallback(async (accessToken: string) => {
+  /**
+   * @async @func Login Login handler function
+   */
+  const login = useCallback(async (credentials: LoginCredentialsType) => {
     dispatch(clearMessage());
     setRunner("Hold on while we sign you in");
     try {
       console.log("LOGIN CALLED");
-      const response = await dispatch(loginUser({ accessToken })).unwrap();
+      const response = await dispatch(loginUser({ ...credentials })).unwrap();
       console.log("LOGIN SUCCESS", response);
       setLoginState({ error: null, success: true });
       dispatch(stopIsLoading());
     } catch (error: any) {
-      hideRunner(setRunner);
       if (error.errno === 10) {
         console.log("ALREADY LOGGED IN: setting message");
         setLoginState({ error: null, success: true });
@@ -141,17 +145,17 @@ const Login: React.FC = () => {
   }, []);
 
   // token refresh handler
-  const refreshToken = (accessToken: string) => {
-    dispatch(refreshAccessToken(accessToken))
-      .unwrap()
-      .then((msg) => {
-        console.log("token refreshed successfully");
-        login(msg.accessToken);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  };
+  //const refreshToken = (accessToken: string) => {
+  //  dispatch(refreshAccessToken(accessToken))
+  //    .unwrap()
+  //    .then((msg) => {
+  //      console.log("token refreshed successfully");
+  //      login(msg.accessToken);
+  //    })
+  //    .catch((err) => {
+  //      console.error(err);
+  //    });
+  //};
   //useEffect(() => {
   //  if (message && accessToken) {
   //    dispatch(toggleAppMessage({ autoHide: true }));
@@ -167,6 +171,7 @@ const Login: React.FC = () => {
   //    navigate(redirectPath);
   //  }
   //}, [isLoggedIn]);
+
   useEffect(() => {
     console.log(
       "PAGE LOADED",
@@ -181,14 +186,14 @@ const Login: React.FC = () => {
     );
   }, [loginState, message, isLoading, useCredentials, runner]);
 
+  /**
+   * @hook Login with credentials effect hook
+   */
   useEffect(() => {
     if (credentials) {
       dispatch(setIsLoading());
-      setTimeout(() => {
-        console.log("USING CREDENTIALS FOR LOGIN =>", credentials);
-        dispatch(stopIsLoading());
-      }, 5000);
-    } else {
+      dispatch(clearMessage());
+      login({ ...credentials });
     }
   }, [credentials]);
 
@@ -200,12 +205,15 @@ const Login: React.FC = () => {
       if (loginState.error.errno === 10) {
         [errType, msg] = ["neutral", "You're already logged in"];
       } else {
-        [errType, msg] = [
-          "error",
+        errType = "error";
+        msg =
           loginState.error.errno === 6
             ? "Couldn't sign you in automatically"
-            : "Login failed",
-        ];
+            : loginState.error.errno === 16
+              ? "Wrong email"
+              : loginState.error.errno === 17
+                ? "Wrong password"
+                : "Login failed";
       }
       dispatch(
         setMessage({
@@ -217,12 +225,19 @@ const Login: React.FC = () => {
       // if auth token is invalid, try initiating a fresh login
       if (loginState.error.errno === 6) {
         console.log("handling invalid token error");
+        hideRunner(setRunner, 100);
         setTimeout(() => {
           showRunner(setRunner, "Try using your email and password to sign in");
         }, 500);
         setTimeout(() => {
           setUseCredentials(true);
-        }, 1100);
+        }, 1200);
+      } else {
+        console.log("hiding and showing runner");
+        hideRunner(setRunner, 200);
+        setTimeout(() => {
+          showRunner(setRunner, "You missed something. Try again.");
+        }, 400);
       }
       dispatch(ShowAuthMessage());
     } else if (loginState.success) {
@@ -276,7 +291,7 @@ const Login: React.FC = () => {
             }, 100);
             dispatch(stopIsLoading());
           } else {
-            login(accessToken);
+            login({ accessToken });
           }
         },
         isLoading ? 500 : 0
