@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   useAppSelector,
   useAppDispatch,
@@ -31,6 +31,7 @@ import Components from "@/components/index";
 import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import Icons from "@/components/Icons";
+import { Message } from "react-hook-form";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -41,11 +42,7 @@ const Login: React.FC = () => {
   const [heading, setHeading] = useState(
     accessToken ? "Welcome Back" : "Welcome"
   );
-  const [runner, setRunner] = useState(
-    accessToken
-      ? "Hold on while we sign you in"
-      : "Enter your credentials to sign in"
-  );
+  const [runner, setRunner] = useState<string | undefined>(undefined);
   const [loginState, setLoginState] = useState<{
     success: boolean | undefined;
     error: BEDataHeaderType | null;
@@ -59,7 +56,7 @@ const Login: React.FC = () => {
   const redirectTo = useCallback((path: string = "/listings") => {
     setTimeout(() => {
       navigate(path);
-    }, 1000);
+    }, 2000);
   }, []);
 
   /**
@@ -68,7 +65,7 @@ const Login: React.FC = () => {
    * @param delay milliseconds before calling @param func
    */
   const hideRunner = (
-    setter: React.Dispatch<React.SetStateAction<string>>,
+    setter: React.Dispatch<React.SetStateAction<string | undefined>>,
     delay: number = 500
   ) => {
     console.log("hidding runner");
@@ -89,32 +86,18 @@ const Login: React.FC = () => {
       console.log("LOGIN CALLED");
       const response = await dispatch(loginUser({ accessToken })).unwrap();
       console.log("LOGIN SUCCESS", response);
+      setLoginState({ error: null, success: true });
       dispatch(stopIsLoading());
-      dispatch(
-        setMessage({
-          description: "Successful. Taking you in...",
-          type: "success",
-          role: "alert",
-        })
-      );
-      redirectTo(redirectPath);
     } catch (error: any) {
+      hideRunner(setRunner);
       if (error.errno === 10) {
         console.log("ALREADY LOGGED IN: setting message");
-        setLoginState({ error, success: false });
-        hideRunner(setRunner);
-        setTimeout(() => {
-          dispatch(stopIsLoading());
-          dispatch(
-            setMessage({
-              type: "info",
-              description: "You're already logged in",
-              role: "alert",
-            })
-          );
-        }, 500);
-        dispatch(toggleIsLoggedIn());
+        setLoginState({ error: null, success: true });
+        dispatch(toggleIsLoggedIn(true));
+      } else {
+        setLoginState({ success: false, error });
       }
+      dispatch(stopIsLoading());
       //// attempt token refresh if token expired
       //if (error?.header) {
       //  if (error.header.errno === 5) {
@@ -131,6 +114,7 @@ const Login: React.FC = () => {
       console.error(error);
     }
   }, []);
+
   // token refresh handler
   const refreshToken = (accessToken: string) => {
     dispatch(refreshAccessToken(accessToken))
@@ -173,42 +157,75 @@ const Login: React.FC = () => {
   }, [loginState, message, isLoading, useCredentials, runner]);
 
   useEffect(() => {
-    // avoid calling backend if already logged in on frontend
-    dispatch(setIsLoading());
-    setTimeout(() => {
-      if (accessToken && isLoggedIn) {
-        console.log("hiding runner and setting message");
-        hideRunner(setRunner);
-        setTimeout(() => {
-          setLoginState({
-            ...loginState,
-            error: {
-              errno: 10,
-              message: "You're already logged in",
-              status: "",
-            },
-          });
-          dispatch(
-            setMessage({
-              type: "info",
-              description:
-                loginState.error?.message ?? "You're already logged in",
-              role: "alert",
-            })
-          );
-          dispatch(toggleIsLoggedIn());
-        }, 100);
-        dispatch(stopIsLoading());
-      } else if (!isLoggedIn && accessToken) {
-        login(accessToken);
+    if (loginState.error) {
+      let msg: string;
+      let errType: "error" | "success" | "info" | "warning" | "neutral";
+      if (loginState.error.errno === 10) {
+        [errType, msg] = ["neutral", "You're already logged in"];
       } else {
-        if (isLoggedIn) {
-          dispatch(toggleIsLoggedIn());
-        }
-        setUseCredentials(true);
-        dispatch(stopIsLoading());
+        [errType, msg] = ["error", "Login failed"];
       }
-    }, 1100);
+      dispatch(
+        setMessage({
+          type: errType,
+          description: msg,
+          role: "alert",
+        })
+      );
+    } else if (loginState.success) {
+      dispatch(
+        setMessage({
+          type: "success",
+          description: "Login success",
+          role: "alert",
+        })
+      );
+      console.log("redirecting to listings.....");
+      redirectTo("/listings");
+    }
+  }, [loginState]);
+
+  // Effects when page first loads
+  useEffect(() => {
+    // avoid calling backend if already logged in on frontend
+    if (accessToken) {
+      dispatch(setIsLoading());
+      setHeading("Welcome back");
+      setRunner("Hold on while we sign you in");
+      setTimeout(() => {
+        if (isLoggedIn) {
+          console.log("hiding runner and setting message");
+          hideRunner(setRunner);
+          setTimeout(() => {
+            setLoginState({
+              success: false,
+              error: {
+                status: "",
+                message: "",
+                errno: 10,
+              },
+            });
+          }, 100);
+          dispatch(stopIsLoading());
+        } else {
+          login(accessToken);
+        }
+      }, 500);
+    } else {
+      setTimeout(
+        () => {
+          if (isLoggedIn) {
+            dispatch(toggleIsLoggedIn(false));
+          }
+          setUseCredentials(true);
+          if (isLoading) {
+            dispatch(stopIsLoading());
+          }
+          setRunner("Enter your credentials to sign in");
+        },
+        isLoading ? 500 : 0
+      );
+    }
   }, []);
 
   return (
@@ -225,60 +242,84 @@ const Login: React.FC = () => {
         </div>
         {/* Activity Area */}
         <div className="flex items-center gap-2 justify-center">
-          {/* Icons */}
-          <div>
-            {isLoading && <Loader />}
-            {loginState.success && (
-              <div className="flex flex-col items-center justify-center text-neutral-200 bg-success p-[2px] rounded-full size-[32px]">
-                <Icons.CircledCheckmark />
+          {isLoading && (
+            <div>
+              <Loader />
+            </div>
+          )}
+          {/* Message area */}
+          {message && !isLoading && (
+            <div className="flex items-center gap-2 justify-center animate-fade_in !duration-300">
+              {/* Message Icon */}
+              <div>
+                {loginState.success && (
+                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-success p-[2.5px] rounded-full size-[30px]">
+                    <Icons.CircledCheckmark />
+                  </div>
+                )}
+                {loginState.error && (
+                  <div
+                    className={cn(
+                      "flex flex-col items-center justify-center rounded-full size-[30px] text-neutral-200 bg-destructive p-[2.5px]",
+                      (message as MessageType).type === "info"
+                        ? "bg-info-400"
+                        : (message as MessageType).type === "warning"
+                          ? "bg-warning-400"
+                          : "bg-neutral-600"
+                    )}
+                  >
+                    {loginState.error?.errno === 10 ? (
+                      <Icons.Warning />
+                    ) : (
+                      <Icons.Error />
+                    )}
+                  </div>
+                )}
               </div>
-            )}
-            {loginState.error && !isLoading && (
-              <div
-                className={cn(
-                  "flex flex-col items-center justify-center rounded-full size-[32px] text-neutral-200 p-[2px]",
-                  loginState.error?.errno === 10 ? "bg-info" : "bg-destructive"
-                )}
-              >
-                {loginState.error?.errno === 10 ? (
-                  <Icons.Warning />
-                ) : (
-                  <Icons.Error />
-                )}
+              {/* Message body */}
+              <div className="animate-fade_in !duration-500">
+                <p
+                  className={cn(
+                    "text-md lg:text-sm text-neutral-600",
+                    `${(message as MessageType).type === "error" ? "text-destructive" : (message as MessageType).type === "info" ? "text-info-400" : (message as MessageType).type === "warning" ? "text-warning-400" : (message as MessageType).type === "success" ? "text-success-400" : ""}`
+                  )}
+                >
+                  {(message as MessageType).description}
+                </p>
               </div>
-            )}
-          </div>
-          {/* Message */}
-          <div className="animate-fade_in !duration-500">
-            {message && !isLoading && (
-              <p
-                className={cn(
-                  "text-md lg:text-sm text-neutral-600",
-                  `${(message as MessageType).type === "error" ? "text-destructive" : (message as MessageType).type === "success" ? "text-success" : (message as MessageType).type === "warning" ? "text-warning" : (message as MessageType).type === "info" ? "text-info" : ""}`
-                )}
-              >
-                {(message as MessageType).description}
-              </p>
-            )}
-          </div>
+            </div>
+          )}
         </div>
         {/* Button Area */}
         {!isLoading && loginState.error?.errno === 10 && (
-          <div className="mt-5">
+          <div className="mt-5 animate-fade_in !duration-300 flex gap-5">
+            {/* Back Button */}
             <Button
               asChild
               className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary-600"
             >
-              <NavLink to={`${redirectPath}`}>
+              <NavLink to={"/listings"}>
                 <span>
                   <Icons.ArrowLeft className="border-red-400" />
                 </span>
                 Back
               </NavLink>
             </Button>
+            {/* Logout Button */}
+            <Button
+              asChild
+              className="cursor-pointer bg-neutral-800 text-primary-foreground hover:bg-neutral-900"
+            >
+              <NavLink to={"/logout"}>
+                Logout
+                <span>
+                  <Icons.LogOutIcon className="border-red-400" />
+                </span>
+              </NavLink>
+            </Button>
           </div>
         )}
-        {useCredentials && <Components.LoginForm />}
+        {useCredentials && !isLoading && <Components.LoginForm />}
       </section>
     </main>
   );

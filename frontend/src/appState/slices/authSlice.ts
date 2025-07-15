@@ -45,10 +45,6 @@ const loginUser = createAsyncThunk<
       return rejectWithValue(response.content.header);
     }
     data = response.content.data[0];
-    if (data.accessToken) {
-      dispatch(authSlice.actions.setAccessToken(data.accessToken));
-      delete data.accessToken;
-    }
     return data;
   }
 );
@@ -135,12 +131,12 @@ const authSlice = createSlice({
       state.accessToken = null;
       window.localStorage.removeItem("accessToken");
     },
-    toggleIsLoggedIn: (state: AuthStateType) => {
-      state.isLoggedIn = !state.isLoggedIn;
-      window.localStorage.setItem(
-        "isLoggedIn",
-        JSON.stringify(state.isLoggedIn)
-      );
+    toggleIsLoggedIn: (
+      state: AuthStateType,
+      action: PayloadAction<boolean>
+    ) => {
+      state.isLoggedIn = action.payload;
+      window.localStorage.setItem("isLoggedIn", state.isLoggedIn.toString());
     },
     setMessage: (state: AuthStateType, action: PayloadAction<MessageType>) => {
       state.message = action.payload;
