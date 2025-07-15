@@ -150,12 +150,12 @@ const Logout: React.FC = () => {
               {/* Message Icon */}
               <div>
                 {logoutState.success && (
-                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-success p-[2.5px] rounded-full size-[30px]">
+                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-success p-[1.1px] rounded-full size-[24px]">
                     <Icons.CircledCheckmark />
                   </div>
                 )}
                 {logoutState.error && (
-                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-destructive p-[2.5px] rounded-full size-[30px]">
+                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-destructive p-[1.1px] rounded-full size-[24px]">
                     <Icons.Error />
                   </div>
                 )}

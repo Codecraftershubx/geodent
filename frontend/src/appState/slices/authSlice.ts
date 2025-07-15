@@ -23,7 +23,10 @@ const loginUser = createAsyncThunk<
   { rejectValue: BEDataHeaderType; dispatch: AppDispatchType }
 >(
   "auth/login",
-  async (credentials: LoginCredentialsType, { rejectWithValue, dispatch }) => {
+  async (
+    credentials: LoginCredentialsType,
+    { rejectWithValue, dispatch, getState }
+  ) => {
     console.log("LOGIN THUNK CALLED WITH DATA:", credentials);
     const options: Record<string, any> = {};
     if (credentials.accessToken) {
@@ -44,7 +47,11 @@ const loginUser = createAsyncThunk<
     if (response.error) {
       return rejectWithValue(response.content.header);
     }
+    const state = getState() as AuthStateType;
     data = response.content.data[0];
+    if (state.accessToken !== data.accessToken) {
+      dispatch(authSlice.actions.setAccessToken(data.accessToken));
+    }
     return data;
   }
 );
@@ -162,17 +169,12 @@ const authSlice = createSlice({
     builder
       .addCase(loginUser.fulfilled, (state: AuthStateType, { payload }) => {
         console.log("LOGIN THUNK FULFILLED REDUCER PAYLOAD:", payload);
-        const data = payload;
-        state.user = data;
         state.isLoggedIn = true;
         state.isLoading = false;
         window.localStorage.setItem(
           "isLoggedIn",
           JSON.stringify(state.isLoggedIn)
         );
-        if (state.accessToken !== payload.accessToken) {
-          state.accessToken = payload.accessToken;
-        }
       })
       .addCase(loginUser.pending, (state: AuthStateType) => {
         console.log("LOGIN PENDING HANDLER");

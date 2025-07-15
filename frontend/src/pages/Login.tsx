@@ -78,6 +78,26 @@ const Login: React.FC = () => {
     }, delay);
   };
 
+  /**
+   * @function showRunner Hides Heading's runner text after a delay
+   * @param func the runner's values setter
+   * @param delay milliseconds before calling @param func
+   */
+  const showRunner = (
+    setter: React.Dispatch<React.SetStateAction<string | undefined>>,
+    val: string,
+    delay: number = 500
+  ) => {
+    console.log("showing runner");
+    const r = document.getElementById("runner-text");
+    if (r) {
+      r.classList.remove("animate-fade_out");
+    }
+    setTimeout(() => {
+      setter(val);
+    }, delay);
+  };
+
   // Login handler function
   const login = useCallback(async (accessToken: string) => {
     dispatch(clearMessage());
@@ -160,10 +180,16 @@ const Login: React.FC = () => {
     if (loginState.error) {
       let msg: string;
       let errType: "error" | "success" | "info" | "warning" | "neutral";
+      // if already logged in
       if (loginState.error.errno === 10) {
         [errType, msg] = ["neutral", "You're already logged in"];
       } else {
-        [errType, msg] = ["error", "Login failed"];
+        [errType, msg] = [
+          "error",
+          loginState.error.errno === 6
+            ? "Couldn't sign you in automatically"
+            : "Login failed",
+        ];
       }
       dispatch(
         setMessage({
@@ -172,6 +198,16 @@ const Login: React.FC = () => {
           role: "alert",
         })
       );
+      // if auth token is invalid, try initiating a fresh login
+      if (loginState.error.errno === 6) {
+        console.log("handling invalid token error");
+        setTimeout(() => {
+          showRunner(setRunner, "Try using your email and password to sign in");
+          setTimeout(() => {
+            setUseCredentials(true);
+          }, 500);
+        }, 1500);
+      }
     } else if (loginState.success) {
       dispatch(
         setMessage({
@@ -188,6 +224,7 @@ const Login: React.FC = () => {
   // Effects when page first loads
   useEffect(() => {
     // avoid calling backend if already logged in on frontend
+    console.log("***LOGIN PAGE DEFAULT LOAD***");
     if (accessToken) {
       dispatch(setIsLoading());
       setHeading("Welcome back");
@@ -253,19 +290,21 @@ const Login: React.FC = () => {
               {/* Message Icon */}
               <div>
                 {loginState.success && (
-                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-success p-[2.5px] rounded-full size-[30px]">
+                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-success p-[1.1px] rounded-full size-[24px]">
                     <Icons.CircledCheckmark />
                   </div>
                 )}
                 {loginState.error && (
                   <div
                     className={cn(
-                      "flex flex-col items-center justify-center rounded-full size-[30px] text-neutral-200 bg-destructive p-[2.5px]",
+                      "flex flex-col items-center justify-center rounded-full size-[24px] text-neutral-200 bg-destructive p-[1.1px]",
                       (message as MessageType).type === "info"
                         ? "bg-info-400"
                         : (message as MessageType).type === "warning"
                           ? "bg-warning-400"
-                          : "bg-neutral-600"
+                          : (message as MessageType).type === "neutral"
+                            ? "bg-neutral-600"
+                            : ""
                     )}
                   >
                     {loginState.error?.errno === 10 ? (
@@ -319,6 +358,7 @@ const Login: React.FC = () => {
             </Button>
           </div>
         )}
+        {/* Form area */}
         {useCredentials && !isLoading && <Components.LoginForm />}
       </section>
     </main>
