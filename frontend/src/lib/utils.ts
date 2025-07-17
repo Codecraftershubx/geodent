@@ -31,11 +31,13 @@ export function randomString(length: number = 16) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-.?+=&^$!_%";
   const charsLen = chars.length;
-  const buffer = new Uint8Array(length);
+  const buffer = new Uint16Array(length);
   window.crypto.getRandomValues(buffer);
   let res = "";
   for (let i = 0; i < length; i++) {
-    res += chars.charCodeAt(buffer[i] % charsLen);
+    console.log(buffer[i]);
+    console.log("character code", chars.charCodeAt(buffer[i] % charsLen));
+    res += chars.charAt(buffer[i] % charsLen);
   }
   return res;
 }

@@ -45,6 +45,11 @@ const loginUser = createAsyncThunk<
     console.log(response);
     let data;
     if (response.error) {
+      switch (response.content.header.errno) {
+        case 2:
+          dispatch(authSlice.actions.clearStorage());
+          break;
+      }
       return rejectWithValue(response.content.header);
     }
     const state = getState() as AuthStateType;
@@ -67,7 +72,7 @@ const logoutUser = createAsyncThunk<
   boolean,
   string,
   { rejectValue: BEDataHeaderType }
->("auth/logout", async (accessToken, { rejectWithValue }) => {
+>("auth/logout", async (accessToken, { rejectWithValue, dispatch }) => {
   const response = await api.post("/auth/logout", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -75,6 +80,12 @@ const logoutUser = createAsyncThunk<
   });
   console.log("logoutUser response", response);
   if (response.error) {
+    switch (response.content.header.errno) {
+      case 5:
+      case 6:
+        dispatch(authSlice.actions.clearStorage());
+        break;
+    }
     return rejectWithValue(response.content.header);
   }
   return true;
@@ -162,6 +173,13 @@ const authSlice = createSlice({
     },
     hideMessage: (state: AuthStateType) => {
       state.showMessage = false;
+    },
+    clearStorage: (state: AuthStateType) => {
+      state.accessToken = null;
+      state.isLoggedIn = false;
+      state.user = null;
+      window.localStorage.removeItem("accessToken");
+      window.localStorage.removeItem("isLoggedIn");
     },
     setIsLoading: (state: AuthStateType) => {
       state.isLoading = true;

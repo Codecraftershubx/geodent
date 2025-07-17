@@ -1,11 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import {
-  useAppSelector,
-  useAppDispatch,
-  useQueryParams,
-  UseRedirect,
-} from "@/hooks/index.js";
+import { NavLink } from "react-router-dom";
+import { useAppSelector, useAppDispatch, UseRedirect } from "@/hooks/index.js";
 import {
   setIsLoading,
   stopIsLoading,
@@ -41,10 +36,10 @@ const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const { accessToken, isLoading, isLoggedIn, message, showMessage } =
     useAppSelector((store: RootState) => store.auth);
-  const [heading, setHeading] = useState(
-    accessToken ? "Welcome Back" : "Welcome"
+  const [heading, _] = useState(accessToken ? "Welcome Back" : "Welcome");
+  const [runner, setRunner] = useState<string>(
+    accessToken ? "Signing you in" : "Enter your credentials to sign in"
   );
-  const [runner, setRunner] = useState<string>("Signing you in");
   const [credentials, setCredentials] = useState<LoginFormValuesType | null>(
     null
   );
@@ -68,7 +63,6 @@ const Login: React.FC = () => {
     setter: React.Dispatch<React.SetStateAction<string>>,
     delay: number = 500
   ) => {
-    console.log("hidding runner");
     const r = document.getElementById("runner-text");
     if (r) {
       r.classList.add("animate-fade_out");
@@ -88,7 +82,6 @@ const Login: React.FC = () => {
     val: string,
     delay: number = 500
   ) => {
-    console.log("showing runner");
     const r = document.getElementById("runner-text");
     if (r) {
       if (!r.classList.contains("animate-fade_in")) {
@@ -111,20 +104,14 @@ const Login: React.FC = () => {
    */
   const login = useCallback(async (credentials: LoginCredentialsType) => {
     dispatch(clearMessage());
-    //if (!runner) {
-    //  setRunner("Signing you in");
-    //}
     try {
-      console.log("LOGIN CALLED");
-      const response = await dispatch(loginUser({ ...credentials })).unwrap();
-      console.log("LOGIN SUCCESS", response);
+      await dispatch(loginUser({ ...credentials })).unwrap();
       setLoginState({ error: null, success: true });
       dispatch(stopIsLoading());
     } catch (error: any) {
       switch (error.errno) {
         // Already logged in
         case 10:
-          console.log("ALREADY LOGGED IN: setting message");
           setLoginState({ error: null, success: true });
           dispatch(toggleIsLoggedIn(true));
           break;
@@ -152,10 +139,10 @@ const Login: React.FC = () => {
         // handle token expired. Refresh access token
         case 5:
           try {
-            const tk = await dispatch(
+            await dispatch(
               refreshAccessToken(credentials.accessToken as string)
             ).unwrap();
-            console.log("TOKEN REFRESH SUCCESS. NEW TOKEN", tk.accessToken);
+            showRunner(setRunner, "Hold on tight...nearly done");
           } catch (err: any) {
             console.error("TOKEN REFRESH FAILED", err);
             setLoginState({
@@ -169,26 +156,20 @@ const Login: React.FC = () => {
           }
           break;
         default:
-          console.log("SOME OTHER ERROR DURING LOGIN");
           setLoginState({ success: false, error });
       }
       console.error(error);
     }
   }, []);
 
-  useEffect(() => {
-    console.log(
-      "PAGE LOADED",
-      "\nloginState:",
-      loginState,
-      "\nmessage:",
-      message,
-      "\nIsLoading:",
-      isLoading,
-      "\nusingCredentials:",
-      useCredentials
-    );
-  }, [loginState, message, useCredentials, isLoading, runner]);
+  useEffect(() => {}, [
+    loginState,
+    message,
+    useCredentials,
+    isLoading,
+    runner,
+    accessToken,
+  ]);
 
   /**
    * @hook Login with credentials effect hook
@@ -221,7 +202,6 @@ const Login: React.FC = () => {
       // if auth token is invalid, try initiating a fresh login
       switch (loginState.error.errno) {
         case 6:
-          console.log("handling invalid token error");
           hideRunner(setRunner, 100);
           setTimeout(() => {
             showRunner(
@@ -244,7 +224,6 @@ const Login: React.FC = () => {
           break;
         case 16:
         case 17:
-          console.log("hiding and showing runner");
           hideRunner(setRunner, 200);
           setTimeout(() => {
             showRunner(setRunner, "You missed something. Try again.");
@@ -254,7 +233,6 @@ const Login: React.FC = () => {
       dispatch(stopIsLoading());
       dispatch(toggleMessage({ autoHide: true }));
     } else if (loginState.success) {
-      console.log("LOGIN SUCCESS");
       if (useCredentials) {
         setUseCredentials(false);
       }
@@ -267,11 +245,11 @@ const Login: React.FC = () => {
             role: "alert",
           })
         );
-      }, 1000);
-      dispatch(toggleMessage());
+        dispatch(toggleMessage());
+        dispatch(toggleIsLoggedIn(true));
+      }, 500);
       setTimeout(() => {
         redirectTo("/listings");
-        console.log("redirecting to listings");
       }, 3000);
     }
   }, [loginState]);
@@ -279,16 +257,13 @@ const Login: React.FC = () => {
   // Effects when page first loads
   useEffect(() => {
     // avoid calling backend if already logged in on frontend
-    console.log("***LOGIN PAGE DEFAULT LOAD***");
     if (accessToken) {
-      console.log("setting is loading...");
       dispatch(setIsLoading());
       if (useCredentials) {
         setUseCredentials(false);
       }
       setTimeout(() => {
         if (isLoggedIn) {
-          //console.log("hiding runner and setting message");
           hideRunner(setRunner);
           setTimeout(() => {
             setLoginState({
@@ -306,20 +281,18 @@ const Login: React.FC = () => {
         }
       }, 500);
     } else {
-      setTimeout(
-        () => {
-          if (isLoggedIn) {
-            console.log("toggling off isLoggedIn");
-            dispatch(toggleIsLoggedIn(false));
-          }
-          if (isLoading) {
-            dispatch(stopIsLoading());
-          }
+      setTimeout(() => {
+        setUseCredentials(true);
+        if (!runner) {
           setRunner("Enter your credentials to sign in");
-          setUseCredentials(true);
-        },
-        isLoading ? 500 : 0
-      );
+        }
+        if (isLoggedIn) {
+          dispatch(toggleIsLoggedIn(false));
+        }
+        if (isLoading) {
+          dispatch(stopIsLoading());
+        }
+      }, 0);
     }
   }, []);
 
@@ -393,10 +366,17 @@ const Login: React.FC = () => {
         )}
         {/* Form area */}
         {useCredentials && (
-          <Components.LoginForm
-            setFormCredentials={setCredentials}
-            disabled={isLoading}
-          />
+          <div
+            className={cn(
+              "animate-all w-full",
+              useCredentials ? "animate-fade_in" : "animate-fade_out"
+            )}
+          >
+            <Components.LoginForm
+              setFormCredentials={setCredentials}
+              disabled={isLoading}
+            />
+          </div>
         )}
       </section>
     </main>

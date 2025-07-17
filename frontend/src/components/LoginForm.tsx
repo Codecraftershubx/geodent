@@ -23,9 +23,10 @@ const formSchema = z.object({
   password: z.string(),
 });
 
-const LoginForm: React.FC<LoginPagePropsType> = ({
+const LoginForm: React.FC<LoginFormPropsType> = ({
   disabled,
   setFormCredentials,
+  className,
 }) => {
   // Form Definition
   const loginForm = useForm<z.infer<typeof formSchema>>({
@@ -45,7 +46,10 @@ const LoginForm: React.FC<LoginPagePropsType> = ({
     <Form {...loginForm}>
       <form
         onSubmit={loginForm.handleSubmit(formOnSubmit)}
-        className="space-y-7 shadow-lg shadow-neutral-300 p-4 md:p-6 xl:px-10 rounded-md border-[.1px] border-neutral-300 w-full"
+        className={cn(
+          "space-y-7 shadow-lg shadow-neutral-300 p-4 md:p-6 xl:px-10 rounded-md border-[.1px] border-neutral-300 w-full",
+          className
+        )}
       >
         <div>
           <LoginFormField
@@ -98,7 +102,7 @@ const LoginForm: React.FC<LoginPagePropsType> = ({
 /**
  * @func LoginFormField form field component
  */
-const LoginFormField: React.FC<LoginFormPropsType> = ({
+const LoginFormField: React.FC<FormFieldPropsType> = ({
   inputClassName,
   control,
   description,
@@ -147,7 +151,7 @@ type LoginFormValuesType = {
   password: string;
 };
 
-type LoginFormPropsType = {
+type FormFieldPropsType = {
   name: FieldPath<z.infer<typeof formSchema>>;
   control: Control<z.infer<typeof formSchema>, any>;
   placeholder?: string;
@@ -159,11 +163,12 @@ type LoginFormPropsType = {
   disabled: boolean;
 };
 
-type LoginPagePropsType = {
+type LoginFormPropsType = {
   disabled: boolean;
   setFormCredentials: React.Dispatch<
     React.SetStateAction<LoginFormValuesType | null>
   >;
+  className?: string;
 };
 
 export default LoginForm;

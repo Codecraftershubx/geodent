@@ -6,17 +6,12 @@ import {
 } from "@/hooks/index.js";
 import {
   setIsLoading,
-  stopIsLoading,
   logoutUser,
   setMessage,
   toggleIsLoggedIn,
   clearMessage,
 } from "@/appState/slices/authSlice.js";
-//import {
-//  toggleAppMessage,
-//  clearAppMessage,
-//  setAppMessage,
-//} from "@/appState/slices/appMessageSlice.js";
+
 import type {
   BEDataHeaderType,
   RootState,
@@ -51,7 +46,11 @@ const Logout: React.FC = () => {
         await dispatch(logoutUser(accessToken)).unwrap();
         setLogoutState({ success: true, error: null });
       } catch (err: any) {
-        setLogoutState({ ...logoutState, error: err as BEDataHeaderType });
+        if (err.errno === 5) {
+          setLogoutState({ success: true, error: null });
+        } else {
+          setLogoutState({ success: false, error: err as BEDataHeaderType });
+        }
         console.error(err);
       }
     } else {
@@ -62,34 +61,26 @@ const Logout: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    console.log(
-      "LOGOUT PAGE INITIAL USEFFECT:\nlogoutState:",
-      logoutState,
-      "\nmessage:",
-      message,
-      "\nisLoggedIn:",
-      isLoggedIn
-    );
-  }, [message, logoutState, isLoading]);
+  useEffect(() => {}, [message, logoutState, isLoading]);
 
   // update message when logout state changes
   useEffect(() => {
-    console.log("LOGOUT STATE USE EFFECT");
-    //console.log(
-    //  "setting message.... LogoutStateErrno:",
-    //  logoutState.error?.errno
-    //);
-    // set message if login failed in ui or from backend
     if (logoutState.error) {
       let msg: string;
-      if (logoutState.error.errno === 7) {
-        msg = "You're not logged in";
-        if (isLoggedIn) {
-          dispatch(toggleIsLoggedIn(false));
-        }
-      } else {
-        msg = "Logout failed";
+      switch (logoutState.error.errno) {
+        case 2:
+          msg = "Not allowed. Try logging in again";
+          break;
+        case 7:
+          msg = "You're not logged in";
+          if (isLoggedIn) {
+            dispatch(toggleIsLoggedIn(false));
+          }
+          break;
+        default:
+          // setup password/account reset
+          msg = "Could not complete request";
+          break;
       }
       dispatch(
         setMessage({
@@ -107,6 +98,7 @@ const Logout: React.FC = () => {
         })
       );
       setTimeout(() => {
+        dispatch(toggleIsLoggedIn(false));
         navigate("/");
       }, 3000);
     }
@@ -114,12 +106,10 @@ const Logout: React.FC = () => {
 
   // initial page load effect
   useEffect(() => {
-    console.log("PAGE LOAD:", isLoggedIn, accessToken);
     dispatch(setIsLoading());
     setTimeout(async () => {
-      console.log("isLogggedIn:", isLoggedIn, "token:", accessToken);
       if (isLoggedIn && accessToken) {
-        console.log("calling logout function....");
+        // logout user
         logout();
       } else {
         setLogoutState({
@@ -130,7 +120,6 @@ const Logout: React.FC = () => {
           dispatch(toggleIsLoggedIn(false));
         }
       }
-      dispatch(stopIsLoading());
     }, 1000);
   }, []);
 
