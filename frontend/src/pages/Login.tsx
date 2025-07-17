@@ -91,7 +91,12 @@ const Login: React.FC = () => {
     console.log("showing runner");
     const r = document.getElementById("runner-text");
     if (r) {
-      r.classList.add("animate-fade_in");
+      if (!r.classList.contains("animate-fade_in")) {
+        r.classList.add("animate-fade_in");
+      } else {
+        r.classList.remove("animate-fade_in");
+        r.classList.add("animate-fade_out");
+      }
     }
     setter(val);
     setTimeout(() => {
