@@ -21,21 +21,31 @@ mockApi.onPost("/auth/refresh").reply(() => {
   const expiredRes = [
     401,
     {
-      errno: 9,
-      message: "Session expired",
-      status: "failed",
+      header: {
+        status: "failed",
+        errno: 9,
+        message: "Session expired",
+      },
     },
   ];
   const successRes = [
     200,
     {
-      accessToken: "h08gehivanur8fhviui948",
+      header: {
+        status: "success",
+        errno: 0,
+        message: "Token refreshed",
+      },
+      data: [
+        { accessToken: "04hg3n/'&^!oin*_H*(&FHHj88dhj(+ttq234vF9geGUi^%" },
+      ],
     },
+    ,
   ];
   const responses = [expiredRes, successRes];
   //const len = responses.length;
   //const index = Math.floor(Math.random() * 10) % len;
-  return responses[0] as MockResponse;
+  return responses[1] as MockResponse;
 });
 
 /**
@@ -48,8 +58,8 @@ mockApi.onPost("/auth/login").reply((config) => {
     401,
     {
       header: {
-        errno: 5,
         status: "failed",
+        errno: 5,
         message: "Expired access token",
       },
     },
