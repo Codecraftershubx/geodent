@@ -92,7 +92,7 @@ const refreshAccessToken = createAsyncThunk<
   RefreshSuccessPayloadType,
   string,
   { rejectValue: BEDataType; dispatch: AppDispatchType }
->("auth/refresh", async (token: string, { rejectWithValue }) => {
+>("auth/refresh", async (token: string, { rejectWithValue, dispatch }) => {
   const response = await api.post("/auth/refresh", {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -101,7 +101,9 @@ const refreshAccessToken = createAsyncThunk<
   if (response.error) {
     return rejectWithValue(response.content);
   }
+  // update cache with new access token
   const data: RefreshSuccessPayloadType = response.content.data[0];
+  dispatch(authSlice.actions.setAccessToken(data.accessToken));
   return data;
 });
 
