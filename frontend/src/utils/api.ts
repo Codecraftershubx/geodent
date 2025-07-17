@@ -1,3 +1,4 @@
+import { randomString } from "@/lib/utils";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 
@@ -9,8 +10,10 @@ const api = axios.create({
   maxRedirects: 5,
 });
 
-/**
- * API Mocks
+/*
+ * ====================
+ * MOCK API BEGIN HERE
+ * ====================
  */
 const mockApi = new MockAdapter(api);
 
@@ -36,9 +39,7 @@ mockApi.onPost("/auth/refresh").reply(() => {
         errno: 0,
         message: "Token refreshed",
       },
-      data: [
-        { accessToken: "04hg3n/'&^!oin*_H*(&FHHj88dhj(+ttq234vF9geGUi^%" },
-      ],
+      data: [{ accessToken: randomString(24) }],
     },
     ,
   ];
@@ -49,23 +50,107 @@ mockApi.onPost("/auth/refresh").reply(() => {
 });
 
 /**
- * @name Mock.post /auth/login
+ * @name Mock.post Mock /auth/login
  */
 mockApi.onPost("/auth/login").reply((config) => {
-  const auth = config?.headers?.authorization;
-  console.log(auth);
-  const res = [
-    401,
-    {
-      header: {
-        status: "failed",
-        errno: 5,
-        message: "Expired access token",
-      },
-    },
-  ];
+  let res;
+  //let len;
+  //let index;
+  console.log(config);
+  const auth = config?.headers?.Authorization;
+  if (!auth) {
+    //const body = config?.body;
+    res = [200, {}];
+  } else {
+    const [t, tk] = auth.split(" ");
+    const aT = window.localStorage.getItem("accessToken");
+    switch (t) {
+      case "Bearer":
+        switch (tk) {
+          case aT:
+            // define various auth responses available on endpoint after token
+            const altRes = [
+              [
+                200,
+                {
+                  header: {
+                    status: "success",
+                    errno: 0,
+                    message: "Login success",
+                  },
+                  data: [{ accessToken: tk }],
+                },
+              ],
+              [
+                401,
+                {
+                  header: {
+                    status: "failed",
+                    errno: 5,
+                    message: "Expired access token",
+                  },
+                },
+              ],
+              [
+                401,
+                {
+                  header: {
+                    status: "failed",
+                    errno: 6,
+                    message: "Inalid access token",
+                  },
+                },
+              ],
+              [
+                401,
+                {
+                  header: {
+                    status: "failed",
+                    errno: 10,
+                    message: "Already logged in",
+                  },
+                },
+              ],
+            ];
+            // return one randomly selected response
+            //len = altRes.length;
+            //index = Math.floor(Math.random() * 10) % len;
+            res = altRes[0];
+            break;
+          default:
+            res = [
+              401,
+              {
+                header: {
+                  status: "failed",
+                  errno: 6,
+                  message: "Invalid access token",
+                },
+              },
+            ];
+        }
+        break;
+      default:
+        res = [
+          401,
+          {
+            header: {
+              status: "error",
+              errno: 4,
+              message: "Badly formatted auth headers",
+            },
+          },
+        ];
+    }
+  }
   return res as MockResponse;
 });
+
+/*
+ *======================
+ * LIVE API BEGINS HERE
+ *======================
+ */
 
 /**
  * @async @func get Get api request handler

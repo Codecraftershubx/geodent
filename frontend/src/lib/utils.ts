@@ -20,3 +20,22 @@ export function delayedAction(
     func(...args);
   }, delay);
 }
+
+/**
+ * @func randomString Generates a random string of specified lenth
+ * Defaults to 16 if not provided
+ * @param length { number } the length of string to generate
+ * @returns { string } string of `length`
+ */
+export function randomString(length: number = 16) {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-.?+=&^$!_%";
+  const charsLen = chars.length;
+  const buffer = new Uint8Array(length);
+  window.crypto.getRandomValues(buffer);
+  let res = "";
+  for (let i = 0; i < length; i++) {
+    res += chars.charCodeAt(buffer[i] % charsLen);
+  }
+  return res;
+}
