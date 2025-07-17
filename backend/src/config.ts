@@ -40,10 +40,10 @@ if (serverPort) {
 const errors: TErrorNumbers = {
   authentication: {
     errnos: {
-      "3": { code: 3, desc: "No auth headers sent" },
+      "3": { code: 3, desc: "ERRONEOUS RESPONSE. IGNORE" },
       "4": { code: 4, desc: "Badly formatted auth headers" },
       "5": { code: 5, desc: "Expired access token" },
-      "6": { code: 6, desc: "Inalid access token" },
+      "6": { code: 6, desc: "Invalid access token" },
       "7": { code: 7, desc: "Not logged in" },
       "8": { code: 8, desc: "Token not expired" },
       "9": { code: 9, desc: "Refresh token expired" },
@@ -72,6 +72,7 @@ const errors: TErrorNumbers = {
       "12": { code: 12, desc: "No file uploaded" },
       "13": { code: 13, desc: "Not found" },
       "14": { code: 14, desc: "Already exists" },
+      "21": { code: 21, desc: "No auth header" },
     },
     statusCode: 400,
   },

@@ -33,7 +33,12 @@ const validateTokenPayload = async (
     }
   } else {
     if (req.body.auth.strictMode) {
-      return utils.handlers.error(req, res, "authentication", { errno: 3 });
+      return utils.handlers.error(
+        req,
+        res,
+        req.headers.authorization ? "authentication" : "validation",
+        { errno: req.headers?.authorization ? 2 : 21 }
+      );
     }
     next();
   }

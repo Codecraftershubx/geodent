@@ -23,7 +23,7 @@ const logout = async (req: Request, res: Response): Promise<void> => {
     }
     // clear tokens from cache
     await utils.cache.delete(aTData.id, `${aT}:${config.rTFieldName}`);
-		console.log("LOGOUT SUCCESS");
+    console.log("LOGOUT SUCCESS");
     return utils.handlers.success(req, res, {
       message: "Logout success",
     });
