@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   useAppSelector,
@@ -44,10 +44,10 @@ const Login: React.FC = () => {
   const [heading, setHeading] = useState(
     accessToken ? "Welcome Back" : "Welcome"
   );
+  const [runner, setRunner] = useState<string>("Signing you in");
   const [credentials, setCredentials] = useState<LoginFormValuesType | null>(
     null
   );
-  const [runner, setRunner] = useState<string | undefined>(undefined);
   const [loginState, setLoginState] = useState<{
     success: boolean | undefined;
     error: BEDataHeaderType | null;
@@ -58,6 +58,7 @@ const Login: React.FC = () => {
   const [useCredentials, setUseCredentials] = useState<boolean>(false);
   // Navigate to a route
   const redirectTo = UseRedirect();
+  const loadingRef = useRef(isLoading);
 
   /**
    * @function hideRunner Hides Heading's runner text after a delay
@@ -65,7 +66,7 @@ const Login: React.FC = () => {
    * @param delay milliseconds before calling @param func
    */
   const hideRunner = (
-    setter: React.Dispatch<React.SetStateAction<string | undefined>>,
+    setter: React.Dispatch<React.SetStateAction<string>>,
     delay: number = 500
   ) => {
     console.log("hidding runner");
@@ -84,7 +85,7 @@ const Login: React.FC = () => {
    * @param delay milliseconds before calling @param func
    */
   const showRunner = (
-    setter: React.Dispatch<React.SetStateAction<string | undefined>>,
+    setter: React.Dispatch<React.SetStateAction<string>>,
     val: string,
     delay: number = 500
   ) => {
@@ -106,7 +107,9 @@ const Login: React.FC = () => {
    */
   const login = useCallback(async (credentials: LoginCredentialsType) => {
     dispatch(clearMessage());
-    setRunner("Hold on while we sign you in");
+    //if (!runner) {
+    //  setRunner("Signing you in");
+    //}
     try {
       console.log("LOGIN CALLED");
       const response = await dispatch(loginUser({ ...credentials })).unwrap();
@@ -114,59 +117,60 @@ const Login: React.FC = () => {
       setLoginState({ error: null, success: true });
       dispatch(stopIsLoading());
     } catch (error: any) {
-      if (error.errno === 10) {
-        console.log("ALREADY LOGGED IN: setting message");
-        setLoginState({ error: null, success: true });
-        dispatch(toggleIsLoggedIn(true));
-      } else {
-        console.log("SOME OTHER ERROR DURING LOGIN");
-        setLoginState({ success: false, error });
+      switch (error.errno) {
+        // Already logged in
+        case 10:
+          console.log("ALREADY LOGGED IN: setting message");
+          setLoginState({ error: null, success: true });
+          dispatch(toggleIsLoggedIn(true));
+          break;
+        // Invalid access token
+        case 6:
+          setLoginState({
+            error: { ...error, message: "Couldn't sign you in automatically" },
+            success: false,
+          });
+          break;
+        // Wrong email
+        case 16:
+          setLoginState({
+            error: { ...error, message: "Wrong email" },
+            success: false,
+          });
+          break;
+        // Wrong password
+        case 17:
+          setLoginState({
+            error: { ...error, message: "Wrong password" },
+            success: false,
+          });
+          break;
+        // handle token expired. Refresh access token
+        case 5:
+          try {
+            const tk = await dispatch(
+              refreshAccessToken(credentials.accessToken as string)
+            ).unwrap();
+            console.log("TOKEN REFRESH SUCCESS. NEW TOKEN", tk.accessToken);
+          } catch (err: any) {
+            console.error("TOKEN REFRESH FAILED", err);
+            setLoginState({
+              error: {
+                ...err,
+                message:
+                  err.errno === 9 ? "Your session has expired" : "Login failed",
+              },
+              success: false,
+            });
+          }
+          break;
+        default:
+          console.log("SOME OTHER ERROR DURING LOGIN");
+          setLoginState({ success: false, error });
       }
-      dispatch(stopIsLoading());
-      //// attempt token refresh if token expired
-      //if (error?.header) {
-      //  if (error.header.errno === 5) {
-      //    setRunner(`${heading}...a little longer`);
-      //    // refresh token
-      //    refreshToken(accessToken);
-      //  } else {
-      //    setHeading("Login failed");
-      //    const runner =
-      //      error.header.errno === 9 ? "Your session expired. " : "";
-      //    setRunner(`${runner}Use your credentials to login.`);
-      //  }
-      //}
       console.error(error);
     }
   }, []);
-
-  // token refresh handler
-  //const refreshToken = (accessToken: string) => {
-  //  dispatch(refreshAccessToken(accessToken))
-  //    .unwrap()
-  //    .then((msg) => {
-  //      console.log("token refreshed successfully");
-  //      login(msg.accessToken);
-  //    })
-  //    .catch((err) => {
-  //      console.error(err);
-  //    });
-  //};
-  //useEffect(() => {
-  //  if (message && accessToken) {
-  //    dispatch(toggleAppMessage({ autoHide: true }));
-  //  }
-  //}, [message, accessToken]);
-
-  //useEffect(() => {
-  //  if (isLoggedIn) {
-  //    setTimeout(() => {
-  //      dispatch(clearAppMessage());
-  //      dispatch(clearMessage());
-  //    }, 1000);
-  //    navigate(redirectPath);
-  //  }
-  //}, [isLoggedIn]);
 
   useEffect(() => {
     console.log(
@@ -180,7 +184,7 @@ const Login: React.FC = () => {
       "\nusingCredentials:",
       useCredentials
     );
-  }, [loginState, message, isLoading, useCredentials, runner]);
+  }, [loginState, message, useCredentials, isLoading, runner]);
 
   /**
    * @hook Login with credentials effect hook
@@ -201,15 +205,7 @@ const Login: React.FC = () => {
       if (loginState.error.errno === 10) {
         [errType, msg] = ["neutral", "You're already logged in"];
       } else {
-        errType = "error";
-        msg =
-          loginState.error.errno === 6
-            ? "Couldn't sign you in automatically"
-            : loginState.error.errno === 16
-              ? "Wrong email"
-              : loginState.error.errno === 17
-                ? "Wrong password"
-                : "Login failed";
+        [errType, msg] = ["error", loginState.error.message];
       }
       dispatch(
         setMessage({
@@ -219,24 +215,39 @@ const Login: React.FC = () => {
         })
       );
       // if auth token is invalid, try initiating a fresh login
-      if (loginState.error.errno === 6) {
-        console.log("handling invalid token error");
-        hideRunner(setRunner, 100);
-        setTimeout(() => {
-          showRunner(setRunner, "Try using your email and password to sign in");
-        }, 500);
-        setTimeout(() => {
-          setUseCredentials(true);
-        }, 1200);
-      } else {
-        if (loginState.error.errno === 16 || loginState.error.errno === 17) {
+      switch (loginState.error.errno) {
+        case 6:
+          console.log("handling invalid token error");
+          hideRunner(setRunner, 100);
+          setTimeout(() => {
+            showRunner(
+              setRunner,
+              "Try using your email and password to sign in"
+            );
+          }, 500);
+          setTimeout(() => {
+            setUseCredentials(true);
+          }, 1200);
+          break;
+        case 9:
+          hideRunner(setRunner, 0);
+          setTimeout(() => {
+            showRunner(setRunner, "Use your credentials to login again");
+            setTimeout(() => {
+              setUseCredentials(true);
+            }, 500);
+          }, 1000);
+          break;
+        case 16:
+        case 17:
           console.log("hiding and showing runner");
           hideRunner(setRunner, 200);
           setTimeout(() => {
             showRunner(setRunner, "You missed something. Try again.");
           }, 400);
-        }
+          break;
       }
+      dispatch(stopIsLoading());
       dispatch(ShowAuthMessage());
     } else if (loginState.success) {
       console.log("LOGIN SUCCESS");
@@ -266,34 +277,30 @@ const Login: React.FC = () => {
     // avoid calling backend if already logged in on frontend
     console.log("***LOGIN PAGE DEFAULT LOAD***");
     if (accessToken) {
+      console.log("setting is loading...");
+      dispatch(setIsLoading());
       if (useCredentials) {
         setUseCredentials(false);
       }
-      dispatch(setIsLoading());
-      setHeading("Welcome back");
-      setRunner("Hold on while we sign you in");
-      setTimeout(
-        () => {
-          if (isLoggedIn) {
-            console.log("hiding runner and setting message");
-            hideRunner(setRunner);
-            setTimeout(() => {
-              setLoginState({
-                success: false,
-                error: {
-                  status: "",
-                  message: "",
-                  errno: 10,
-                },
-              });
-            }, 100);
-            dispatch(stopIsLoading());
-          } else {
-            login({ accessToken });
-          }
-        },
-        isLoading ? 500 : 0
-      );
+      setTimeout(() => {
+        if (isLoggedIn) {
+          //console.log("hiding runner and setting message");
+          hideRunner(setRunner);
+          setTimeout(() => {
+            setLoginState({
+              success: false,
+              error: {
+                status: "",
+                message: "",
+                errno: 10,
+              },
+            });
+          }, 100);
+          dispatch(stopIsLoading());
+        } else {
+          login({ accessToken });
+        }
+      }, 500);
     } else {
       setTimeout(
         () => {
