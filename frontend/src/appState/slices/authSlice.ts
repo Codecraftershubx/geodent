@@ -108,9 +108,12 @@ const refreshAccessToken = createAsyncThunk<
 // message toggle
 const toggleMessage = createAsyncThunk<
   Promise<void>,
-  { autoHide: boolean; delay?: number },
+  AppMessageArgsType,
   { dispatch: AppDispatchType }
->("auth/toggleMessage", async ({ autoHide, delay = 2000 }, { dispatch }) => {
+>("auth/toggleMessage", async (options, { dispatch }) => {
+  const autoHide = options?.autoHide ?? false;
+  const delay = options?.delay ?? 5000;
+
   dispatch(authSlice.actions.showMessage());
   if (autoHide) {
     setTimeout(() => {
@@ -213,6 +216,16 @@ const authSlice = createSlice({
       });
   },
 });
+
+/**
+ * App Message Args Type
+ */
+type AppMessageArgsType =
+  | {
+      autoHide?: boolean;
+      delay?: number;
+    }
+  | undefined;
 
 export { loginUser, logoutUser, refreshAccessToken, toggleMessage };
 export const {

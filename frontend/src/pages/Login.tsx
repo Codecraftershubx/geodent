@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   useAppSelector,
@@ -14,8 +14,8 @@ import {
   toggleIsLoggedIn,
   clearMessage,
   setMessage,
-  showMessage as ShowAuthMessage,
   LoginCredentialsType,
+  toggleMessage,
 } from "@/appState/slices/authSlice.js";
 //import {
 //  toggleAppMessage,
@@ -58,7 +58,6 @@ const Login: React.FC = () => {
   const [useCredentials, setUseCredentials] = useState<boolean>(false);
   // Navigate to a route
   const redirectTo = UseRedirect();
-  const loadingRef = useRef(isLoading);
 
   /**
    * @function hideRunner Hides Heading's runner text after a delay
@@ -232,10 +231,10 @@ const Login: React.FC = () => {
         case 9:
           hideRunner(setRunner, 0);
           setTimeout(() => {
-            showRunner(setRunner, "Use your credentials to login again");
+            showRunner(setRunner, "Use your credentials to login again", 1000);
             setTimeout(() => {
               setUseCredentials(true);
-            }, 500);
+            }, 1000);
           }, 1000);
           break;
         case 16:
@@ -248,7 +247,7 @@ const Login: React.FC = () => {
           break;
       }
       dispatch(stopIsLoading());
-      dispatch(ShowAuthMessage());
+      dispatch(toggleMessage({ autoHide: true }));
     } else if (loginState.success) {
       console.log("LOGIN SUCCESS");
       if (useCredentials) {
@@ -264,7 +263,7 @@ const Login: React.FC = () => {
           })
         );
       }, 1000);
-      dispatch(ShowAuthMessage());
+      dispatch(toggleMessage());
       setTimeout(() => {
         redirectTo("/listings");
         console.log("redirecting to listings");
@@ -340,12 +339,20 @@ const Login: React.FC = () => {
           )}
           {/* Message area */}
           {showMessage && message && !isLoading && (
-            <div className="flex flex-col items-center gap-2 justify-center animate-fade_in !duration-300 w-[300px] md:w-[420px]">
+            <div
+              className={cn(
+                "flex flex-col items-center gap-2 justify-center w-[300px] md:w-[420px] animate-all",
+                showMessage
+                  ? "animate-fade_in !duration-1000"
+                  : "animate-fade_out !duration-2000"
+              )}
+            >
               <Components.Alert
                 variant={"plain"}
                 description={(message as MessageType).description}
                 fullWidth={true}
                 type={(message as MessageType).type}
+                className="animate-inherit"
               />
             </div>
           )}

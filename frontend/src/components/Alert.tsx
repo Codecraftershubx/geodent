@@ -106,7 +106,7 @@ const AppAlert: React.FC<AlertPropsType> = ({
     >
       <Alert
         className={cn(
-          `${rounded ? "rounded-lg" : ""} py-2 @container ${alertTypes[type].styles[variant]}`,
+          `animate-inherit ${rounded ? "rounded-lg" : ""} py-2 @container ${alertTypes[type].styles[variant]}`,
           alertClassName
         )}
       >
