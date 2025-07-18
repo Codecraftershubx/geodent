@@ -9,7 +9,6 @@ import {
   toggleIsLoggedIn,
   clearMessage,
   setMessage,
-  LoginCredentialsType,
   toggleMessage,
 } from "@/appState/slices/authSlice.js";
 //import {
@@ -19,6 +18,7 @@ import {
 //} from "@/appState/slices/appMessageSlice.js";
 import type {
   BEDataHeaderType,
+  LoginCredentialsType,
   MessageType,
   RootState,
 } from "@/utils/types.js";

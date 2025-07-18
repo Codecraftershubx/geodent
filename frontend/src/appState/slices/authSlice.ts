@@ -4,21 +4,21 @@ import type {
   AuthStateType,
   BEDataType,
   BEDataHeaderType,
-  LoginSuccessPaylodType,
   MessageType,
+  LoginSuccessPayloadType,
   RefreshSuccessPayloadType,
+  LoginCredentialsType,
 } from "@/utils/types.js";
-import api from "@/utils/api.js";
 
-type LoginCredentialsType = {
-  accessToken?: string | null;
-  email?: string | null;
-  password?: string | null;
-};
+import RequestApi from "@/utils/api/requestApi";
+import { assertIsDefined } from "@/utils/assertions";
+
+const api = RequestApi.getClient();
+console.log(api);
 
 // login user
 const loginUser = createAsyncThunk<
-  LoginSuccessPaylodType,
+  LoginSuccessPayloadType,
   LoginCredentialsType,
   { rejectValue: BEDataHeaderType; dispatch: AppDispatchType }
 >(
@@ -53,7 +53,8 @@ const loginUser = createAsyncThunk<
       return rejectWithValue(response.content.header);
     }
     const state = getState() as AuthStateType;
-    data = response.content.data[0];
+    assertIsDefined(response.content.data);
+    data = response.content?.data[0] as LoginSuccessPayloadType;
     if (state.accessToken !== data.accessToken) {
       dispatch(authSlice.actions.setAccessToken(data.accessToken));
     }
@@ -113,7 +114,8 @@ const refreshAccessToken = createAsyncThunk<
     return rejectWithValue(response.content);
   }
   // update cache with new access token
-  const data: RefreshSuccessPayloadType = response.content.data[0];
+  assertIsDefined(response.content.data);
+  const data = response.content.data[0] as RefreshSuccessPayloadType;
   dispatch(authSlice.actions.setAccessToken(data.accessToken));
   return data;
 });
@@ -261,4 +263,3 @@ export const {
 } = authSlice.actions;
 
 export default authSlice.reducer;
-export type { LoginCredentialsType };

@@ -14,8 +14,8 @@ type BEDataType = {
 };
 
 type APIResponseType = {
-  error: Boolean;
-  data: BEDataType;
+  error: boolean;
+  content: BEDataType;
 };
 
 type RootState = ReturnType<typeof store.getState>;
@@ -46,11 +46,17 @@ type UserType = {
   [key: string]: any;
 };
 
-type LoginSuccessPaylodType = {
+type LoginCredentialsType = {
+  accessToken?: string | null;
+  email?: string | null;
+  password?: string | null;
+};
+
+type LoginSuccessPayloadType = {
   accessToken: string;
 };
 
-type RefreshSuccessPayloadType = LoginSuccessPaylodType;
+type RefreshSuccessPayloadType = LoginSuccessPayloadType;
 
 export type {
   APIResponseType,
@@ -58,7 +64,8 @@ export type {
   AuthStateType,
   BEDataType,
   BEDataHeaderType,
-  LoginSuccessPaylodType,
+  LoginCredentialsType,
+  LoginSuccessPayloadType,
   MessageType,
   RefreshSuccessPayloadType,
   RootState,
