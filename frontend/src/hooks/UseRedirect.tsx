@@ -26,4 +26,4 @@ const UseRedirect = () => {
   return navigator;
 };
 
-export { UseRedirect };
+export default UseRedirect;
