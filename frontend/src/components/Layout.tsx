@@ -2,11 +2,7 @@ import { Outlet } from "react-router-dom";
 import { useAppSelector } from "@/hooks/index.js";
 import type { RootState, MessageType } from "../utils/types.js";
 import Components from "./index";
-
-//type TLayoutProps = {
-//  isLoggedIn: Boolean;
-//  setisLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-//};
+import ErrorBoundary from "./ErrorBoundary.js";
 
 const Layout: React.FC = () => {
   const { message, show } = useAppSelector(
@@ -25,7 +21,9 @@ const Layout: React.FC = () => {
           withTitle={true}
         />
       )}
-      <Outlet />
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
     </div>
   );
 };

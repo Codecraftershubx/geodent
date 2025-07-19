@@ -1,3 +1,4 @@
+import ErrorPage from "@/pages/Error";
 import React from "react";
 
 /**
@@ -18,15 +19,15 @@ class ErrorBoundary extends React.Component<
    */
   constructor(props: ErrorBoundaryPropsType) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, err: null, errInfo: null };
   }
 
   /**
    * @namespace ErrorBoundary
    * @returns {ErrorBoundaryStateType} Updated error boundary state
    */
-  static getDerivedStateFromError(): ErrorBoundaryStateType {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): ErrorBoundaryStateType {
+    return { hasError: true, err: error, errInfo: null };
   }
 
   /**
@@ -35,7 +36,11 @@ class ErrorBoundary extends React.Component<
    * @param errorInfo React ErrorInfo
    */
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    console.log("ERROR CAUGHT:\nError:", error, "\nErrorInfo:", errorInfo);
+    this.setState({
+      err: error,
+      hasError: true,
+      errInfo: errorInfo.componentStack,
+    });
   }
 
   /**
@@ -45,10 +50,9 @@ class ErrorBoundary extends React.Component<
   render(): React.ReactNode {
     if (this.state.hasError) {
       return (
-        <div>
-          <h2>Opps some error occured</h2>
-          <p>Details below</p>
-        </div>
+        <ErrorPage
+          details={`\n${this.state.err?.message}\n\n${this.state.errInfo}`}
+        />
       );
     }
     return this.props.children;
@@ -64,6 +68,8 @@ type ErrorBoundaryPropsType = {
 
 type ErrorBoundaryStateType = {
   hasError: boolean;
+  err: Error | null;
+  errInfo: string | null | undefined;
 };
 
 export default ErrorBoundary;
