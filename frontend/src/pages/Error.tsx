@@ -8,7 +8,7 @@ import {
 import FadeGradientToBottom from "./FadeGradientToBottom";
 import FadeGradientToTop from "./FadeGradientToTop";
 import { Button } from "@/components/ui/button";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Icons from "@/components/Icons";
 
 const ErrorPage: React.FC<ErrorPagePropsType> = ({ title, body, details }) => {
@@ -45,12 +45,12 @@ const ErrorPage: React.FC<ErrorPagePropsType> = ({ title, body, details }) => {
               asChild
               className="cursor-pointer bg-neutral-800 text-primary-foreground hover:bg-neutral-900"
             >
-              <NavLink to={"/"}>
+              <Link to={"/"}>
                 <span>
                   <Icons.Home className="border-red-400" />
                 </span>
                 Return
-              </NavLink>
+              </Link>
             </Button>
           </div>
         </div>

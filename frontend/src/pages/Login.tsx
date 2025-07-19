@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAppSelector, useAppDispatch, UseRedirect } from "@/hooks/index.js";
 import {
   setIsLoading,
@@ -332,24 +332,24 @@ const Login: React.FC = () => {
               asChild
               className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary-600"
             >
-              <NavLink to={"/listings"}>
+              <Link to={"/listings"}>
                 <span>
                   <Icons.ArrowLeft className="border-red-400" />
                 </span>
                 Back
-              </NavLink>
+              </Link>
             </Button>
             {/* Logout Button */}
             <Button
               asChild
               className="cursor-pointer bg-neutral-800 text-primary-foreground hover:bg-neutral-900"
             >
-              <NavLink to={"/logout"}>
+              <Link to={"/logout"}>
                 Logout
                 <span>
                   <Icons.LogOutIcon className="border-red-400" />
                 </span>
-              </NavLink>
+              </Link>
             </Button>
           </div>
         )}
