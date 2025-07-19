@@ -10,6 +10,7 @@ import {
   setMessage,
   toggleIsLoggedIn,
   clearMessage,
+  stopIsLoading,
 } from "@/appState/slices/authSlice.js";
 
 import type {
@@ -21,6 +22,7 @@ import Loader from "@/components/Loader";
 import Icons from "@/components/Icons";
 import { Button } from "@/components/ui/button";
 import { NavLink, useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const Logout: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -28,81 +30,81 @@ const Logout: React.FC = () => {
   const { accessToken, isLoading, isLoggedIn, message } = useAppSelector(
     (store: RootState) => store.auth
   );
-  const [logoutState, setLogoutState] = useState<{
-    success: boolean | undefined;
-    error: BEDataHeaderType | null;
-  }>({
-    success: undefined,
-    error: null,
-  });
+  const [logoutSuccess, setLogoutSuccess] = useState<boolean | undefined>(
+    undefined
+  );
+  const [showErrButton, setShowErrButton] = useState<boolean>(false);
+  const [tryAgain, setTryAgain] = useState<boolean>(false);
   const redirectPath = useQueryParams("back_target") || "/listings";
 
   // logout handler function
   const logout = useCallback(async () => {
     dispatch(setIsLoading());
     dispatch(clearMessage());
+
     if (isLoggedIn && accessToken) {
       try {
         await dispatch(logoutUser(accessToken)).unwrap();
-        setLogoutState({ success: true, error: null });
+        handleLogoutSuccess();
       } catch (err: any) {
-        if (err.errno === 5) {
-          setLogoutState({ success: true, error: null });
-        } else {
-          setLogoutState({ success: false, error: err as BEDataHeaderType });
-        }
-        console.error(err);
+        handleLogoutError(err);
       }
     } else {
-      setLogoutState({
-        success: false,
-        error: { errno: 7, message: "", status: "" },
-      });
+      handleLogoutError({ errno: 7, message: "", status: "" });
     }
   }, []);
 
-  useEffect(() => {}, [message, logoutState, isLoading]);
+  const handleLogoutSuccess = () => {
+    dispatch(stopIsLoading());
+    dispatch(
+      setMessage({
+        type: "success",
+        description: "Logout success",
+        role: "alert",
+      })
+    );
+    setLogoutSuccess(true);
+    setTimeout(() => {
+      dispatch(toggleIsLoggedIn(false));
+      navigate("/");
+    }, 3000);
+  };
 
-  // update message when logout state changes
-  useEffect(() => {
-    if (logoutState.error) {
-      let msg: string;
-      switch (logoutState.error.errno) {
-        case 2:
-          msg = "Not allowed. Try logging in again";
-          break;
-        case 7:
-          msg = "You're not logged in";
-          if (isLoggedIn) {
-            dispatch(toggleIsLoggedIn(false));
-          }
-          break;
-        default:
-          // setup password/account reset
-          msg = "Could not complete request";
-          break;
-      }
-      dispatch(
-        setMessage({
-          type: "error",
-          description: msg,
-          role: "alert",
-        })
-      );
-    } else {
-      dispatch(
-        setMessage({
-          type: "success",
-          description: "Logout success",
-          role: "alert",
-        })
-      );
-      setTimeout(() => {
-        dispatch(toggleIsLoggedIn(false));
-        navigate("/");
-      }, 3000);
+  const handleLogoutError = (error: BEDataHeaderType) => {
+    let msg: string;
+    switch (error.errno) {
+      case 1:
+        throw new Error("Something went wrong");
+      case 2:
+        msg = "Not allowed. Try logging in again";
+        setTryAgain(true);
+        setShowErrButton(true);
+        break;
+      case 6:
+        msg = "Unauthorised action.";
+        setShowErrButton(true);
+        break;
+      case 7:
+        msg = "You're not logged in";
+        if (isLoggedIn) {
+          dispatch(toggleIsLoggedIn(false));
+        }
+        setShowErrButton(true);
+        break;
+      default:
+        msg = "Could not complete request";
+        break;
     }
-  }, [logoutState]);
+    dispatch(stopIsLoading());
+    dispatch(
+      setMessage({
+        type: "error",
+        description: msg,
+        role: "alert",
+      })
+    );
+    setLogoutSuccess(false);
+  };
 
   // initial page load effect
   useEffect(() => {
@@ -112,13 +114,7 @@ const Logout: React.FC = () => {
         // logout user
         logout();
       } else {
-        setLogoutState({
-          error: { errno: 7, status: "", message: "" },
-          success: false,
-        });
-        if (isLoggedIn) {
-          dispatch(toggleIsLoggedIn(false));
-        }
+        handleLogoutError({ errno: 7, message: "", status: "" });
       }
     }, 1000);
   }, []);
@@ -138,12 +134,12 @@ const Logout: React.FC = () => {
             <div className="flex items-center gap-2 justify-center animate-fade_in !duration-300">
               {/* Message Icon */}
               <div>
-                {logoutState.success && (
+                {logoutSuccess === true && (
                   <div className="flex flex-col items-center justify-center text-neutral-200 bg-success p-[1.1px] rounded-full size-[24px]">
                     <Icons.CircledCheckmark />
                   </div>
                 )}
-                {logoutState.error && (
+                {logoutSuccess === false && (
                   <div className="flex flex-col items-center justify-center text-neutral-200 bg-destructive p-[1.1px] rounded-full size-[24px]">
                     <Icons.Error />
                   </div>
@@ -161,17 +157,19 @@ const Logout: React.FC = () => {
           )}
         </div>
         {/* Button Area */}
-        {!isLoading && logoutState.error?.errno && (
+        {!isLoading && showErrButton && (
           <div className="mt-5 animate-fade_in !duration-300">
             <Button
               asChild
-              className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary-600"
+              className={cn(
+                "cursor-pointer text-primary-foreground bg-primary hover:bg-primary-600"
+              )}
             >
-              <NavLink to={`${redirectPath}`}>
+              <NavLink to={`${tryAgain ? "/logout" : redirectPath}`}>
                 <span>
-                  <Icons.ArrowLeft className="border-red-400" />
+                  {tryAgain ? <Icons.RetryLeft /> : <Icons.ArrowLeft />}
                 </span>
-                Back
+                {tryAgain ? "Retry" : "Back"}
               </NavLink>
             </Button>
           </div>

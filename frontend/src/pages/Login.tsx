@@ -10,12 +10,8 @@ import {
   clearMessage,
   setMessage,
   toggleMessage,
+  clearStorage,
 } from "@/appState/slices/authSlice.js";
-//import {
-//  toggleAppMessage,
-//  clearAppMessage,
-//  setAppMessage,
-//} from "@/appState/slices/appMessageSlice.js";
 import type {
   BEDataHeaderType,
   LoginCredentialsType,
@@ -43,13 +39,8 @@ const Login: React.FC = () => {
   const [credentials, setCredentials] = useState<LoginFormValuesType | null>(
     null
   );
-  const [loginState, setLoginState] = useState<{
-    success: boolean | undefined;
-    error: BEDataHeaderType | null;
-  }>({
-    success: undefined,
-    error: null,
-  });
+  const [, setLoginSuccess] = useState<boolean | undefined>(undefined);
+  const [showBackButton, setShowBackButton] = useState<boolean>(false);
   const [useCredentials, setUseCredentials] = useState<boolean>(false);
   // Navigate to a route
   const redirectTo = UseRedirect();
@@ -103,67 +94,35 @@ const Login: React.FC = () => {
    * @async @func Login Login handler function
    */
   const login = useCallback(async (credentials: LoginCredentialsType) => {
+    dispatch(setIsLoading());
     dispatch(clearMessage());
     try {
       await dispatch(loginUser({ ...credentials })).unwrap();
-      setLoginState({ error: null, success: true });
-      dispatch(stopIsLoading());
+      handleLoginSuccess();
     } catch (error: any) {
       switch (error.errno) {
-        // Already logged in
-        case 10:
-          setLoginState({ error: null, success: true });
-          dispatch(toggleIsLoggedIn(true));
-          break;
-        // Invalid access token
-        case 6:
-          setLoginState({
-            error: { ...error, message: "Couldn't sign you in automatically" },
-            success: false,
-          });
-          break;
-        // Wrong email
-        case 16:
-          setLoginState({
-            error: { ...error, message: "Wrong email" },
-            success: false,
-          });
-          break;
-        // Wrong password
-        case 17:
-          setLoginState({
-            error: { ...error, message: "Wrong password" },
-            success: false,
-          });
-          break;
         // handle token expired. Refresh access token
         case 5:
           try {
-            await dispatch(
+            showRunner(setRunner, "Hold on tight...nearly done");
+            const aT = await dispatch(
               refreshAccessToken(credentials.accessToken as string)
             ).unwrap();
-            showRunner(setRunner, "Hold on tight...nearly done");
+            console.log("REFRESH TOKEN SUCCESS:", aT.accessToken);
+            login(aT);
           } catch (err: any) {
             console.error("TOKEN REFRESH FAILED", err);
-            setLoginState({
-              error: {
-                ...err,
-                message:
-                  err.errno === 9 ? "Your session has expired" : "Login failed",
-              },
-              success: false,
-            });
+            handleLoginError(error);
           }
-          break;
+          return;
         default:
-          setLoginState({ success: false, error });
+          handleLoginError(error);
       }
       console.error(error);
     }
   }, []);
 
   useEffect(() => {}, [
-    loginState,
     message,
     useCredentials,
     isLoading,
@@ -172,87 +131,125 @@ const Login: React.FC = () => {
   ]);
 
   /**
+   * @function handleLoginSuccess
+   * @description Handles login success event
+   * @returns {void}
+   */
+  const handleLoginSuccess = () => {
+    setUseCredentials(false);
+    dispatch(stopIsLoading());
+    hideRunner(setRunner);
+    setTimeout(() => {
+      dispatch(
+        setMessage({
+          type: "success",
+          description: "Login success",
+          role: "alert",
+        })
+      );
+      dispatch(toggleMessage());
+      dispatch(toggleIsLoggedIn(true));
+    }, 500);
+    setLoginSuccess(true);
+    setTimeout(() => {
+      redirectTo("/listings");
+    }, 3000);
+  };
+
+  /**
+   * @function handleLoginError
+   * @description Handles login error event
+   * @param error Error object
+   * @returns {void}
+   */
+  const handleLoginError = (error: BEDataHeaderType) => {
+    // if already logged in
+    switch (error.errno) {
+      default:
+        console.error(error);
+        throw new Error(
+          error.details ? JSON.stringify(error.details) : "Something went wrong"
+        );
+      case 2:
+        dispatch(
+          setMessage({
+            type: "error",
+            description: "Login failed.",
+            role: "alert",
+          })
+        );
+        dispatch(clearStorage());
+        setUseCredentials(true);
+        break;
+      case 10:
+        dispatch(
+          setMessage({
+            type: "neutral",
+            description: "You're already logged in",
+            role: "alert",
+          })
+        );
+        dispatch(toggleIsLoggedIn(true));
+        setShowBackButton(true);
+        break;
+      case 6:
+        dispatch(
+          setMessage({
+            type: "neutral",
+            description: "Couldn't sign you in automatically",
+            role: "alert",
+          })
+        );
+        hideRunner(setRunner, 100);
+        setTimeout(() => {
+          showRunner(setRunner, "Try using your email and password");
+        }, 500);
+        setTimeout(() => {
+          setUseCredentials(true);
+        }, 1200);
+        setLoginSuccess(false);
+        break;
+      case 9:
+        dispatch(stopIsLoading());
+        hideRunner(setRunner, 0);
+        setTimeout(() => {
+          dispatch(
+            setMessage({
+              type: "error",
+              description: "Your session has expired",
+              role: "alert",
+            })
+          );
+          setTimeout(() => {
+            showRunner(setRunner, "Use your credentials to login again", 0);
+            setUseCredentials(true);
+          }, 1000);
+        }, 1000);
+        setLoginSuccess(false);
+        break;
+      case 17:
+        hideRunner(setRunner, 200);
+        setTimeout(() => {
+          showRunner(setRunner, "You missed something. Try again.");
+        }, 400);
+        setLoginSuccess(false);
+        break;
+    }
+    dispatch(stopIsLoading());
+    dispatch(toggleMessage({ autoHide: false }));
+    // if auth token is invalid, try initiating a fresh login
+  };
+
+  /**
    * @hook Login with credentials effect hook
    */
   useEffect(() => {
     if (credentials) {
-      dispatch(setIsLoading());
       dispatch(clearMessage());
+      dispatch(setIsLoading());
       login({ ...credentials });
     }
   }, [credentials]);
-
-  useEffect(() => {
-    if (loginState.error) {
-      let msg: string;
-      let errType: "error" | "success" | "info" | "warning" | "neutral";
-      // if already logged in
-      if (loginState.error.errno === 10) {
-        [errType, msg] = ["neutral", "You're already logged in"];
-      } else {
-        [errType, msg] = ["error", loginState.error.message];
-      }
-      dispatch(
-        setMessage({
-          type: errType,
-          description: msg,
-          role: "alert",
-        })
-      );
-      // if auth token is invalid, try initiating a fresh login
-      switch (loginState.error.errno) {
-        case 6:
-          hideRunner(setRunner, 100);
-          setTimeout(() => {
-            showRunner(
-              setRunner,
-              "Try using your email and password to sign in"
-            );
-          }, 500);
-          setTimeout(() => {
-            setUseCredentials(true);
-          }, 1200);
-          break;
-        case 9:
-          hideRunner(setRunner, 0);
-          setTimeout(() => {
-            showRunner(setRunner, "Use your credentials to login again", 1000);
-            setTimeout(() => {
-              setUseCredentials(true);
-            }, 1000);
-          }, 1000);
-          break;
-        case 16:
-        case 17:
-          hideRunner(setRunner, 200);
-          setTimeout(() => {
-            showRunner(setRunner, "You missed something. Try again.");
-          }, 400);
-          break;
-      }
-      dispatch(stopIsLoading());
-      dispatch(toggleMessage({ autoHide: true }));
-    } else if (loginState.success) {
-      if (useCredentials) {
-        setUseCredentials(false);
-      }
-      hideRunner(setRunner);
-      setTimeout(() => {
-        dispatch(
-          setMessage({
-            type: "success",
-            description: "Login success",
-            role: "alert",
-          })
-        );
-        dispatch(toggleMessage());
-        dispatch(toggleIsLoggedIn(true));
-      }, 500);
-      setTimeout(() => {
-        redirectTo("/listings");
-      }, 3000);
-    }
-  }, [loginState]);
 
   // Effects when page first loads
   useEffect(() => {
@@ -266,16 +263,8 @@ const Login: React.FC = () => {
         if (isLoggedIn) {
           hideRunner(setRunner);
           setTimeout(() => {
-            setLoginState({
-              success: false,
-              error: {
-                status: "",
-                message: "",
-                errno: 10,
-              },
-            });
+            handleLoginError({ errno: 10, message: "", status: "" });
           }, 100);
-          dispatch(stopIsLoading());
         } else {
           login({ accessToken });
         }
@@ -336,7 +325,7 @@ const Login: React.FC = () => {
           )}
         </div>
         {/* Button Area */}
-        {!isLoading && loginState.error?.errno === 10 && (
+        {!isLoading && showBackButton && (
           <div className="mt-5 animate-fade_in !duration-300 flex gap-5">
             {/* Back Button */}
             <Button
