@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import utils from "../../../utils/index.js";
 import jwt from "jsonwebtoken";
 import type { TDecomposeResult } from "../../../utils/types.js";
+import config from "../../../config.js";
 
 const validateAuthToken = async (
   req: Request,
@@ -23,6 +24,12 @@ const validateAuthToken = async (
       let { payload: aTData }: TDecomposeResult =
         utils.tokens.decompose.accessToken(aT);
       if (aTData === null) {
+        if (req.url === "/auth/logout") {
+          utils.cache.delete(`${aT}:${config.rTFieldName}`);
+          return utils.handlers.success(req, res, {
+            message: "Logout success",
+          });
+        }
         return utils.handlers.error(req, res, "authentication", { errno: 5 });
       }
       req.body.auth.payload = aTData;
