@@ -34,9 +34,9 @@ const configureMocks = (mockApi: MockAdapter): void => {
       ,
     ];
     const responses = [expiredRes, successRes];
-    //const len = responses.length;
-    //const index = Math.floor(Math.random() * 10) % len;
-    return responses[1] as MockResponse;
+    const len = responses.length;
+    const index = Math.floor(Math.random() * 10) % len;
+    return responses[index] as MockResponse;
   });
 
   /**
