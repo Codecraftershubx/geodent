@@ -58,12 +58,17 @@ type LoginSuccessPayloadType = {
 
 type RefreshSuccessPayloadType = LoginSuccessPayloadType;
 
+type FadeComponentPropsType = {
+  className?: string;
+};
+
 export type {
   APIResponseType,
   AppDispatchType,
   AuthStateType,
   BEDataType,
   BEDataHeaderType,
+  FadeComponentPropsType,
   LoginCredentialsType,
   LoginSuccessPayloadType,
   MessageType,

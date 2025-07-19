@@ -2,9 +2,11 @@ import {
   Bell,
   CircleCheck,
   CircleX,
+  House,
   LogOut,
   MoveLeft,
   MoveRight,
+  RotateCcw,
   ThumbsUp,
   TriangleAlert,
   X,
@@ -152,6 +154,23 @@ const Error: React.FC<IconPropsType> = ({
   );
 };
 
+const Home: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={House}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+
 const LogOutIcon: React.FC<IconPropsType> = ({
   size = "64px",
   variant = "default",
@@ -178,6 +197,23 @@ const NormalBell: React.FC<IconPropsType> = ({
   return (
     <AppIcon
       Icon={Bell}
+      size={size}
+      variant={variant}
+      className={className}
+      hoverable={hoverable}
+    />
+  );
+};
+
+const RetryLeft: React.FC<IconPropsType> = ({
+  size = "64px",
+  variant = "default",
+  className,
+  hoverable,
+}) => {
+  return (
+    <AppIcon
+      Icon={RotateCcw}
       size={size}
       variant={variant}
       className={className}
@@ -243,8 +279,10 @@ export default {
   CircledCheckmark,
   Close,
   Error,
+  Home,
   LogOutIcon,
   NormalBell,
+  RetryLeft,
   RingingBell,
   ThumbUp,
   Warning,
