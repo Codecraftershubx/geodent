@@ -3,9 +3,9 @@
  * LIVE REQUESTS API HERE
  *=========================
  */
-import client from "./client";
-import { APIResponseType } from "@/utils/types";
-import { RequestApiType } from "./requestApi";
+import client from "./client.js";
+import { APIResponseType } from "@/utils/types.js";
+import { RequestApiType } from "./requestApi.js";
 
 /**
  * @async @func get Get request handler
@@ -59,6 +59,7 @@ const post = async (
     });
     return { error: false, content: res.data };
   } catch (err: any) {
+    console.log("BE ERROR:", err);
     return {
       error: true,
       content: err?.response?.data ?? {

@@ -176,16 +176,6 @@ const configureMocks = (mockApi: MockAdapter): void => {
                   {
                     header: {
                       status: "failed",
-                      errno: 10,
-                      message: "Already logged in",
-                    },
-                  },
-                ],
-                [
-                  401,
-                  {
-                    header: {
-                      status: "failed",
                       errno: 2,
                       message: "Unauthorised",
                     },
@@ -298,16 +288,6 @@ const configureMocks = (mockApi: MockAdapter): void => {
                       {
                         header: {
                           status: "failed",
-                          errno: 5,
-                          message: "Expired access token",
-                        },
-                      },
-                    ],
-                    [
-                      401,
-                      {
-                        header: {
-                          status: "failed",
                           errno: 6,
                           message: "Inalid access token",
                         },
@@ -340,6 +320,7 @@ const configureMocks = (mockApi: MockAdapter): void => {
                   switch (index) {
                     case 0:
                       window.localStorage.setItem("isLoggedIn", "false");
+                      res = altRes[index];
                       break;
                     case undefined:
                       res = [
@@ -356,6 +337,7 @@ const configureMocks = (mockApi: MockAdapter): void => {
                     default:
                       res = altRes[index];
                   }
+                  break;
               }
               break;
             default:
@@ -384,6 +366,7 @@ const configureMocks = (mockApi: MockAdapter): void => {
           ];
       }
     }
+    console.log("MOCKA API RES:", res);
     return res as MockResponse;
   });
 };

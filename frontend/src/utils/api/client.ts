@@ -10,7 +10,7 @@ const api = axios.create({
   maxRedirects: 5,
 });
 
-if (import.meta.env.ENV === "test") {
+if (import.meta.env.VITE_ENV === "test") {
   const mockApi = new MockAdapter(api);
   configureMocks(mockApi);
 }

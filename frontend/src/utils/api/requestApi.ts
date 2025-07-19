@@ -5,8 +5,8 @@
  * ==============================
  */
 
-import api from "./api";
-import { APIResponseType } from "../types";
+import api from "./main.js";
+import { APIResponseType } from "../types.js";
 
 /**
  * @class
@@ -33,5 +33,5 @@ type RequestApiType = {
   post: (url: string, options: Record<string, any>) => Promise<APIResponseType>;
 };
 
-export default RequestApi;
+export { RequestApi };
 export type { RequestApiType };
