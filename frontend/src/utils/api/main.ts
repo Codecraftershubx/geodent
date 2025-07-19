@@ -59,7 +59,6 @@ const post = async (
     });
     return { error: false, content: res.data };
   } catch (err: any) {
-    console.log("BE ERROR:", err);
     return {
       error: true,
       content: err?.response?.data ?? {

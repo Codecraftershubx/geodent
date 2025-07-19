@@ -48,8 +48,9 @@ const configureMocks = (mockApi: MockAdapter): void => {
     let index;
     let altRes;
     const auth = config?.headers?.Authorization;
+    // Handle various responses when no auth token is available
     if (!auth) {
-      // handle use credentials
+      // if data is not sent
       if (!config.data) {
         res = [
           400,
@@ -122,6 +123,7 @@ const configureMocks = (mockApi: MockAdapter): void => {
         }
       }
     } else {
+      // Handle various responses when auth token is available
       const [t, tk] = auth.split(" ");
       const aT = window.localStorage.getItem("accessToken");
       switch (t) {
@@ -193,9 +195,9 @@ const configureMocks = (mockApi: MockAdapter): void => {
                 ],
               ];
               // return one randomly selected response
-              //len = altRes.length;
-              //index = Math.floor(Math.random() * 10) % len;
-              res = altRes[0];
+              len = altRes.length;
+              index = Math.floor(Math.random() * 10) % len;
+              res = altRes[index];
               break;
             default:
               res = [
