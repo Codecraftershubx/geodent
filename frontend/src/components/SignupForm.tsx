@@ -15,7 +15,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import api from "../utils/api";
+import { RequestApi } from "@/utils/api/requestApi";
+
+const api = RequestApi.getClient();
 
 // form schema
 const formSchema = z.object({

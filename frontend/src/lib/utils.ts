@@ -34,9 +34,8 @@ export function randomString(length: number = 16) {
   const buffer = new Uint16Array(length);
   window.crypto.getRandomValues(buffer);
   let res = "";
+  // select a character from chars and append to res
   for (let i = 0; i < length; i++) {
-    console.log(buffer[i]);
-    console.log("character code", chars.charCodeAt(buffer[i] % charsLen));
     res += chars.charAt(buffer[i] % charsLen);
   }
   return res;

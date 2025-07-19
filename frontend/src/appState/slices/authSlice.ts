@@ -10,7 +10,7 @@ import type {
   LoginCredentialsType,
 } from "@/utils/types.js";
 
-import RequestApi from "@/utils/api/requestApi";
+import { RequestApi } from "@/utils/api/requestApi";
 import { assertIsDefined } from "@/utils/assertions";
 
 const api = RequestApi.getClient();
@@ -82,8 +82,7 @@ const logoutUser = createAsyncThunk<
   console.log("logoutUser response", response);
   if (response.error) {
     switch (response.content.header.errno) {
-      case 5:
-      case 6:
+      case 9:
         dispatch(authSlice.actions.clearStorage());
         break;
     }
@@ -253,6 +252,7 @@ export { loginUser, logoutUser, refreshAccessToken, toggleMessage };
 export const {
   setAccessToken,
   clearAccessToken,
+  clearStorage,
   setMessage,
   clearMessage,
   showMessage,
