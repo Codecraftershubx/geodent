@@ -16,6 +16,7 @@ type AlertPropsType = {
   className?: string;
   bodyClassName?: string;
   alertClassName?: string;
+  toggle?: () => void;
 };
 
 const alertTypes = {
@@ -124,6 +125,7 @@ const AppAlert: React.FC<AlertPropsType> = ({
   className,
   bodyClassName,
   alertClassName,
+  toggle,
 }) => {
   return (
     <motion.div
@@ -173,12 +175,16 @@ const AppAlert: React.FC<AlertPropsType> = ({
                   hoverable={true}
                   onClick={(e) => {
                     e.preventDefault;
-                    const alert = e.currentTarget.parentElement?.parentElement
-                      ?.parentElement?.parentElement as HTMLElement;
-                    alert?.classList.add("animate-fade_out", "!duration-500");
-                    setTimeout(() => {
-                      alert?.classList.add("hidden");
-                    }, 500);
+                    if (toggle) {
+                      toggle();
+                    } else {
+                      const alert = e.currentTarget.parentElement?.parentElement
+                        ?.parentElement?.parentElement as HTMLElement;
+                      alert?.classList.add("animate-fade_out", "!duration-500");
+                      setTimeout(() => {
+                        alert?.classList.add("hidden");
+                      }, 500);
+                    }
                   }}
                 />
               </div>
