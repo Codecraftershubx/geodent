@@ -42,6 +42,7 @@ const Login: React.FC = () => {
   const [, setLoginSuccess] = useState<boolean | undefined>(undefined);
   const [showBackButton, setShowBackButton] = useState<boolean>(false);
   const [useCredentials, setUseCredentials] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
   // Navigate to a route
   const redirectTo = UseRedirect();
 
@@ -109,10 +110,10 @@ const Login: React.FC = () => {
               refreshAccessToken(credentials.accessToken as string)
             ).unwrap();
             console.log("REFRESH TOKEN SUCCESS:", aT.accessToken);
-            login(aT);
+            await login(aT);
           } catch (err: any) {
             console.error("TOKEN REFRESH FAILED", err);
-            handleLoginError(error);
+            handleLoginError(err);
           }
           return;
         default:
@@ -122,13 +123,19 @@ const Login: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {}, [
-    message,
-    useCredentials,
-    isLoading,
-    runner,
-    accessToken,
-  ]);
+  //useEffect(() => {}, [
+  //  message,
+  //  useCredentials,
+  //  isLoading,
+  //  runner,
+  //  accessToken,
+  //]);
+
+  useEffect(() => {
+    if (error !== null) {
+      throw error;
+    }
+  }, [error]);
 
   /**
    * @function handleLoginSuccess
@@ -164,12 +171,8 @@ const Login: React.FC = () => {
    */
   const handleLoginError = (error: BEDataHeaderType) => {
     // if already logged in
+    console.log("HANDING LOGIN ERROR: ERROR IS\n\t", error);
     switch (error.errno) {
-      default:
-        console.error(error);
-        throw new Error(
-          error.details ? JSON.stringify(error.details) : "Something went wrong"
-        );
       case 2:
         dispatch(
           setMessage({
@@ -210,6 +213,7 @@ const Login: React.FC = () => {
         setLoginSuccess(false);
         break;
       case 9:
+        console.log("HANDLING ERROR CASE 9 -> EXPIRED REFRESH TOKEN");
         dispatch(stopIsLoading());
         hideRunner(setRunner, 0);
         setTimeout(() => {
@@ -224,7 +228,7 @@ const Login: React.FC = () => {
             showRunner(setRunner, "Use your credentials to login again", 0);
             setUseCredentials(true);
           }, 1000);
-        }, 1000);
+        }, 500);
         setLoginSuccess(false);
         break;
       case 17:
@@ -234,6 +238,15 @@ const Login: React.FC = () => {
         }, 400);
         setLoginSuccess(false);
         break;
+      default:
+        console.error(error);
+        setError(
+          new Error(
+            error.details
+              ? JSON.stringify(error.details)
+              : "Something went wrong"
+          )
+        );
     }
     dispatch(stopIsLoading());
     dispatch(toggleMessage({ autoHide: false }));
@@ -308,10 +321,7 @@ const Login: React.FC = () => {
           {showMessage && message && !isLoading && (
             <div
               className={cn(
-                "flex flex-col items-center gap-2 justify-center w-[300px] md:w-[420px] animate-all",
-                showMessage
-                  ? "animate-fade_in !duration-1000"
-                  : "animate-fade_out !duration-2000"
+                "flex flex-col items-center gap-2 justify-center w-[300px] md:w-[420px]"
               )}
             >
               <Components.Alert
@@ -319,7 +329,6 @@ const Login: React.FC = () => {
                 description={(message as MessageType).description}
                 fullWidth={true}
                 type={(message as MessageType).type}
-                className="animate-inherit"
               />
             </div>
           )}
