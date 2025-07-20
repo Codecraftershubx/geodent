@@ -1,6 +1,6 @@
 import Alert from "./Alert";
 import ErrorBoundary from "./ErrorBoundary";
-import ErrorComponent from "./ErrorComponent";
+import TestComponent from "./TestComponent";
 import Layout from "./Layout";
 import Loader from "./Loader";
 import LoginForm from "./LoginForm";
@@ -13,7 +13,7 @@ import Wrapper from "./Wrapper";
 export default {
   Alert,
   ErrorBoundary,
-  ErrorComponent,
+  TestComponent,
   Layout,
   Loader,
   LoginForm,
