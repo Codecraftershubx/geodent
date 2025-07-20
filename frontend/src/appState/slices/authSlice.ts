@@ -124,14 +124,18 @@ const toggleMessage = createAsyncThunk<
   AppMessageArgsType,
   { dispatch: AppDispatchType }
 >("auth/toggleMessage", async (options, { dispatch }) => {
+  const mode = options?.mode ?? "on";
   const autoHide = options?.autoHide ?? false;
   const delay = options?.delay ?? 5000;
-
-  dispatch(authSlice.actions.showMessage());
-  if (autoHide) {
-    setTimeout(() => {
-      dispatch(authSlice.actions.hideMessage());
-    }, delay);
+  if (mode === "on") {
+    dispatch(authSlice.actions.showMessage());
+    if (autoHide) {
+      setTimeout(() => {
+        dispatch(authSlice.actions.hideMessage());
+      }, delay);
+    }
+  } else {
+    setTimeout(() => dispatch(authSlice.actions.hideMessage(), delay));
   }
 });
 const authSlice = createSlice({
@@ -244,6 +248,7 @@ type AppMessageArgsType =
   | {
       autoHide?: boolean;
       delay?: number;
+      mode?: "on" | "off";
     }
   | undefined;
 
