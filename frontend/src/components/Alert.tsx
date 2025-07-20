@@ -2,6 +2,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Wrapper from "./Wrapper";
 import Icons from "./Icons";
 import { cn } from "@/lib/utils";
+import { motion, Variants } from "motion/react";
 
 type AlertPropsType = {
   isClosable?: boolean;
@@ -86,6 +87,31 @@ const alertTypes = {
   },
 } as const;
 
+const motionVariants: Variants = {
+  hidden: { opacity: 0, y: -20, rotateX: 45 },
+  show: {
+    opacity: 1,
+    rotateX: 0,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      type: "spring",
+      ease: "easeIn",
+      bounce: 0.5,
+    },
+  },
+  exit: {
+    opacity: [0.5, 0],
+    rotateX: -90,
+    y: [-10, 20],
+    transition: {
+      duration: 1,
+      type: "spring",
+      ease: "easeOut",
+    },
+  },
+};
+
 const AppAlert: React.FC<AlertPropsType> = ({
   isClosable = true,
   rounded = true,
@@ -100,62 +126,67 @@ const AppAlert: React.FC<AlertPropsType> = ({
   alertClassName,
 }) => {
   return (
-    <Wrapper
-      fullWidth={fullWidth}
-      className={cn("mb-5 animate-fade_in !duration-500", className)}
+    <motion.div
+      className="w-full [backface-visibility:hidden]"
+      variants={motionVariants}
+      initial="hidden"
+      animate="show"
+      exit="exit"
     >
-      <Alert
-        className={cn(
-          `animate-inherit ${rounded ? "rounded-lg" : ""} py-2 @container ${alertTypes[type].styles[variant]}`,
-          alertClassName
-        )}
-      >
-        <Wrapper className="flex justify-between items-center @max-lg:w-95/100">
-          <div
-            item-role="alert-content"
-            className="flex justify-start items-center py-2 pr-4 gap-2 md:gap-3"
-          >
-            <div
-              item-role="alert-icon"
-              className={
-                "size-[20px] md:size-[24px] rounded-sm px-2 flex flex-col items-center justify-center"
-              }
-            >
-              {alertTypes[type].icon}
-            </div>
-            <div
-              item-role="alert-body"
-              className={cn("flex gap-1", bodyClassName)}
-            >
-              {withTitle && (
-                <AlertTitle>
-                  {title || alertTypes[type].content.title}:
-                </AlertTitle>
-              )}
-              <AlertDescription>
-                {description || alertTypes[type].content.description}
-              </AlertDescription>
-            </div>
-          </div>
-          {isClosable && (
-            <div className="size-[26px] flex flex-col justify-center items-center">
-              <Icons.Close
-                hoverable={true}
-                onClick={(e) => {
-                  e.preventDefault;
-                  const alert = e.currentTarget.parentElement?.parentElement
-                    ?.parentElement?.parentElement as HTMLElement;
-                  alert?.classList.add("animate-fade_out", "!duration-500");
-                  setTimeout(() => {
-                    alert?.classList.add("hidden");
-                  }, 500);
-                }}
-              />
-            </div>
+      <Wrapper fullWidth={fullWidth} className={cn(className)}>
+        <Alert
+          className={cn(
+            `animate-inherit ${rounded ? "rounded-lg" : ""} py-2 @container ${alertTypes[type].styles[variant]}`,
+            alertClassName
           )}
-        </Wrapper>
-      </Alert>
-    </Wrapper>
+        >
+          <Wrapper className="flex justify-between items-center @max-lg:w-95/100">
+            <div
+              item-role="alert-content"
+              className="flex justify-start items-center py-2 pr-4 gap-2 md:gap-3"
+            >
+              <div
+                item-role="alert-icon"
+                className={
+                  "size-[20px] md:size-[24px] rounded-sm px-2 flex flex-col items-center justify-center"
+                }
+              >
+                {alertTypes[type].icon}
+              </div>
+              <div
+                item-role="alert-body"
+                className={cn("flex gap-1", bodyClassName)}
+              >
+                {withTitle && (
+                  <AlertTitle>
+                    {title || alertTypes[type].content.title}:
+                  </AlertTitle>
+                )}
+                <AlertDescription>
+                  {description || alertTypes[type].content.description}
+                </AlertDescription>
+              </div>
+            </div>
+            {isClosable && (
+              <div className="size-[26px] flex flex-col justify-center items-center">
+                <Icons.Close
+                  hoverable={true}
+                  onClick={(e) => {
+                    e.preventDefault;
+                    const alert = e.currentTarget.parentElement?.parentElement
+                      ?.parentElement?.parentElement as HTMLElement;
+                    alert?.classList.add("animate-fade_out", "!duration-500");
+                    setTimeout(() => {
+                      alert?.classList.add("hidden");
+                    }, 500);
+                  }}
+                />
+              </div>
+            )}
+          </Wrapper>
+        </Alert>
+      </Wrapper>
+    </motion.div>
   );
 };
 
