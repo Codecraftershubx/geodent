@@ -24,6 +24,7 @@ import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import Icons from "@/components/Icons";
 import { LoginFormValuesType } from "@/components/LoginForm";
+import { AnimatePresence } from "motion/react";
 
 const Login: React.FC = () => {
   /**
@@ -109,10 +110,8 @@ const Login: React.FC = () => {
             const aT = await dispatch(
               refreshAccessToken(credentials.accessToken as string)
             ).unwrap();
-            console.log("REFRESH TOKEN SUCCESS:", aT.accessToken);
             await login(aT);
           } catch (err: any) {
-            console.error("TOKEN REFRESH FAILED", err);
             handleLoginError(err);
           }
           return;
@@ -171,7 +170,6 @@ const Login: React.FC = () => {
    */
   const handleLoginError = (error: BEDataHeaderType) => {
     // if already logged in
-    console.log("HANDING LOGIN ERROR: ERROR IS\n\t", error);
     switch (error.errno) {
       case 2:
         dispatch(
@@ -213,7 +211,6 @@ const Login: React.FC = () => {
         setLoginSuccess(false);
         break;
       case 9:
-        console.log("HANDLING ERROR CASE 9 -> EXPIRED REFRESH TOKEN");
         dispatch(stopIsLoading());
         hideRunner(setRunner, 0);
         setTimeout(() => {
@@ -318,20 +315,25 @@ const Login: React.FC = () => {
             </div>
           )}
           {/* Message area */}
-          {showMessage && message && !isLoading && (
-            <div
-              className={cn(
-                "flex flex-col items-center gap-2 justify-center w-[300px] md:w-[420px]"
-              )}
-            >
-              <Components.Alert
-                variant={"plain"}
-                description={(message as MessageType).description}
-                fullWidth={true}
-                type={(message as MessageType).type}
-              />
-            </div>
-          )}
+          <AnimatePresence>
+            {showMessage && message && !isLoading && (
+              <div
+                className={cn(
+                  "flex flex-col items-center gap-2 justify-center w-[300px] md:w-[420px] [perspective:500px]"
+                )}
+              >
+                <Components.Alert
+                  variant={"plain"}
+                  description={(message as MessageType).description}
+                  fullWidth={true}
+                  type={(message as MessageType).type}
+                  toggle={() =>
+                    dispatch(toggleMessage({ mode: "off", delay: 0 }))
+                  }
+                />
+              </div>
+            )}
+          </AnimatePresence>
         </div>
         {/* Button Area */}
         {!isLoading && showBackButton && (
