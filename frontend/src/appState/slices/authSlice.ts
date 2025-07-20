@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import type {
   AppDispatchType,
   AuthStateType,
-  BEDataType,
   BEDataHeaderType,
   MessageType,
   LoginSuccessPayloadType,
@@ -102,7 +101,7 @@ const logoutUser = createAsyncThunk<
 const refreshAccessToken = createAsyncThunk<
   RefreshSuccessPayloadType,
   string,
-  { rejectValue: BEDataType; dispatch: AppDispatchType }
+  { rejectValue: BEDataHeaderType; dispatch: AppDispatchType }
 >("auth/refresh", async (token: string, { rejectWithValue, dispatch }) => {
   const response = await api.post("/auth/refresh", {
     headers: {
@@ -110,7 +109,7 @@ const refreshAccessToken = createAsyncThunk<
     },
   });
   if (response.error) {
-    return rejectWithValue(response.content);
+    return rejectWithValue(response.content.header);
   }
   // update cache with new access token
   assertIsDefined(response.content.data);
