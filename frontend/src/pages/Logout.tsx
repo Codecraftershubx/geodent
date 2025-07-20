@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  useAppSelector,
-  useAppDispatch,
-  UseQueryParams,
-} from "@/hooks/index.js";
+import { useAppSelector, useAppDispatch } from "@/hooks/index.js";
 import {
   setIsLoading,
   logoutUser,
@@ -21,7 +17,7 @@ import type {
 import Loader from "@/components/Loader";
 import Icons from "@/components/Icons";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const Logout: React.FC = () => {
@@ -35,7 +31,6 @@ const Logout: React.FC = () => {
   );
   const [showErrButton, setShowErrButton] = useState<boolean>(false);
   const [tryAgain, setTryAgain] = useState<boolean>(false);
-  const redirectPath = UseQueryParams("back_target") || "/listings";
 
   // logout handler function
   const logout = useCallback(async () => {
@@ -164,13 +159,19 @@ const Logout: React.FC = () => {
               className={cn(
                 "cursor-pointer text-primary-foreground bg-primary hover:bg-primary-600"
               )}
+              onClick={() => {
+                dispatch(setIsLoading());
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              }}
             >
-              <Link to={`${tryAgain ? "/logout" : redirectPath}`}>
+              <span>
                 <span>
                   {tryAgain ? <Icons.RetryLeft /> : <Icons.ArrowLeft />}
                 </span>
                 {tryAgain ? "Retry" : "Back"}
-              </Link>
+              </span>
             </Button>
           </div>
         )}
