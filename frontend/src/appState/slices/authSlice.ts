@@ -11,11 +11,15 @@ import type {
 
 import { RequestApi } from "@/utils/api/requestApi";
 import { assertIsDefined } from "@/utils/assertions";
-
 const api = RequestApi.getClient();
-console.log(api);
 
-// login user
+/**
+ * @function loginUser
+ * @descrition Redux async thun to log in a user from the application
+ * @param credentials[object] credentials for logout auth
+ * @param thunkapi createAsyncThunk api class
+ * @returns { object {accessToken: string} } data on login success
+ */
 const loginUser = createAsyncThunk<
   LoginSuccessPayloadType,
   LoginCredentialsType,
@@ -26,13 +30,14 @@ const loginUser = createAsyncThunk<
     credentials: LoginCredentialsType,
     { rejectWithValue, dispatch, getState }
   ) => {
-    console.log("LOGIN THUNK CALLED WITH DATA:", credentials);
     const options: Record<string, any> = {};
+    // add auth headers if access token is sent
     if (credentials.accessToken) {
       options.headers = {
         Authorization: `Bearer ${credentials.accessToken}`,
       };
     } else {
+      // add credentials if no access token
       options.extras = {
         data: {
           email: credentials.email,
@@ -40,23 +45,27 @@ const loginUser = createAsyncThunk<
         },
       };
     }
+    // make request to server
     let response = await api.post("/auth/login", options);
-    console.log(response);
     let data;
+    // handle unauthorised requests
     if (response.error) {
       switch (response.content.header.errno) {
         case 2:
           dispatch(authSlice.actions.clearStorage());
           break;
       }
+      // reject request
       return rejectWithValue(response.content.header);
     }
+    // extract access token and update state
     const state = getState() as AuthStateType;
     assertIsDefined(response.content.data);
     data = response.content?.data[0] as LoginSuccessPayloadType;
     if (state.accessToken !== data.accessToken) {
       dispatch(authSlice.actions.setAccessToken(data.accessToken));
     }
+    // forward data to caller
     return data;
   }
 );
@@ -73,12 +82,13 @@ const logoutUser = createAsyncThunk<
   string,
   { rejectValue: BEDataHeaderType }
 >("auth/logout", async (accessToken, { rejectWithValue, dispatch }) => {
+  // make request with auth header
   const response = await api.post("/auth/logout", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  console.log("logoutUser response", response);
+  // handle expired sessions: ie refresh tokens and other errors
   if (response.error) {
     switch (response.content.header.errno) {
       case 9:
@@ -87,12 +97,13 @@ const logoutUser = createAsyncThunk<
     }
     return rejectWithValue(response.content.header);
   }
+  // return on success
   return true;
 });
 
 /**
  * @function refreshAccessToken
- * @descrition Redux async thun to handle expired tokens refresh
+ * @description Redux async thun to handle expired tokens refresh
  * @param accessToken access token to use for logout auth
  * @param thunkapi createAsyncThunk api class
  * @returns { RefreshSuccessPayloadType } an object containing the accessToken as key on success
@@ -103,22 +114,32 @@ const refreshAccessToken = createAsyncThunk<
   string,
   { rejectValue: BEDataHeaderType; dispatch: AppDispatchType }
 >("auth/refresh", async (token: string, { rejectWithValue, dispatch }) => {
+  // add auth header and make request to server
   const response = await api.post("/auth/refresh", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+  // handle refresh failure
   if (response.error) {
     return rejectWithValue(response.content.header);
   }
-  // update cache with new access token
+  // update store with new access token
   assertIsDefined(response.content.data);
   const data = response.content.data[0] as RefreshSuccessPayloadType;
   dispatch(authSlice.actions.setAccessToken(data.accessToken));
+  // return response data
   return data;
 });
 
-// message toggle
+/**
+ * @function toggleMessage
+ * @description Redux async thunk to display or hide auth messages
+ * @param accessToken access token to use for logout auth
+ * @param thunkapi createAsyncThunk api class
+ * @returns { RefreshSuccessPayloadType } an object containing the accessToken as key on success
+ * @returns { BEDataHeaderType } an object with error details on error
+ */
 const toggleMessage = createAsyncThunk<
   Promise<void>,
   AppMessageArgsType,
@@ -138,6 +159,11 @@ const toggleMessage = createAsyncThunk<
     setTimeout(() => dispatch(authSlice.actions.hideMessage(), delay));
   }
 });
+
+/**
+ * @name authSlice
+ * @description Redux auth slice
+ */
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -240,6 +266,12 @@ const authSlice = createSlice({
       });
   },
 });
+
+/**
+ * ======
+ * Types
+ * ======
+ */
 
 /**
  * App Message Args Type

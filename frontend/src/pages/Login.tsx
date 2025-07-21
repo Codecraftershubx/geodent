@@ -261,7 +261,12 @@ const Login: React.FC = () => {
     }
   }, [credentials]);
 
-  // Effects when page first loads
+  /**
+   * @hook
+   * @description Fires when component first mounts
+   * Tries to log user in if previously logged in and
+   * displays Login form if otherwise
+   */
   useEffect(() => {
     // avoid calling backend if already logged in on frontend
     if (accessToken) {

@@ -65,7 +65,6 @@ const configureMocks = (mockApi: MockAdapter): void => {
         ];
       } else {
         const { email, password } = JSON.parse(config.data);
-        console.log("email:", email, "password", password);
         if (!email || !password) {
           const field = email
             ? "password"
@@ -232,11 +231,9 @@ const configureMocks = (mockApi: MockAdapter): void => {
    * @name Mock.post Mock /auth/logout
    */
   mockApi.onPost("/auth/logout").reply((config) => {
-    console.log(window.localStorage.getItem("isLoggedIn"));
     let res;
     let len;
     let index;
-    console.log(config);
     const auth = config?.headers?.Authorization;
     // no auth headers sent
     if (!auth) {
@@ -259,7 +256,6 @@ const configureMocks = (mockApi: MockAdapter): void => {
             case aT:
               // define various auth responses available on endpoint after token
               const loggedIn = window.localStorage.getItem("isLoggedIn");
-              console.log("LOGOUT LOGGEDIN?:", loggedIn);
               switch (loggedIn) {
                 case "false":
                   res = [
@@ -368,7 +364,6 @@ const configureMocks = (mockApi: MockAdapter): void => {
           ];
       }
     }
-    console.log("MOCKA API RES:", res);
     return res as MockResponse;
   });
 };

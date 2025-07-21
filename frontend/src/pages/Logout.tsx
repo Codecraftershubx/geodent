@@ -49,6 +49,11 @@ const Logout: React.FC = () => {
     }
   }, []);
 
+  /**
+   * Handles logout on success event
+   * @function handleLogoutSuccess
+   * @returns { void}
+   */
   const handleLogoutSuccess = () => {
     dispatch(stopIsLoading());
     dispatch(
@@ -65,6 +70,12 @@ const Logout: React.FC = () => {
     }, 3000);
   };
 
+  /**
+   * Handles logout on error event
+   * @function handleLogoutError
+   * @param error[BEDataHeaderType] the error object
+   * @returns { void}
+   */
   const handleLogoutError = (error: BEDataHeaderType) => {
     let msg: string;
     switch (error.errno) {
@@ -101,7 +112,12 @@ const Logout: React.FC = () => {
     dispatch(toggleMessage());
   };
 
-  // initial page load effect
+  /**
+   * @hook
+   * @description Loads executes when component first mounts
+   * Attempts to log user out if logged in and handles error
+   * if otherwise.
+   */
   useEffect(() => {
     dispatch(setIsLoading());
     setTimeout(async () => {
