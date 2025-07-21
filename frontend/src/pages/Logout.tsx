@@ -7,6 +7,7 @@ import {
   toggleIsLoggedIn,
   clearMessage,
   stopIsLoading,
+  toggleMessage,
 } from "@/appState/slices/authSlice.js";
 
 import type {
@@ -19,23 +20,22 @@ import Icons from "@/components/Icons";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import Components from "@/components";
+import { AnimatePresence } from "motion/react";
 
 const Logout: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { accessToken, isLoading, isLoggedIn, message } = useAppSelector(
-    (store: RootState) => store.auth
-  );
-  const [logoutSuccess, setLogoutSuccess] = useState<boolean | undefined>(
-    undefined
-  );
+  const { accessToken, isLoading, isLoggedIn, message, showMessage } =
+    useAppSelector((store: RootState) => store.auth);
   const [showErrButton, setShowErrButton] = useState<boolean>(false);
   const [tryAgain, setTryAgain] = useState<boolean>(false);
 
   // logout handler function
   const logout = useCallback(async () => {
-    dispatch(setIsLoading());
     dispatch(clearMessage());
+    dispatch(setIsLoading());
+    setTryAgain(false);
 
     if (isLoggedIn && accessToken) {
       try {
@@ -58,7 +58,7 @@ const Logout: React.FC = () => {
         role: "alert",
       })
     );
-    setLogoutSuccess(true);
+    dispatch(toggleMessage());
     setTimeout(() => {
       dispatch(toggleIsLoggedIn(false));
       navigate("/");
@@ -98,7 +98,7 @@ const Logout: React.FC = () => {
         role: "alert",
       })
     );
-    setLogoutSuccess(false);
+    dispatch(toggleMessage());
   };
 
   // initial page load effect
@@ -118,38 +118,32 @@ const Logout: React.FC = () => {
     <section className="flex flex-col justify-center md:justify-start items-center mt-5 min-h-screen p-3 lg:p-10">
       <div className="w-full max-w-[360px] md:max-w-md lg:max-w-xl flex flex-col items-center justify-center gap-6 p-0 md:p-5">
         {/* Activity area */}
-        <div className="flex items-start !justify-center md:justify-start">
+        <div className="flex flex-col justify-center items-center !justify-center md:items-start">
           {isLoading && (
             <div>
               <Loader />
             </div>
           )}
-          {/* Message area */}
-          {message && !isLoading && (
-            <div className="flex items-center gap-2 justify-center animate-fade_in !duration-300">
-              {/* Message Icon */}
-              <div>
-                {logoutSuccess === true && (
-                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-success p-[1.1px] rounded-full size-[24px]">
-                    <Icons.CircledCheckmark />
-                  </div>
+          {/* Message alert area */}
+          <AnimatePresence>
+            {showMessage && message && !isLoading && (
+              <div
+                className={cn(
+                  "flex flex-col items-center gap-2 justify-center w-[300px] md:w-[420px] [perspective:500px]"
                 )}
-                {logoutSuccess === false && (
-                  <div className="flex flex-col items-center justify-center text-neutral-200 bg-destructive p-[1.1px] rounded-full size-[24px]">
-                    <Icons.Error />
-                  </div>
-                )}
+              >
+                <Components.Alert
+                  variant={"plain"}
+                  description={(message as MessageType).description}
+                  fullWidth={true}
+                  type={(message as MessageType).type}
+                  toggle={() =>
+                    dispatch(toggleMessage({ mode: "off", delay: 0 }))
+                  }
+                />
               </div>
-              {/* Message body */}
-              <div>
-                <p
-                  className={`${(message as MessageType).type === "error" ? "text-destructive" : (message as MessageType).type === "success" ? "text-success" : (message as MessageType).type === "warning" ? "text-warning" : "text-neutral"}`}
-                >
-                  {(message as MessageType).description}
-                </p>
-              </div>
-            </div>
-          )}
+            )}
+          </AnimatePresence>
         </div>
         {/* Button Area */}
         {!isLoading && showErrButton && (
