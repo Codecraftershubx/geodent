@@ -18,7 +18,7 @@ import type {
 import Loader from "@/components/Loader";
 import Icons from "@/components/Icons";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import Components from "@/components";
 import { AnimatePresence } from "motion/react";
@@ -30,7 +30,7 @@ const Logout: React.FC = () => {
     useAppSelector((store: RootState) => store.auth);
   const [showErrButton, setShowErrButton] = useState<boolean>(false);
   const [tryAgain, setTryAgain] = useState<boolean>(false);
-
+  const [error, setError] = useState<string | null>(null);
   // logout handler function
   const logout = useCallback(async () => {
     dispatch(clearMessage());
@@ -63,7 +63,7 @@ const Logout: React.FC = () => {
         role: "alert",
       })
     );
-    dispatch(toggleMessage());
+    dispatch(toggleMessage({ autoHide: true }));
     setTimeout(() => {
       dispatch(toggleIsLoggedIn(false));
       navigate("/");
@@ -80,7 +80,11 @@ const Logout: React.FC = () => {
     let msg: string;
     switch (error.errno) {
       case 1:
-        throw new Error("Something went wrong");
+        const err = error.details
+          ? JSON.stringify(error.details)
+          : "Sorry we encountered an error";
+        setError(err);
+        return;
       case 2:
         msg = "Not allowed. Try logging in again";
         setTryAgain(true);
@@ -93,6 +97,7 @@ const Logout: React.FC = () => {
       case 7:
         msg = "You're not logged in";
         if (isLoggedIn) {
+          dispatch(stopIsLoading());
           dispatch(toggleIsLoggedIn(false));
         }
         setShowErrButton(true);
@@ -113,12 +118,22 @@ const Logout: React.FC = () => {
   };
 
   /**
-   * @hook
+   * @description Traps Logout crash-error and triggers the error boundary
+   * the app.
+   */
+  useEffect(() => {
+    if (error !== null) {
+      throw new Error(error);
+    }
+  }, [error]);
+
+  /**
    * @description Loads executes when component first mounts
    * Attempts to log user out if logged in and handles error
    * if otherwise.
    */
   useEffect(() => {
+    dispatch(toggleMessage({ mode: "off" }));
     dispatch(setIsLoading());
     setTimeout(async () => {
       if (isLoggedIn && accessToken) {
@@ -134,7 +149,7 @@ const Logout: React.FC = () => {
     <section className="flex flex-col justify-center md:justify-start items-center mt-5 min-h-screen p-3 lg:p-10">
       <div className="w-full max-w-[360px] md:max-w-md lg:max-w-xl flex flex-col items-center justify-center gap-6 p-0 md:p-5">
         {/* Activity area */}
-        <div className="flex flex-col justify-center items-center !justify-center md:items-start">
+        <div className="flex flex-col gap-5 justify-center items-center md:justify-start">
           {isLoading && (
             <div>
               <Loader />
@@ -170,18 +185,20 @@ const Logout: React.FC = () => {
                 "cursor-pointer text-primary-foreground bg-primary hover:bg-primary-600"
               )}
               onClick={() => {
-                dispatch(setIsLoading());
-                setTimeout(() => {
-                  window.location.reload();
-                }, 1000);
+                if (tryAgain) {
+                  dispatch(setIsLoading());
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                }
               }}
             >
-              <span>
+              <Link to={tryAgain ? "#" : "/"}>
                 <span>
                   {tryAgain ? <Icons.RetryLeft /> : <Icons.ArrowLeft />}
                 </span>
                 {tryAgain ? "Retry" : "Back"}
-              </span>
+              </Link>
             </Button>
           </div>
         )}

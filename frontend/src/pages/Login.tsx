@@ -43,7 +43,7 @@ const Login: React.FC = () => {
   const [, setLoginSuccess] = useState<boolean | undefined>(undefined);
   const [showBackButton, setShowBackButton] = useState<boolean>(false);
   const [useCredentials, setUseCredentials] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   // Navigate to a route
   const redirectTo = UseRedirect();
 
@@ -122,17 +122,13 @@ const Login: React.FC = () => {
     }
   }, []);
 
-  //useEffect(() => {}, [
-  //  message,
-  //  useCredentials,
-  //  isLoading,
-  //  runner,
-  //  accessToken,
-  //]);
-
+  /**
+   * @description Traps Login crash-error and triggers the error boundary
+   * the app.
+   */
   useEffect(() => {
     if (error !== null) {
-      throw error;
+      throw new Error(error);
     }
   }, [error]);
 
@@ -153,7 +149,7 @@ const Login: React.FC = () => {
           role: "alert",
         })
       );
-      dispatch(toggleMessage());
+      dispatch(toggleMessage({ autoHide: true }));
       dispatch(toggleIsLoggedIn(true));
     }, 500);
     setLoginSuccess(true);
@@ -236,14 +232,10 @@ const Login: React.FC = () => {
         setLoginSuccess(false);
         break;
       default:
-        console.error(error);
-        setError(
-          new Error(
-            error.details
-              ? JSON.stringify(error.details)
-              : "Something went wrong"
-          )
-        );
+        const err = error.details
+          ? JSON.stringify(error.details)
+          : "Sorry we encountered an error";
+        setError(err);
     }
     dispatch(stopIsLoading());
     dispatch(toggleMessage({ autoHide: false }));
@@ -269,6 +261,7 @@ const Login: React.FC = () => {
    */
   useEffect(() => {
     // avoid calling backend if already logged in on frontend
+    dispatch(toggleMessage({ mode: "off" }));
     if (accessToken) {
       dispatch(setIsLoading());
       if (useCredentials) {
@@ -313,7 +306,7 @@ const Login: React.FC = () => {
           </p>
         </div>
         {/* Activity Area */}
-        <div className="flex items-center gap-2 justify-center">
+        <div className="flex flex-col items-center justify-center gap-5 justify-center">
           {isLoading && !useCredentials && (
             <div>
               <Loader />
