@@ -26,10 +26,7 @@ const loginUser = createAsyncThunk<
   { rejectValue: BEDataHeaderType; dispatch: AppDispatchType }
 >(
   "auth/login",
-  async (
-    credentials: LoginCredentialsType,
-    { rejectWithValue, dispatch, getState }
-  ) => {
+  async (credentials: LoginCredentialsType, { rejectWithValue, dispatch }) => {
     const options: Record<string, any> = {};
     // add auth headers if access token is sent
     if (credentials.accessToken) {
@@ -59,12 +56,8 @@ const loginUser = createAsyncThunk<
       return rejectWithValue(response.content.header);
     }
     // extract access token and update state
-    const state = getState() as AuthStateType;
     assertIsDefined(response.content.data);
     data = response.content?.data[0] as LoginSuccessPayloadType;
-    if (state.accessToken !== data.accessToken) {
-      dispatch(authSlice.actions.setAccessToken(data.accessToken));
-    }
     // forward data to caller
     return data;
   }
@@ -221,7 +214,9 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.fulfilled, (state: AuthStateType, { payload }) => {
-        console.log("LOGIN THUNK FULFILLED REDUCER PAYLOAD:", payload);
+        if (state.accessToken !== payload.accessToken) {
+          authSlice.actions.setAccessToken(payload.accessToken);
+        }
         state.isLoggedIn = true;
         state.isLoading = false;
         window.localStorage.setItem(
@@ -230,11 +225,9 @@ const authSlice = createSlice({
         );
       })
       .addCase(loginUser.pending, (state: AuthStateType) => {
-        console.log("LOGIN PENDING HANDLER");
         state.isLoading = true;
       })
       .addCase(loginUser.rejected, (state: AuthStateType, { payload }) => {
-        console.log("LOGIN THUNK REJECT REDUCER PAYLOAD", payload);
         state.isLoggedIn = false;
         if (payload?.errno === 5 || payload?.errno === 10) {
           state.isLoading = true;
@@ -252,7 +245,6 @@ const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(logoutUser.rejected, (state: AuthStateType) => {
-        // console.log("LOGOUT THUNK REJECTED ERROR:", payload);
         state.isLoading = false;
       })
       .addCase(
