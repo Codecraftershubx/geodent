@@ -1,8 +1,8 @@
 import { Outlet } from "react-router-dom";
-import { useAppSelector } from "@/hooks/index.js";
-import type { RootState, MessageType } from "../utils/types.js";
-import Components from "./index";
-import ErrorBoundary from "./ErrorBoundary.js";
+import { useAppSelector } from "@/hooks/index";
+import type { RootState, MessageType } from "@/lib/types";
+import Components from "../index";
+import ErrorBoundary from "../ErrorBoundary";
 
 const Layout: React.FC = () => {
   const { message, show } = useAppSelector(

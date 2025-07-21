@@ -4,7 +4,7 @@
  *=========================
  */
 import client from "./client.js";
-import { APIResponseType } from "@/utils/types.js";
+import { APIResponseType } from "@/lib/types.js";
 import { RequestApiType } from "./requestApi.js";
 
 /**

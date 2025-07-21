@@ -1,4 +1,4 @@
-import SidebarMenu from "./Menu";
+import SidebarMenu from "./UserSidebarMenu";
 import {
   Sidebar,
   SidebarContent,

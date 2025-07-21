@@ -1,7 +1,7 @@
 //import { useEffect, useRef } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Components from "./components/index";
-import Pages from "./pages/index.js";
+import Components from "@/components/index";
+import Pages from "@/pages/index.js";
 
 function App() {
   return (

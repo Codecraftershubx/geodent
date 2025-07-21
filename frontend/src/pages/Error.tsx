@@ -9,7 +9,7 @@ import FadeGradientToBottom from "./FadeGradientToBottom";
 import FadeGradientToTop from "./FadeGradientToTop";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import Icons from "@/components/Icons";
+import Icons from "@/components/utils/Icons";
 
 const ErrorPage: React.FC<ErrorPagePropsType> = ({ title, body, details }) => {
   console.log("typeof details:", typeof details, details);

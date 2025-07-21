@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAppSelector } from "@/hooks/index.js";
 import Components from "@/components/index.js";
@@ -99,7 +99,7 @@ const NavBar: React.FC = () => {
           "bg-primary text-white hover:bg-primary-700/90",
           `${menuIsOpen && "active:bg-primary-600 duration-300"}`
         )}
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
           if (e.currentTarget.textContent === "Logout") {
             navigate("/logout");
           }

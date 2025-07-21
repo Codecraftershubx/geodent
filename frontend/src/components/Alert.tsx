@@ -1,6 +1,6 @@
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import Wrapper from "./Wrapper";
-import Icons from "./Icons";
+import Wrapper from "@/components/Wrapper";
+import Icons from "@/components/utils/Icons";
 import { cn } from "@/lib/utils";
 import { motion, Variants } from "motion/react";
 

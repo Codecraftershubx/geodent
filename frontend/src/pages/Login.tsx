@@ -17,13 +17,13 @@ import type {
   LoginCredentialsType,
   MessageType,
   RootState,
-} from "@/utils/types.js";
+} from "@/lib/types.js";
 import { cn } from "@/lib/utils";
 import Components from "@/components/index";
-import Loader from "@/components/Loader";
+import Loader from "@/components/utils/Loader";
 import { Button } from "@/components/ui/button";
-import Icons from "@/components/Icons";
-import { LoginFormValuesType } from "@/components/LoginForm";
+import Icons from "@/components/utils/Icons";
+import { LoginFormValuesType } from "@/components/forms/LoginForm";
 import { AnimatePresence } from "motion/react";
 
 const Login: React.FC = () => {

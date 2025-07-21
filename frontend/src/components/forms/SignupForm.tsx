@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Control, FieldPath, useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { RequestApi } from "@/utils/api/requestApi";
+import { RequestApi } from "@/lib/api/requestApi";
 
 const api = RequestApi.getClient();
 

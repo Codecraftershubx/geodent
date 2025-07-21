@@ -7,10 +7,10 @@ import type {
   LoginSuccessPayloadType,
   RefreshSuccessPayloadType,
   LoginCredentialsType,
-} from "@/utils/types.js";
+} from "@/lib/types.js";
 
-import { RequestApi } from "@/utils/api/requestApi";
-import { assertIsDefined } from "@/utils/assertions";
+import { RequestApi } from "@/lib/api/requestApi";
+import { assertIsDefined } from "@/lib/assertions";
 const api = RequestApi.getClient();
 
 /**

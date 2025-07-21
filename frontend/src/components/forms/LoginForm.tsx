@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { cn } from "@/lib/utils.js";
 import { Link } from "react-router-dom";
-import Loader from "./Loader";
+import Loader from "@/components/utils/Loader";
 
 // form schema
 const formSchema = z.object({

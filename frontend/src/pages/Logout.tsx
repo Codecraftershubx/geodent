@@ -10,13 +10,9 @@ import {
   toggleMessage,
 } from "@/appState/slices/authSlice.js";
 
-import type {
-  BEDataHeaderType,
-  RootState,
-  MessageType,
-} from "@/utils/types.js";
-import Loader from "@/components/Loader";
-import Icons from "@/components/Icons";
+import type { BEDataHeaderType, RootState, MessageType } from "@/lib/types.js";
+import Loader from "@/components/utils/Loader";
+import Icons from "@/components/utils/Icons";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";

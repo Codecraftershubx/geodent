@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/hooks/index.js";
-import type { RootState } from "@/utils/types.js";
-import UserAccountLayout from "@/components/sidebar/user/Layout";
+import type { RootState } from "@/lib/types.js";
+import UserAccountLayout from "@/components/layouts/UserDashboardLayout";
 
 const UserAccountView = () => {
   const { user, isLoggedIn } = useAppSelector((store: RootState) => store.auth);

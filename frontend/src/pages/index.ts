@@ -7,7 +7,7 @@ import Listings from "./Listings";
 import Login from "./Login";
 import Logout from "./Logout";
 import Signup from "./Signup";
-import UserAccount from "./UserAccount";
+import UserAccount from "./user/Dashboard";
 
 export default {
   About,

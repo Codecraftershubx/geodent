@@ -3,7 +3,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
-import UserAccountSidebar from "@/components/sidebar/user/Sidebar";
+import UserAccountSidebar from "@/components/sidebars/user/UserSidebar";
 
 type PropsType = {
   children: React.ReactNode;

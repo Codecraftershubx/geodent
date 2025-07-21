@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { FadeComponentPropsType } from "@/utils/types";
+import { FadeComponentPropsType } from "@/lib/types";
 import React from "react";
 
 const FadeGradientToTop: React.FC<FadeComponentPropsType> = ({ className }) => {
