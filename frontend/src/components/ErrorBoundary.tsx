@@ -51,7 +51,7 @@ class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <ErrorPage
-          details={`\n${this.state.err?.message}\n\n${this.state.errInfo}`}
+          details={`\n${this.state.err?.message}\n${this.state.errInfo}`}
         />
       );
     }
