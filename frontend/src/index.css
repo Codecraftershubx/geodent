@@ -9,6 +9,8 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 :root {
+  --black: oklch(16.842% 0.00002 271.152);
+
   --blue-50: oklch(97.348% 0.01692 225.46);
   --blue-100: oklch(94.147% 0.0387 223.674);
   --blue-200: oklch(90.331% 0.06711 221.584);
@@ -122,7 +124,7 @@
   --grey-700: oklch(42.761% 0.00005 271.152);
   --grey-800: oklch(39.042% 0.00004 271.152);
   --grey-900: oklch(36.002% 0.00004 271.152);
-  --grey-950: oklch(23.929% 0.00003 271.152);
+  --grey-950: oklch(20.463% 0.00002 271.152);
 
   --muted-100: oklch(97.743% 0.00426 237.351);
   --muted-200: oklch(89.231% 0.0213 236.945);
@@ -259,8 +261,8 @@
 }
 
 @theme inline {
-  --foreground: var(--neutral-50);
-  --background: var(--dark-blue-950);
+  --foreground: var(--dark-blue-950);
+  --background: var(--dark-blue-50);
   --animate-slide_in_rtl: slide-in-rtl 0.25s ease-in forwards;
   --animate-slide_out_ltr: slide-out-ltr 0.25s ease-in forwards;
   --animate-fade_out: fade-out 0.25s ease-out forwards;
@@ -275,13 +277,27 @@
   --color-primary-300: var(--blue-300);
   --color-primary-400: var(--blue-400);
   --color-primary-500: var(--blue-500);
-  --color-primary-600: var(--primary-600);
-  --color-primary-700: var(--primary-700);
-  --color-primary-800: var(--primary-800);
-  --color-primary-900: var(--primary-900);
-  --color-primary-950: var(--primary-950);
-  --color-primary-foreground: var(--primary-50);
-  --color-primary-background: var(--primary-800);
+  --color-primary-600: var(--blue-600);
+  --color-primary-700: var(--blue-700);
+  --color-primary-800: var(--blue-800);
+  --color-primary-900: var(--blue-900);
+  --color-primary-950: var(--blue-950);
+  --color-primary-foreground: var(--blue-50);
+  --color-primary-background: var(--blue-800);
+  --color-dark-primary: var(--dark-blue-700);
+  --color-dark-primary-50: var(--dark-blue-50);
+  --color-dark-primary-100: var(--dark-blue-100);
+  --color-dark-primary-200: var(--dark-blue-200);
+  --color-dark-primary-300: var(--dark-blue-300);
+  --color-dark-primary-400: var(--dark-blue-400);
+  --color-dark-primary-500: var(--dark-blue-500);
+  --color-dark-primary-600: var(--dark-blue-600);
+  --color-dark-primary-700: var(--dark-blue-700);
+  --color-dark-primary-800: var(--dark-blue-800);
+  --color-dark-primary-900: var(--dark-blue-900);
+  --color-dark-primary-950: var(--dark-blue-950);
+  --color-dark-primary-foreground: var(--dark-blue-50);
+  --color-dark-primary-background: var(--dark-blue-800);
   --color-secondary: var(--purple-700);
   --color-secondary-50: var(--purple-50);
   --color-secondary-100: var(--purple-100);
@@ -409,13 +425,25 @@
 /* Glassmorphism  */
 @layer utilities {
   /* Subtle glassmorphism for navigation */
-  .gradient-dark-bg {
+  .bg-gradient {
     background: radial-gradient(
-      ellipse farthest-side at 30% -100%,
-      var(--neutral-700) 10%,
-      var(--neutral-900)
+      ellipse farthest-side at 10% 30%,
+      var(--blue-50) 40%,
+      var(--dark-blue-50) 80%,
+      var(--dark-blue-100) 100%
     );
-    background-size: 150% 100%;
+    background-size: 300% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  :where([data-theme="dark"]).bg-gradient {
+    background: radial-gradient(
+      ellipse farthest-side at 50% 20%,
+      var(--dark-blue-950) 10%,
+      var(--black) 100%
+    );
+    background-size: 300% 100%;
     background-repeat: no-repeat;
     background-position: center;
   }
