@@ -1,14 +1,14 @@
 import Alert from "./Alert";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import TestComponent from "@/components/TestComponent";
-import Layout from "@/components/layouts/MainAppLayout";
-import Loader from "@/components/utils/Loader";
-import LoginForm from "@/components/forms/LoginForm";
-import Logo from "@/components/utils/Logo";
-import NavBar from "@/components/nav/NavBar";
-import NavItems from "@/components/nav/NavItems";
-import SignupForm from "@/components/forms/SignupForm";
-import Wrapper from "@/components/Wrapper";
+import ErrorBoundary from "./ErrorBoundary";
+import TestComponent from "./TestComponent";
+import Layout from "./layouts/MainAppLayout";
+import Loader from "./utils/Loader";
+import LoginForm from "./forms/LoginForm";
+import Logo from "./utils/Logo";
+import NavBar from "./nav/NavBar";
+import NavItems from "./nav/NavItems";
+import SignupForm from "./forms/SignupForm";
+import Wrapper from "./Wrapper";
 
 export default {
   Alert,
