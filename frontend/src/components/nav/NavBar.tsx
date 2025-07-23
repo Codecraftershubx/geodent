@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAppSelector } from "@/hooks/index.js";
+import { useAppSelector, UseTheme } from "@/hooks/index.js";
 import Components from "@/components/index.js";
 import Hamburger from "@/components/utils/Hamburger";
 import { RootState } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import Icons from "../utils/Icons";
+import { Button } from "../ui/button";
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
@@ -13,16 +15,17 @@ const NavBar: React.FC = () => {
     (store: RootState) => store.auth
   );
   const [currentPath, _] = useState<string>(location.pathname);
+  const { theme, setTheme } = UseTheme();
   const [menuIsOpen, setMenuIsOpen] = useState<boolean>(false); // menu trigger
 
   // manage menu visibility when switch is toggled
-  useEffect(() => {
-    if (!menuIsOpen) {
-      hideMenu(280);
-    } else {
-      showMenu();
-    }
-  }, [menuIsOpen, isLoading, isLoggedIn]);
+  //useEffect(() => {
+  //  if (!menuIsOpen) {
+  //    hideMenu(280);
+  //  } else {
+  //    showMenu();
+  //  }
+  //}, [menuIsOpen, isLoading, isLoggedIn]);
 
   // close menu handle
   const closeMenu = () => {
@@ -112,45 +115,43 @@ const NavBar: React.FC = () => {
   return (
     <>
       <div
-        className={`shadow-md shadow-neutral-300/60 relative py-3 md:py-5`}
-        id="navbar"
+        className="py-4 sticky top-0 bg-primary-50/80 dark:bg-neutral-950/80 border-b-[0.7px] border-b-neutral-50/80 dark:border-b-neutral-50/20 shadow-md shadow-neutral-500/10 dark:shadow-black/40 glass-blur-lg"
+        id="navbar transition-all duration-300"
+        data-theme={theme}
       >
         <Components.Wrapper>
           <nav className={`flex justify-between items-center @container`}>
-            <Components.Logo />
-            {/* Nav items */}
-            <div
-              className={`flex items-center ${menuIsOpen ? "max-w-[40rem]" : "w-3/5 pl-5"}`}
-            >
-              {/* Nav bg - mobile bg = black */}
-              <div
-                id="nav-items-container"
-                className={`flex transition-all w-full max-md:hidden max-md:fixed max-md:top-0 max-md:left-0 max-md:pt-20 max-md:pb-8 max-md:px-8 max-md:z-10 max-md:bg-black/90 max-md:opacity-98 max-md:min-h-screen`}
-              >
-                {/* nav items content wrapper*/}
-                <div
-                  className={`flex transition-all w-full items-center !justify-between gap-4 max-md:flex-col max-md:m-auto max-md max-md:gap-2 max-md:max-w-sm`}
-                >
-                  {/* Nav items */}
-                  <div
-                    className={`flex text-md font-medium gap-5 max-md:flex-col max-md:gap-2 max-md:mb-5 max-md:justify-center max-md:items-center max-md:text-white/90`}
-                  >
-                    {navLinks}
-                  </div>
-                  {/*Nav Buttons*/}
-                  <div
-                    className={`flex gap-2 justify-between font-semibold max-md:flex-col max-md:justify-center max-md:text-center max-md:font-medium max-md:w-full`}
-                  >
-                    {navButtons}
-                  </div>
-                </div>
-              </div>
+            {/* Main Nav Items */}
+            <div className="flex gap-5">
+              <Components.Logo className="mr-5" />
+              {navLinks}
             </div>
-            <Hamburger
+            {/* Nav Actions */}
+            <div className="flex gap-4">
+              {/* Theme selector */}
+              <div
+                className="cursor-pointer size-10 text-[18px] p-2 flex flex-col items-center justify-center rounded-full gradient-primary-on-hover hover-glow glass-blur-sm glass-border"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              >
+                {theme === "light" ? "🌞" : "🌙"}
+              </div>
+              {/*<Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setTheme(theme === "light" ? "dark" : "light");
+                }}
+                className="transition-all ease-in duration-100 size-10 cursor-pointer rounded-full text-[20px] hover:bg-primary-200 hover:border-1 hover:border-primary-100"
+              >
+                {theme === "light" ? "🌞" : "🌙"}
+              </Button>*/}
+            </div>
+
+            {/*<Hamburger
               toggled={menuIsOpen}
               toggle={setMenuIsOpen}
               className={`justify-self-end z-30 ${menuIsOpen ? "text-white" : "text-primary min-md:hidden"}`}
-            />
+            />*/}
           </nav>
         </Components.Wrapper>
       </div>

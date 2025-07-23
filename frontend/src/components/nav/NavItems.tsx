@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { NavLink } from "react-router-dom";
 
 type AppNavLinkPropsType = {
@@ -15,12 +16,15 @@ const Link: React.FC<AppNavLinkPropsType> = ({
   target,
   text,
 }) => {
-  const styles = `hover:text-red-600/60 ${className}`;
+  const styles = `hover:text-primary-800 ${className}`;
   return (
     <NavLink
       to={target}
       className={({ isActive = true }) =>
-        isActive ? `text-red-600 ${styles}` : `text-[currentColor] ${styles}`
+        cn(
+          `${isActive ? "font-semibold text-primary-700 underline underline-offset-[5px] decoration-[1.8px]" : "text-[currentColor]"}`,
+          styles
+        )
       }
       onClick={onClick}
     >
