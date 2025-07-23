@@ -22,7 +22,7 @@ const Link: React.FC<AppNavLinkPropsType> = ({
       to={target}
       className={({ isActive = true }) =>
         cn(
-          `${isActive ? "font-semibold text-primary-700 underline underline-offset-[5px] decoration-[1.8px]" : "text-[currentColor]"}`,
+          `${isActive ? "text-primary-700 underline underline-offset-[5px] decoration-[1.8px]" : "text-[currentColor]"}`,
           styles
         )
       }

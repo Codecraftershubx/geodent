@@ -9,88 +9,27 @@ import { Button } from "../ui/button";
 import { User } from "lucide-react";
 
 const NavBar: React.FC = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { isLoading, isLoggedIn, profile } = useAppSelector(
+  const { isLoggedIn, profile } = useAppSelector(
     (store: RootState) => store.auth
   );
   const [currentPath, _] = useState<string>(location.pathname);
   const { theme, setTheme } = UseTheme();
-  const [menuIsOpen, setMenuIsOpen] = useState<boolean>(false); // menu trigger
   const isMobile = UseIsMobile();
-
-  // manage menu visibility when switch is toggled
-  //useEffect(() => {
-  //  if (!menuIsOpen) {
-  //    hideMenu(280);
-  //  } else {
-  //    showMenu();
-  //  }
-  //}, [menuIsOpen, isLoading, isLoggedIn]);
-
-  // close menu handle
-  const closeMenu = () => {
-    if (menuIsOpen) {
-      setMenuIsOpen(false);
-    }
-  };
-
-  // hide menu handler
-  const hideMenu = (delay: number = 0) => {
-    const e = document.getElementById("nav-items-container") as HTMLElement;
-    e.classList.remove("max-md:animate-slide_in_rtl");
-    e.classList.add("max-md:animate-slide_out_ltr");
-    setTimeout(() => {
-      e.classList.add("max-md:hidden");
-    }, delay);
-  };
-
-  // show menu handler
-  const showMenu = (delay: number = 0) => {
-    const e = document.getElementById("nav-items-container") as HTMLElement;
-    e.classList.remove("max-md:animate-slide_out_ltr");
-    e.classList.add("max-md:animate-slide_in_rtl");
-    setTimeout(() => {
-      e.classList.remove("max-md:hidden");
-    }, delay);
-  };
-
-  const navLinks = (
-    <>
-      <Components.NavItems.Link
-        target={{ pathname: "/home" }}
-        text="Home"
-        onClick={closeMenu}
-      />
-      <Components.NavItems.Link
-        target={{
-          pathname: "/listings",
-        }}
-        text="Listings"
-        className={currentPath === "/" ? "text-primary-600" : ""}
-        onClick={closeMenu}
-      />
-      <Components.NavItems.Link
-        target={{ pathname: "/me" }}
-        text="Account"
-        onClick={closeMenu}
-      />
-    </>
-  );
 
   return (
     <>
       <div
-        className="py-4 sticky top-0 bg-primary-50/80 dark:bg-neutral-950/80 border-b-[0.7px] border-b-neutral-50/80 dark:border-b-neutral-50/20 shadow-md shadow-neutral-500/10 dark:shadow-black/40 glass-blur-lg"
-        id="navbar transition-all duration-300"
+        className="py-4 sticky top-0 bg-primary-50/80 dark:bg-neutral-950/80 border-b-[0.7px] border-b-neutral-50/80 dark:border-b-neutral-50/20 shadow-md shadow-neutral-500/10 dark:shadow-black/40 glass-blur-lg transition-all duration-300 dark:text-neutral-50/90"
+        id="navbar"
         data-theme={theme}
       >
         <Components.Wrapper>
-          <nav className={`flex justify-between items-center @container`}>
+          <nav className={`flex justify-between items-center`}>
             {/* Main Nav Items */}
             <div className="flex gap-5">
               <Components.Logo className="mr-5" />
-              {!isMobile && navLinks}
+              {!isMobile && <NavLinks currentPath={currentPath} />}
             </div>
             {/* Nav Actions */}
             <div className="flex items-center gap-4 dark:text-neutral-50">
@@ -118,7 +57,7 @@ const NavBar: React.FC = () => {
               </Button>
               {/* User Dashboard Button | Mobile Menu */}
               {isMobile ? (
-                <Components.MobileMenu />
+                <Components.MobileMenu currentPath={currentPath} />
               ) : (
                 <Link
                   to={isLoggedIn ? "/dashboard" : "/login"}
@@ -162,4 +101,29 @@ const NavBar: React.FC = () => {
   );
 };
 
+const NavLinks: React.FC<NavLinksPropsType> = ({ currentPath }) => {
+  return (
+    <>
+      <Components.NavItems.Link target={{ pathname: "/home" }} text="Home" />
+      <Components.NavItems.Link
+        target={{
+          pathname: "/listings",
+        }}
+        text="Listings"
+        className={currentPath === "/" ? "text-primary-600" : ""}
+      />
+      <Components.NavItems.Link
+        target={{ pathname: "/me/dashboard" }}
+        text="Account"
+      />
+    </>
+  );
+};
+
+type NavLinksPropsType = {
+  currentPath: string;
+};
+
 export default NavBar;
+export { NavLinks };
+export type { NavLinksPropsType };
