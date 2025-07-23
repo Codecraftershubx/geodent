@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { useAppSelector, UseTheme } from "@/hooks/index.js";
+import { useAppSelector, UseIsMobile, UseTheme } from "@/hooks/index.js";
 import Components from "@/components/index.js";
-import Hamburger from "@/components/utils/Hamburger";
 import { RootState, UserType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Icons from "../utils/Icons";
@@ -18,6 +17,7 @@ const NavBar: React.FC = () => {
   const [currentPath, _] = useState<string>(location.pathname);
   const { theme, setTheme } = UseTheme();
   const [menuIsOpen, setMenuIsOpen] = useState<boolean>(false); // menu trigger
+  const isMobile = UseIsMobile();
 
   // manage menu visibility when switch is toggled
   //useEffect(() => {
@@ -78,41 +78,6 @@ const NavBar: React.FC = () => {
     </>
   );
 
-  const navButtons = (
-    <>
-      {!isLoggedIn && (
-        <Components.NavItems.Button
-          target={{ pathname: "/signup" }}
-          text="Signup"
-          className={cn(
-            "text-black/80 hover:text-primary-600 bg-white !shadow-lg",
-            `${menuIsOpen && "bg-zinc-100 active:bg-zinc-500 active:text-white/90 duration-300"}`,
-            ""
-          )}
-          onClick={closeMenu}
-        />
-      )}
-      <Components.NavItems.Button
-        aside={
-          <Components.Loader size={"4"} className="text-white/50 fill-white" />
-        }
-        showAside={isLoading}
-        target={isLoggedIn ? "/logout" : { pathname: "/login" }}
-        text={isLoggedIn ? "Logout" : "Login"}
-        className={cn(
-          "bg-primary text-white hover:bg-primary-700/90",
-          `${menuIsOpen && "active:bg-primary-600 duration-300"}`
-        )}
-        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-          if (e.currentTarget.textContent === "Logout") {
-            navigate("/logout");
-          }
-          closeMenu();
-        }}
-      />
-    </>
-  );
-
   return (
     <>
       <div
@@ -125,7 +90,7 @@ const NavBar: React.FC = () => {
             {/* Main Nav Items */}
             <div className="flex gap-5">
               <Components.Logo className="mr-5" />
-              {navLinks}
+              {!isMobile && navLinks}
             </div>
             {/* Nav Actions */}
             <div className="flex items-center gap-4 dark:text-neutral-50">
@@ -151,45 +116,45 @@ const NavBar: React.FC = () => {
                   2
                 </span>
               </Button>
-              {/* User Dashboard Button */}
-              <Link
-                to={isLoggedIn ? "/dashboard" : "/login"}
-                className={cn(
-                  "text-neutral-50 flex flex-col justify-center button-effect translate-y bg-gradient-to-r from-primary-900 to-primary-600",
-                  profile ? "rounded-lg" : "rounded-full p-[3.4px] items-center"
-                )}
-              >
-                <div
+              {/* User Dashboard Button | Mobile Menu */}
+              {isMobile ? (
+                <Components.MobileMenu />
+              ) : (
+                <Link
+                  to={isLoggedIn ? "/dashboard" : "/login"}
                   className={cn(
-                    "flex items-center",
-                    profile ? "gap-1 rounded-lg px-2 py-1" : "rounded-full"
+                    "text-neutral-50 flex flex-col justify-center button-effect translate-y bg-gradient-to-r from-primary-900 to-primary-600",
+                    profile
+                      ? "rounded-lg"
+                      : "rounded-full p-[3.4px] items-center"
                   )}
                 >
-                  {/* User div Icon/Avatar */}
-                  <div className="text-neutral-50 size-7 gradient-primary flex flex-col items-center justify-center p-[2px] rounded-full">
-                    {isLoggedIn ? (
-                      // User avatar or default Icon
-                      <div className="w-full h-full border-neutral-50 text-xs">
-                        {/* User avatar goes here */}
-                      </div>
-                    ) : (
-                      <User className="p-1" />
+                  <div
+                    className={cn(
+                      "flex items-center",
+                      profile ? "gap-1 rounded-lg px-2 py-1" : "rounded-full"
                     )}
+                  >
+                    {/* User div Icon/Avatar */}
+                    <div className="text-neutral-50 size-7 gradient-primary flex flex-col items-center justify-center p-[2px] rounded-full">
+                      {isLoggedIn ? (
+                        // User avatar or default Icon
+                        <div className="w-full h-full border-neutral-50 text-xs">
+                          {/* User avatar goes here */}
+                        </div>
+                      ) : (
+                        <User className="p-1" />
+                      )}
+                    </div>
+                    {/* User Text */}
+                    <div className="font-semibold">
+                      {profile &&
+                        `${(profile as UserType).firstName[0]}${(profile as UserType).lastName[0]}`}
+                    </div>
                   </div>
-                  {/* User Text */}
-                  <div className="font-semibold">
-                    {profile &&
-                      `${(profile as UserType).firstName[0]}${(profile as UserType).lastName[0]}`}
-                  </div>
-                </div>
-              </Link>
+                </Link>
+              )}
             </div>
-
-            {/*<Hamburger
-              toggled={menuIsOpen}
-              toggle={setMenuIsOpen}
-              className={`justify-self-end z-30 ${menuIsOpen ? "text-white" : "text-primary min-md:hidden"}`}
-            />*/}
           </nav>
         </Components.Wrapper>
       </div>

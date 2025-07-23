@@ -165,7 +165,7 @@ const authSlice = createSlice({
     isLoading: false,
     showMessage: false,
     message: null,
-    user: null,
+    profile: null,
     error: null,
   },
   reducers: {
@@ -200,7 +200,7 @@ const authSlice = createSlice({
     clearStorage: (state: AuthStateType) => {
       state.accessToken = null;
       state.isLoggedIn = false;
-      state.user = null;
+      state.profile = null;
       window.localStorage.removeItem("accessToken");
       window.localStorage.removeItem("isLoggedIn");
     },
@@ -238,7 +238,7 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state: AuthStateType) => {
         state.isLoading = false;
         state.isLoggedIn = false;
-        state.user = null;
+        state.profile = null;
         window.localStorage.setItem("isLoggedIn", JSON.stringify(false));
       })
       .addCase(logoutUser.pending, (state: AuthStateType) => {
