@@ -456,10 +456,6 @@
     backdrop-filter: blur(10px) saturate(120%);
   }
 
-  .glass-border {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
   .glass-blur-md {
     backdrop-filter: blur(20px) saturate(150%);
   }
@@ -473,6 +469,12 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
+  .translate-y:hover {
+    transition:
+      all,
+      0.2s cubic-bezier(0.4, 0, 0.3, 1);
+    transform: translateY(-1.5px);
+  }
   /* Professional cards with accessibility */
   .glass-card {
     backdrop-filter: blur(20px) saturate(150%);
@@ -554,11 +556,11 @@
   .hover-glow {
     transition:
       all,
-      0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      0.2s cubic-bezier(0.4, 0, 0.3, 1);
   }
 
   .hover-glow:hover {
-    box-shadow: 0 4px 20px var(--primary-100) / 0.5;
+    box-shadow: 0 4px 20px var(--blue-100) / 0.5;
     transform: translateY(-1.5px);
   }
 
@@ -566,12 +568,12 @@
     box-shadow: 0 4px 20px oklch(0.58 0.18 228 / 0.25);
   }
 
-  .button-glow {
+  .button-effect {
     position: relative;
     overflow: hidden;
   }
 
-  .button-glow::before {
+  .button-effect::before {
     content: "";
     position: absolute;
     top: 0;
@@ -581,13 +583,13 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.3),
       transparent
     );
     transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .button-glow:hover::before {
+  .button-effect:hover::before {
     left: 100%;
   }
 

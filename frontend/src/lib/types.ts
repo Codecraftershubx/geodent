@@ -33,7 +33,7 @@ type AuthStateType = {
   isLoggedIn: boolean;
   isLoading: boolean;
   showMessage: boolean;
-  user: Record<string, any> | null;
+  profile: UserType | null;
   message: MessageType | null;
 };
 
