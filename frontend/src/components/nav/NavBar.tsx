@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, Link } from "react-router-dom";
 import { useAppSelector, UseIsMobile, UseTheme } from "@/hooks/index.js";
 import Components from "@/components/index.js";
 import { RootState, UserType } from "@/lib/types";
