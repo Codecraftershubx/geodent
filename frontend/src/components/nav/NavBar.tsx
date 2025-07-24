@@ -40,7 +40,7 @@ const NavBar: React.FC = () => {
                 onClick={() => {
                   setTheme(theme === "light" ? "dark" : "light");
                 }}
-                className="cursor-pointer size-8 text-[16px] p-[1.8px] flex flex-col items-center justify-center rounded-full gradient-primary-on-hover hover-glow glass-blur-sm border-1 border-primary-100 dark:border-neutral-50/50"
+                className="cursor-pointer size-8 text-[16px] p-[1.8px] flex flex-col items-center justify-center rounded-full bg-gradient-primary-on-hover hover-glow glass-blur-sm border-1 border-primary-100 dark:border-neutral-50/50"
               >
                 <span>{theme === "light" ? "🌞" : "🌙"}</span>
               </Button>
@@ -48,7 +48,7 @@ const NavBar: React.FC = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="group relative cursor-pointer size-8 text-[16px] p-[1.8px] flex flex-col items-center justify-center rounded-full gradient-primary-on-hover hover-glow glass-blur-sm border-1 border-primary-100 dark:border-neutral-50/50"
+                className="group relative cursor-pointer size-8 text-[16px] p-[1.8px] flex flex-col items-center justify-center rounded-full bg-accent-800gradient-primary-on-hover hover-glow glass-blur-sm border-1 border-primary-100 dark:border-neutral-50/50"
               >
                 <Icons.NormalBell className="relative" />
                 <span className="absolute -top-[1.2px] -right-[4px] flex flex-col items-center justify-center size-3 text-[5px] text-neutral-50 rounded-full bg-destructive group-hover:border-[0.7px] dark:group-hover:border-0 group-hover:border-neutral-50">
@@ -75,7 +75,7 @@ const NavBar: React.FC = () => {
                     )}
                   >
                     {/* User div Icon/Avatar */}
-                    <div className="text-neutral-50 size-7 gradient-primary flex flex-col items-center justify-center p-[2px] rounded-full">
+                    <div className="text-neutral-50 size-7 bg-gradient-primary flex flex-col items-center justify-center p-[2px] rounded-full">
                       {isLoggedIn ? (
                         // User avatar or default Icon
                         <div className="w-full h-full border-neutral-50 text-xs">
