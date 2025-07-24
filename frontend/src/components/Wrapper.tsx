@@ -19,7 +19,7 @@ const Wrapper: React.FC<PageWrapperPropsType> = ({
     lg: "px-8",
     xl: "px-[5rem]",
   };
-  const styles = `m-auto ${fullWidth ? "w-full" : "w-96/100  md:w-94/100 xl:w-9/10 2xl:w-86/100"} ${px ? spacing[px] : ""} ${py ? spacing[py] : ""} ${className}`;
+  const styles = `max-w-[1400px] m-auto ${fullWidth ? "w-full" : "w-96/100  md:w-94/100 xl:w-9/10 2xl:w-86/100"} ${px ? spacing[px] : ""} ${py ? spacing[py] : ""} ${className}`;
   return <div className={styles}>{children}</div>;
 };
 

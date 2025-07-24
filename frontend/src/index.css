@@ -9,7 +9,7 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 :root {
-  --black: oklch(16.842% 0.00002 271.152);
+  --black: #131313;
 
   --blue-50: oklch(97.348% 0.01692 225.46);
   --blue-100: oklch(94.147% 0.0387 223.674);
@@ -265,15 +265,18 @@
 }
 
 @theme inline {
-  --foreground: var(--dark-blue-950);
+  --foreground: var(--neutral-900);
   --background: var(--dark-blue-50);
   --animate-slide_in_rtl: slide-in-rtl 0.25s ease-in forwards;
   --animate-slide_out_ltr: slide-out-ltr 0.25s ease-in forwards;
   --animate-fade_out: fade-out 0.25s ease-out forwards;
   --animate-fade_in: fade-in 0.25s ease-in forwards;
-  --breakpoint-xs: 30rem;
+  --breakpoint-xsm: 30rem;
+  --breakpoint-xs: 23rem;
+  --breakpoint-2xs: 20rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-black: var(--black);
   --color-primary: var(--blue-700);
   --color-primary-50: var(--blue-50);
   --color-primary-100: var(--blue-100);
@@ -429,7 +432,7 @@
 /* Glassmorphism  */
 @layer utilities {
   /* Subtle glassmorphism for navigation */
-  .bg-light-gradient {
+  :where([data-theme="light"]).bg-gradient {
     background: radial-gradient(
       ellipse farthest-side at 10% 40%,
       var(--blue-50) 40%,
@@ -441,7 +444,7 @@
     background-position: center;
   }
 
-  :where([data-theme="dark"]).bg-dark-gradient {
+  :where([data-theme="dark"]).bg-gradient {
     background: radial-gradient(
       ellipse farthest-side at 50% -80%,
       var(--dark-blue-900) 10%,
@@ -450,6 +453,40 @@
     background-size: 110% 100%;
     background-repeat: no-repeat;
     background-position: center;
+  }
+
+  /* Minimal, accessible gradients */
+  .gradient-primary {
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-800));
+  }
+
+  :where([data-theme="light"]).bg-gradient-primary {
+    @apply inline-block font-bold text-xl md:text-5xl bg-linear-135/increasing from-blue-500 from-20% via-blue-700 via-50% to-blue-900 to-100%;
+  }
+
+  :where([data-theme="dark"]).bg-gradient-primary {
+    @apply inline-block font-bold text-xl md:text-5xl bg-linear-135 from-blue-400 from-30% via-blue-500 via-50% to-blue-600 to-100%;
+  }
+
+  .gradient-primary-on-hover:hover {
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-800));
+  }
+
+  /* Accessible text gradients */
+  .text-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: var(--primary-600); /* Fallback for accessibility */
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .text-gradient-primary {
+      background: none;
+      -webkit-text-fill-color: unset;
+      color: var(--primary-600);
+    }
   }
 
   .glass-blur-sm {
@@ -475,6 +512,7 @@
       0.2s cubic-bezier(0.4, 0, 0.3, 1);
     transform: translateY(-1.5px);
   }
+
   /* Professional cards with accessibility */
   .glass-card {
     backdrop-filter: blur(20px) saturate(150%);
@@ -493,39 +531,6 @@
       0 1px 2px rgba(255, 255, 255, 0.03);
   }
 
-  /* Subtle glass effect for UI elements */
-
-  /* Minimal, accessible gradients */
-  .gradient-primary {
-    background: linear-gradient(135deg, var(--blue-500), var(--blue-800));
-  }
-
-  .gradient-primary-on-hover:hover {
-    background: linear-gradient(135deg, var(--blue-500), var(--blue-800));
-  }
-
-  .gradient-hero {
-    background:
-      radial-gradient(ellipse at top, var(--primary-50), transparent 60%),
-      radial-gradient(
-        ellipse at bottom right,
-        var(--primary-100),
-        transparent 50%
-      ),
-      var(--neutral-50);
-  }
-
-  .gradient-hero-dark {
-    background:
-      radial-gradient(ellipse at top, oklch(0.18 0.05 230), transparent 60%),
-      radial-gradient(
-        ellipse at bottom right,
-        oklch(0.15 0.04 225),
-        transparent 50%
-      ),
-      oklch(0.08 0.01 230);
-  }
-
   /* Subtle background variations */
   .bg-surface {
     background: var(--neutral-50);
@@ -533,23 +538,6 @@
 
   .bg-surface-dark {
     background: oklch(0.12 0.01 230);
-  }
-
-  /* Accessible text gradients */
-  .text-gradient-primary {
-    background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    color: var(--primary-600); /* Fallback for accessibility */
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .text-gradient-primary {
-      background: none;
-      -webkit-text-fill-color: unset;
-      color: var(--primary-600);
-    }
   }
 
   /* Subtle interactive effects */

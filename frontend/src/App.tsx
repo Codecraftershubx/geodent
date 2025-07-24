@@ -15,7 +15,7 @@ function App() {
           <Route path="/signup" element={<Pages.Signup />} />
           <Route path="/home" element={<Pages.Home />} />
           <Route path="/about" element={<Pages.About />} />
-          <Route path="/me" element={<Pages.UserAccount />} />
+          <Route path="/me/dashboard" element={<Pages.UserAccount />} />
           <Route path="/test" element={<Components.TestComponent />} />
         </Route>
       </Routes>

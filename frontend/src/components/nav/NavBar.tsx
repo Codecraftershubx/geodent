@@ -27,7 +27,7 @@ const NavBar: React.FC = () => {
         <Components.Wrapper>
           <nav className={`flex justify-between items-center`}>
             {/* Main Nav Items */}
-            <div className="flex gap-5">
+            <div className="flex gap-8">
               <Components.Logo className="mr-5" />
               {!isMobile && <NavLinks currentPath={currentPath} />}
             </div>
@@ -109,12 +109,12 @@ const NavLinks: React.FC<NavLinksPropsType> = ({ currentPath }) => {
         target={{
           pathname: "/listings",
         }}
-        text="Listings"
+        text="Browse Listings"
         className={currentPath === "/" ? "text-primary-600" : ""}
       />
       <Components.NavItems.Link
-        target={{ pathname: "/me/dashboard" }}
-        text="Account"
+        target={{ pathname: "/" }}
+        text="List Property"
       />
     </>
   );

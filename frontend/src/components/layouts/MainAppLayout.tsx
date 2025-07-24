@@ -11,7 +11,7 @@ const Layout: React.FC = () => {
   const { theme } = UseTheme();
   console.log("theme:", theme);
   return (
-    <div className="bg-light-gradient bg-dark-gradient" data-theme={theme}>
+    <div className="bg-gradient" data-theme={theme}>
       <Components.NavBar />
       {show && message && (
         <Components.Alert
