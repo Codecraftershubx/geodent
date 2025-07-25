@@ -10,10 +10,12 @@ import NavBar from "./nav/NavBar";
 import NavItems from "./nav/NavItems";
 import SignupForm from "./forms/SignupForm";
 import Wrapper from "./Wrapper";
+import HeadingTextGradient from "./HeadingTextGradient";
 
 export default {
   Alert,
   ErrorBoundary,
+  HeadingTextGradient,
   TestComponent,
   Layout,
   Loader,
