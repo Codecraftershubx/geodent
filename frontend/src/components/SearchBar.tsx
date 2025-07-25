@@ -14,10 +14,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <>
       {label !== undefined && (
-        <label
-          htmlFor="search-term"
-          className="text-sm text-dark-primary-950/80 dark:text-neutral-100/80"
-        >
+        <label htmlFor="search-term" className="ml-2 label-style">
           {label}
         </label>
       )}
@@ -27,7 +24,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           type="text"
           placeholder={placeholder}
           className={cn(
-            "p-6 outline-0 placeholder:text-neutral-200 placeholder:text-sm placeholder:text-thin rounded-full pr-18 md:pr-32",
+            "p-6 outline-0 input-placeholder rounded-full pr-18 md:pr-32",
             className
           )}
         />

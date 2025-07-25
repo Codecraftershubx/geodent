@@ -20,7 +20,7 @@ const NavBar: React.FC = () => {
   return (
     <>
       <div
-        className="py-4 sticky top-0 bg-primary-50/80 dark:bg-neutral-950/80 border-b-[0.7px] border-b-neutral-50/80 dark:border-b-neutral-50/20 shadow-md shadow-neutral-500/10 dark:shadow-black/40 glass-blur-lg transition-all duration-300 dark:text-neutral-50/90"
+        className="py-4 sticky top-0 bg-primary-50/60 dark:bg-neutral-950/70 border-b-[0.7px] glass-border-b shadow-md shadow-neutral-500/10 dark:shadow-black/40 glass-blur-md transition-all duration-300 dark:text-neutral-50/90 z-100"
         id="navbar"
         data-theme={theme}
       >

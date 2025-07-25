@@ -515,6 +515,14 @@
     @apply border-neutral-50/80 dark:border-neutral-50/20;
   }
 
+  .input-placeholder {
+    @apply placeholder:text-dark-primary-950/25 placeholder:text-[0.7rem] md:placeholder:text-[1rem] placeholder:font-light;
+  }
+
+  .label-style {
+    @apply text-dark-primary-950/50 dark:text-neutral-100/70 font-normal text-sm;
+  }
+
   .translate-y:hover {
     transition:
       all,
