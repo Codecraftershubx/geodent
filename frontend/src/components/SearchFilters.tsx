@@ -5,12 +5,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { UseTheme } from "@/hooks";
+import {
+  BookOpenCheck,
+  Cctv,
+  CircleParking,
+  CookingPot,
+  Dumbbell,
+  PlugZap,
+  RockingChair,
+  Snowflake,
+  WashingMachine,
+  WavesLadder,
+  Wifi,
+} from "lucide-react";
+import { MdWaterDrop } from "react-icons/md";
+import React from "react";
 import { cn } from "@/lib/utils";
 
 const SearchFilters = () => {
   return (
     <div className="flex gap-5 items-center">
+      {/* Amenities */}
+      <AmenitiesFilter name="amenities" size="32px" />
       {/* Property Type */}
       <SelectFilter
         trigger="Property Type"
@@ -59,7 +82,7 @@ const SearchFilters = () => {
   );
 };
 
-const SelectFilter: React.FC<SelectFilterPropsType> = ({
+const SelectFilter: React.FC<FilterPropsType> = ({
   trigger,
   values,
   defaultValue,
@@ -106,15 +129,76 @@ const SelectFilter: React.FC<SelectFilterPropsType> = ({
   );
 };
 
-type SelectFilterPropsType = {
-  trigger: string;
-  values: string[];
-  defaultValue?: string;
+/**
+ * Amenities Filter
+ */
+const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
+  name,
+  className,
+  size = "24px",
+}) => {
+  const amenities: Record<string, React.ReactNode> = {
+    WiFi: <Wifi size={size} />,
+    "Air Conditioning": <Snowflake size={size} />,
+    Kitchen: <CookingPot size={size} />,
+    "Laundry Facilities": <WashingMachine size={size} />,
+    "24/7 Security": <Cctv size={size} />,
+    "Parking Space": <CircleParking size={size} />,
+    "Swimming Pool": <WavesLadder size={size} />,
+    "Gym/Fitness Center": <Dumbbell size={size} />,
+    "Study Room": <BookOpenCheck size={size} />,
+    "Recreation Center": <RockingChair size={size} />,
+    "Backup Power": <PlugZap size={size} />,
+    "Water Supply": <MdWaterDrop size={size} />,
+  };
+
+  return (
+    <div className="border-1 w-full rounded-md border-primary-400 text-neutral-400">
+      <Accordion
+        type="single"
+        collapsible
+        className={cn("w-full", className)}
+        id="amenities"
+      >
+        <AccordionItem value={name}>
+          <AccordionTrigger className="px-3 text-md dark:bg-neutral-950/64 glass-blur-lg">
+            {" "}
+            Amenities{" "}
+          </AccordionTrigger>
+          <AccordionContent className="px-3 flex basis-2.5 items-center flex-wrap gap-3 max-h-[240px] overflow-y-scroll">
+            {Object.entries(amenities).map(([name, icon]) => (
+              <span className="p-4 w-full sm:w-auto inline-flex items-center gap-2 text-dark-primary-950 dark:text-foreground/90 border-1 border-dark-primary-950/20 bg-neutral-50 dark:border-primary-900/70 dark:bg-dark-primary-950/90 hover:bg-primary-neutral-100/70 dark:hover:bg-neutral-950/90 glass-blur-md glass-border rounded-full">
+                {icon}&nbsp;{name}
+              </span>
+            ))}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+};
+
+/**
+ * Types
+ */
+type BaseFieldType = {
   name: string;
   withLabel?: boolean;
   label?: string;
+  className?: string;
+};
+
+type FilterPropsType = BaseFieldType & {
+  trigger: string;
+  values: string[];
+  defaultValue?: string;
+};
+
+type AmenitiesFilterProps = BaseFieldType & {
+  size?: string;
+  onClick?: () => void;
 };
 
 export default SearchFilters;
-export { SelectFilter };
-export type { SelectFilterPropsType };
+export { AmenitiesFilter, SelectFilter };
+export type { AmenitiesFilterProps, FilterPropsType };

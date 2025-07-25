@@ -11,10 +11,11 @@ import NavItems from "./nav/NavItems";
 import SignupForm from "./forms/SignupForm";
 import Wrapper from "./Wrapper";
 import HeadingTextGradient from "./HeadingTextGradient";
-import SearchFilters from "./SearchFilters";
+import SearchFilters, { AmenitiesFilter } from "./SearchFilters";
 
 export default {
   Alert,
+  AmenitiesFilter,
   ErrorBoundary,
   HeadingTextGradient,
   SearchFilters,
