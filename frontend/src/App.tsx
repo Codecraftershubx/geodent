@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Components from "@/components/index";
 import Pages from "@/pages/index.js";
+import { FiltersProvider } from "./hooks/UseFilters";
 
 function App() {
   return (
@@ -9,7 +10,14 @@ function App() {
       <Routes>
         <Route path="/" element={<Components.Layout />}>
           <Route index element={<Pages.Listings />} />
-          <Route path="/listings" element={<Pages.Listings />} />
+          <Route
+            path="/listings"
+            element={
+              <FiltersProvider>
+                <Pages.Listings />
+              </FiltersProvider>
+            }
+          />
           <Route path="/login" element={<Pages.Login />} />
           <Route path="/logout" element={<Pages.Logout />} />
           <Route path="/signup" element={<Pages.Signup />} />

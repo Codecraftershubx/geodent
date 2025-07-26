@@ -8,6 +8,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   placeholder,
   className,
   label,
+  onChange,
 }) => {
   const showSearch = UseIsMobile(430);
 
@@ -27,6 +28,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             "border-1 dark:border-[0.5px] border-neutral-200 p-6 outline-0 input-placeholder rounded-full pr-18 md:pr-32 bg-white/80 dark:bg-black/60",
             className
           )}
+          onChange={onChange}
         />
         <div className="absolute z-5 right-[1px] top-[1px]">
           <Button
@@ -52,5 +54,6 @@ type SearchBarProps = {
   label?: string;
   className?: string;
   withButton?: boolean;
+  onChange?: React.ChangeEventHandler<HTMLInputElement> | undefined;
 };
 export default SearchBar;
