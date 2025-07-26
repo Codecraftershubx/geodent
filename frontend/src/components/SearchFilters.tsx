@@ -31,7 +31,22 @@ import { cn } from "@/lib/utils";
 
 const SearchFilters = () => {
   const amenities: Set<string> = new Set();
-
+  const [filters, setFilters] = useState<FiltersStateType>({
+    propertyType: "All",
+    distance: "Any",
+    priceRange: "Any",
+    rating: "Any",
+    amenities: [],
+  });
+  useEffect(() => {
+    console.log("UPDATED FILTERS:", filters);
+  }, [
+    filters.propertyType,
+    filters.distance,
+    filters.priceRange,
+    filters.rating,
+    filters.amenities[0],
+  ]);
   return (
     <div className="flex flex-col gap-5 justify-start">
       {/* Other Filters */}
@@ -41,7 +56,10 @@ const SearchFilters = () => {
           trigger="Property Type"
           values={["All", "Studio", "Self-Contained", "Flat", "Block"]}
           name="propertyType"
-          defaultValue="All"
+          defaultValue={filters.propertyType}
+          onValueChange={(updated) => {
+            setFilters({ ...filters, propertyType: updated });
+          }}
         />
         {/* Distance */}
         <SelectFilter
@@ -55,7 +73,10 @@ const SearchFilters = () => {
             "Far (10+km)",
           ]}
           name="distance"
-          defaultValue="Any"
+          defaultValue={filters.distance}
+          onValueChange={(updated) => {
+            setFilters({ ...filters, distance: updated });
+          }}
         />
         {/* Price Range */}
         <SelectFilter
@@ -71,14 +92,20 @@ const SearchFilters = () => {
             "₦300K+",
           ]}
           name="priceRange"
-          defaultValue="Any"
+          defaultValue={filters.priceRange}
+          onValueChange={(updated) => {
+            setFilters({ ...filters, priceRange: updated });
+          }}
         />
         {/* Rating */}
         <SelectFilter
           trigger="Rating"
           values={["Any", "4.5+", "4.0+", "3.5+", "3.0+"]}
           name="rating"
-          defaultValue="Any"
+          defaultValue={filters.rating}
+          onValueChange={(updated) => {
+            setFilters({ ...filters, rating: updated });
+          }}
         />
       </div>
       {/* Amenities Filter */}
@@ -98,10 +125,12 @@ const SelectFilter: React.FC<FilterPropsType> = ({
   defaultValue,
   withLabel = true,
   label,
+  onValueChange,
 }) => {
   const { theme } = UseTheme();
+  useEffect(() => {}, [defaultValue]);
   return (
-    <Select>
+    <Select value={defaultValue || values[0]} onValueChange={onValueChange}>
       <div className="flex flex-col gap-2 w-full md:w-auto">
         {withLabel && (
           <label className="label-style" htmlFor={trigger}>
@@ -254,6 +283,7 @@ type FilterPropsType = BaseFieldType & {
   trigger: string;
   values: string[];
   defaultValue?: string;
+  onValueChange?: (e: any) => void;
 };
 
 type AmenitiesFilterProps = BaseFieldType & {
@@ -262,6 +292,14 @@ type AmenitiesFilterProps = BaseFieldType & {
   xClassName?: string;
 };
 
+type FiltersStateType = {
+  propertyType: string;
+  distance: string;
+  priceRange: string;
+  rating: string;
+  amenities: Array<string | undefined>;
+};
+
 export default SearchFilters;
 export { AmenitiesFilter, SelectFilter };
-export type { AmenitiesFilterProps, FilterPropsType };
+export type { AmenitiesFilterProps, FilterPropsType, FiltersStateType };
