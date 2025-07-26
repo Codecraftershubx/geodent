@@ -548,6 +548,20 @@
       0 1px 2px rgba(255, 255, 255, 0.03);
   }
 
+  .fade-content-top {
+    @apply sticky top-0 left-0 w-full min-h-5 z-200;
+  }
+
+  .fade-content-bottom {
+    @apply absolute bottom-0 left-0 w-full min-h-10 z-200;
+  }
+  .fade-top-white {
+    @apply bg-gradient-to-b from-white dark:from-neutral-950 from-25% to-transparent to-100%;
+  }
+  .fade-bottom-white {
+    @apply bg-gradient-to-t from-white dark:from-neutral-950 from-15% to-transparent to-100%;
+  }
+
   /* Subtle background variations */
   .bg-surface {
     background: var(--neutral-50);

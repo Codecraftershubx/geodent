@@ -30,8 +30,17 @@ import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import UseFilters from "@/hooks/UseFilters";
 
+/**
+ * @func SearchFilters Search filters component
+ * @description Defines both the filters as well as the Amenities
+ * @returns {React.ReactNode}
+ */
 const SearchFilters = () => {
   const { filters, setFilters } = UseFilters();
+
+  /**
+   * Hook: Track changes in filters
+   */
   useEffect(() => {
     console.log(
       "UPDATED FILTERS:",
@@ -114,8 +123,10 @@ const SearchFilters = () => {
 };
 
 /**
- * Create Search filters
- * @param param0
+ * @func SelectFilter Defines a selct filter component
+ * @description Select filter component used by the SearchFilters component
+ * as may be needed to factory generate select-based filters
+ * @param props @type {FilterPropsType} Properties passed from parent component.
  * @returns
  */
 const SelectFilter: React.FC<FilterPropsType> = ({
@@ -127,7 +138,7 @@ const SelectFilter: React.FC<FilterPropsType> = ({
   onValueChange,
 }) => {
   const { theme } = UseTheme();
-  useEffect(() => {}, [defaultValue]);
+
   return (
     <Select value={defaultValue || values[0]} onValueChange={onValueChange}>
       <div className="flex flex-col gap-2 w-full md:w-auto">
@@ -174,15 +185,17 @@ const SelectFilter: React.FC<FilterPropsType> = ({
 };
 
 /**
- * Amenities Filter
+ * @func AmenitiesFilter Amenities filter factory
+ * @param props @type {AmenitiesFilterProps} props from parent
+ * @returns {React.ReactNode}
  */
-const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
+function AmenitiesFilter({
   name,
   className,
   size = "24px",
   xClassName,
   amenities,
-}) => {
+}: AmenitiesFilterProps) {
   const { theme } = UseTheme();
   // Pre-defined amenities with their icons
   const amenitiesList: Record<string, React.ReactNode> = {
@@ -199,11 +212,19 @@ const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
     "Backup Power": <PlugZap size={size} />,
     "Water Supply": <MdWaterDrop size={size} />,
   };
+  const [count, setCount] = useState(amenities.size);
+  const [aValue, setAValue] = useState<string | undefined>(undefined);
+  const handleChange = (v: any) => {
+    setAValue((prev) => (prev === v ? undefined : (v as string)));
+  };
+  // Update ui on each amenity selection
+  useEffect(() => {}, [count, aValue]);
 
   return (
     <div
+      // Background
       className={cn(
-        "border-1 w-full rounded-md border-primary-400 dark:border-primary-900/70 bg-white/50 dark:bg-dark-primary-950/20 hover-glow glass-border",
+        "border-1 w-full rounded-md border-primary-400 dark:border-primary-900/70 bg-white dark:bg-dark-primary-950/20 glass-border relative overflow-hidden",
         xClassName
       )}
     >
@@ -212,11 +233,13 @@ const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
         collapsible
         className={cn("w-full", className)}
         id="amenities"
+        onValueChange={handleChange}
+        value={aValue}
       >
-        <AccordionItem value={name}>
+        <AccordionItem value={name} className="relative">
           <AccordionTrigger
             className={cn(
-              "px-4 text-md font-normal hover:no-underline glass-blur-lg",
+              "hover-glow px-4 text-md font-normal hover:no-underline glass-blur-lg",
               theme === "light"
                 ? "bg-linear-to-br from-primary-600 to-primary-800 text-neutral-100"
                 : "text-neutral-100/70 bg-dark-primary-950 hover:bg-dark-primary-950/80 not-first-of-type:text-neutral-100/70"
@@ -224,40 +247,49 @@ const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
           >
             Amenities
           </AccordionTrigger>
-          <AccordionContent className="p-3 flex basis-2.5 items-center flex-wrap gap-3 max-h-[240px] overflow-y-scroll">
-            {Object.entries(amenitiesList).map(([name, icon], idx) => (
-              <span
-                key={idx + 1}
-                id={`amenity-${idx + 1}`}
-                data-name={name}
-                className={cn(
-                  "transition-all duration-200 px-4 py-3 w-full sm:w-auto inline-flex items-center gap-2 dark:bg-dark-primary-950/90 text-dark-primary-950 glass-blur-md  rounded-full cursor-pointer border-[1.5px]",
-                  amenities.has(name)
-                    ? "text-neutral-50 dark:text-dark-primary-950 bg-primary-800 dark:bg-neutral-50/90 border-primary-50 dark:border-primary-900"
-                    : "hover-glow hover:bg-primary-800/30 dark:hover:bg-neutral-100/90 dark:hover:text-dark-primary-950 border-dark-primary-950/20 bg-white dark:border-primary-900/70 dark:text-foreground/90"
-                )}
-                onClick={(e) => {
-                  const n = (e.target as HTMLSpanElement).dataset
-                    .name as string;
-                  if (amenities.has(n)) {
-                    amenities.delete(n);
-                  } else {
-                    amenities.add(n);
-                  }
-                }}
-              >
-                <span className="size-6 inline-flex items-center justify-center">
-                  {icon}
+          <AccordionContent className="max-h-[240px] overflow-y-scroll relative pb-5 md:pb-15">
+            {aValue !== "" && (
+              <div className="fade-content-top fade-top-white"></div>
+            )}
+            <div className="flex py-5 px-3 flex-wrap items-start gap-3 overflow-y-scroll">
+              {Object.entries(amenitiesList).map(([name, icon], idx) => (
+                <span
+                  key={idx + 1}
+                  id={`amenity-${idx + 1}`}
+                  data-name={name}
+                  className={cn(
+                    "transition-all duration-200 px-4 py-3 w-full sm:w-auto inline-flex items-center gap-2 dark:bg-dark-primary-950/90 text-dark-primary-950 glass-blur-md  rounded-full cursor-pointer border-[1.5px]",
+                    amenities.has(name)
+                      ? "text-neutral-50 dark:text-dark-primary-950 bg-primary-800 dark:bg-neutral-50/90 border-primary-50 dark:border-primary-900"
+                      : "hover-glow hover:bg-primary-800/30 dark:hover:bg-neutral-100/90 dark:hover:text-dark-primary-950 border-dark-primary-950/20 bg-white dark:border-primary-900/70 dark:text-foreground/90"
+                  )}
+                  onClick={(e) => {
+                    const n = (e.target as HTMLSpanElement).dataset
+                      .name as string;
+                    if (amenities.has(n)) {
+                      amenities.delete(n);
+                    } else {
+                      amenities.add(n);
+                    }
+                    setCount(amenities.size);
+                  }}
+                >
+                  <span className="size-6 inline-flex items-center justify-center">
+                    {icon}
+                  </span>
+                  &nbsp;{name}
                 </span>
-                &nbsp;{name}
-              </span>
-            ))}
+              ))}
+            </div>
           </AccordionContent>
+          {aValue !== "" && (
+            <div className="fade-content-bottom fade-bottom-white"></div>
+          )}
         </AccordionItem>
       </Accordion>
     </div>
   );
-};
+}
 
 /**
  * Types
