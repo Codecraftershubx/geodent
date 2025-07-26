@@ -12,6 +12,7 @@ import SignupForm from "./forms/SignupForm";
 import Wrapper from "./Wrapper";
 import HeadingTextGradient from "./HeadingTextGradient";
 import SearchFilters, { AmenitiesFilter } from "./SearchFilters";
+import SearchContainer from "./SearchContainer";
 
 export default {
   Alert,
@@ -27,6 +28,7 @@ export default {
   MobileMenu,
   NavBar,
   NavItems,
+  SearchContainer,
   SignupForm,
   Wrapper,
 };
