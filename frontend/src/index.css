@@ -516,7 +516,7 @@
   }
 
   .input-placeholder {
-    @apply placeholder:text-dark-primary-950/25 placeholder:text-[0.7rem] md:placeholder:text-[1rem] placeholder:font-light;
+    @apply placeholder:text-dark-primary-950/25 dark:placeholder:text-neutral-50/40 placeholder:text-[0.7rem] md:placeholder:text-[1rem] placeholder:font-light;
   }
 
   .label-style {
