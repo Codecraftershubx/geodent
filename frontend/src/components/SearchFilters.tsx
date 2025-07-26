@@ -215,9 +215,9 @@ function AmenitiesFilter({
   const [count, setCount] = useState(amenities.size);
 
   // track when filter is opened. used to control amenities list container fade
-  const [aValue, setAValue] = useState<string | undefined>(undefined);
+  const [aValue, setAValue] = useState<string>("");
   const handleChange = (v: any) => {
-    setAValue((prev) => (prev === v ? undefined : (v as string)));
+    setAValue((prev) => (prev === v ? "" : v));
   };
 
   // Update ui on each amenity selection
