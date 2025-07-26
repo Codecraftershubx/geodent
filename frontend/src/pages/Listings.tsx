@@ -11,6 +11,9 @@ import SearchFilters from "@/components/SearchFilters";
 import { UseFilters } from "@/hooks/UseFilters";
 import UseDebounce from "@/hooks/UseDebounce";
 
+/**
+ * @func Listings Listings Page Component
+ */
 const Listings = () => {
   const { theme } = UseTheme();
   const { filters } = UseFilters();
@@ -27,9 +30,6 @@ const Listings = () => {
     console.log("DEBOUNCED VALUE:", searchValue, "\nFILTERS:\n", filters);
   }, [searchValue, submitted]);
 
-  /**
-   * Listings Page
-   */
   return (
     <section className="min-h-svh py-10 md:py-20 flex flex-col gap-5 justify-start">
       {/* Heading Section */}
@@ -58,8 +58,9 @@ const Listings = () => {
             />
           </div>
 
-          {/* Filters Toggle */}
+          {/* Filters Section */}
           <div>
+            {/* Filters Toggle */}
             <div
               className={cn(
                 "transition-all md:m-0 duration-300 p-3 flex items-center gap-2 justify-between",
@@ -69,6 +70,7 @@ const Listings = () => {
               )}
             >
               <span className="sr-only">Filters toggle button</span>
+              {/* Toggle Button */}
               <span
                 className={cn(
                   "inline-flex items-center cursor-pointer gap-2",
@@ -81,6 +83,7 @@ const Listings = () => {
                 <SlidersHorizontal size="20px" strokeWidth="2.5px" />
                 <span>{filtersOpen ? "Hide" : "Show"}&nbsp;Filters</span>
               </span>
+              {/* Toggle Chevron */}
               <span
                 className={cn(
                   "cursor-pointer",
@@ -97,6 +100,7 @@ const Listings = () => {
                 )}
               </span>
             </div>
+
             {/* Search Filters */}
             {filtersOpen && (
               <motion.div className="shadow-md shadow-neutral-300/20 dark:shadow-black rounded-3xl bg-neutral-100/50 dark:bg-black/30 p-5 glass-blur-md border-[0.5px] border-neutral-200/60 dark:border-neutral-50/20">

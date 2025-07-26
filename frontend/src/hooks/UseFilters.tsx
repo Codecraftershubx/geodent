@@ -2,7 +2,13 @@ import React, { createContext, useContext, useRef, useState } from "react";
 import type { FiltersStateType } from "@/components/SearchFilters";
 
 /**
- * Filters Context
+ * The filters context api. Allows us access to the filters setter and getter
+ * across all listing child components to avoid drilling
+ */
+
+/**
+ * @name FiltersContext
+ * @description The Context
  */
 const FiltersContext = createContext<FiltersContextType>({
   filters: {
@@ -16,9 +22,9 @@ const FiltersContext = createContext<FiltersContextType>({
 });
 
 /**
- * Filters Provider
- * @param param0
- * @returns
+ * @func FiltersProvider The context provider definition
+ * @param props @type {{children: React.ReactNode}} children to render
+ * @returns {React.ProviderExoticComponent}
  */
 const FiltersProvider = ({ children }: { children: React.ReactNode }) => {
   const amenitiesRef = useRef<Set<string>>(new Set());
@@ -38,7 +44,8 @@ const FiltersProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 /**
- * Filters custom hook
+ * @func UseFilters
+ * @description Custom hook to access the context. Takes no param.
  * @returns {FiltersContextType}
  */
 const UseFilters = () => {

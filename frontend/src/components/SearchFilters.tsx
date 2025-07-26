@@ -213,10 +213,13 @@ function AmenitiesFilter({
     "Water Supply": <MdWaterDrop size={size} />,
   };
   const [count, setCount] = useState(amenities.size);
+
+  // track when filter is opened. used to control amenities list container fade
   const [aValue, setAValue] = useState<string | undefined>(undefined);
   const handleChange = (v: any) => {
     setAValue((prev) => (prev === v ? undefined : (v as string)));
   };
+
   // Update ui on each amenity selection
   useEffect(() => {}, [count, aValue]);
 

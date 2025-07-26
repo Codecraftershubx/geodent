@@ -1,3 +1,6 @@
+/**
+ * Mobile Navigation Module
+ */
 import {
   Sheet,
   SheetContent,
@@ -12,6 +15,12 @@ import { LogOutIcon, Menu } from "lucide-react";
 import { UseTheme } from "@/hooks";
 import { NavLinks } from "../nav/NavBar";
 
+/**
+ * @func MobileMenu
+ * @description App's mobile menu component
+ * @param props @type {{children: MobileMenuProps}}
+ * @returns {React.ReactNode}
+ */
 function MobileMenu({ currentPath }: MobileMenuProps) {
   const { theme } = UseTheme();
 

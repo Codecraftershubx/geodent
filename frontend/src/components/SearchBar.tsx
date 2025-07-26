@@ -4,6 +4,12 @@ import { Button } from "./ui/button";
 import { Search } from "lucide-react";
 import { UseIsMobile } from "@/hooks";
 
+/**
+ * @func SearchBar Search bar component
+ * @description Renders a searc input like as on listing page
+ * @param props @type {SearchBarProps}
+ * @returns
+ */
 const SearchBar: React.FC<SearchBarProps> = ({
   placeholder,
   className,
@@ -14,11 +20,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   return (
     <>
+      {/* Show label if required */}
       {label !== undefined && (
         <label htmlFor="search-term" className="ml-2 label-style">
           {label}
         </label>
       )}
+      {/* Input Element itself */}
       <div className="relative">
         <Input
           id="search-term"
@@ -49,6 +57,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
   );
 };
 
+/**
+ * Type
+ */
 type SearchBarProps = {
   placeholder?: string;
   label?: string;
