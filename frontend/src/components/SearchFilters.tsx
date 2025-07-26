@@ -28,25 +28,24 @@ import {
 import { MdWaterDrop } from "react-icons/md";
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import UseFilters from "@/hooks/UseFilters";
 
 const SearchFilters = () => {
-  const amenities: Set<string> = new Set();
-  const [filters, setFilters] = useState<FiltersStateType>({
-    propertyType: "All",
-    distance: "Any",
-    priceRange: "Any",
-    rating: "Any",
-    amenities: [],
-  });
+  const { filters, setFilters } = UseFilters();
   useEffect(() => {
-    console.log("UPDATED FILTERS:", filters);
+    console.log(
+      "UPDATED FILTERS:",
+      filters,
+      "selected amenities",
+      filters.amenities
+    );
   }, [
     filters.propertyType,
     filters.distance,
     filters.priceRange,
     filters.rating,
-    filters.amenities[0],
   ]);
+
   return (
     <div className="flex flex-col gap-5 justify-start">
       {/* Other Filters */}
@@ -109,7 +108,7 @@ const SearchFilters = () => {
         />
       </div>
       {/* Amenities Filter */}
-      <AmenitiesFilter name="amenities" amenities={amenities} />
+      <AmenitiesFilter name="amenities" amenities={filters.amenities} />
     </div>
   );
 };
@@ -184,11 +183,8 @@ const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
   xClassName,
   amenities,
 }) => {
-  // Pre-defined amenities
-
   const { theme } = UseTheme();
-  const [count, setCount] = useState<number>(amenities.size);
-
+  // Pre-defined amenities with their icons
   const amenitiesList: Record<string, React.ReactNode> = {
     WiFi: <Wifi size={size} />,
     "Air Conditioning": <Snowflake size={size} />,
@@ -203,11 +199,6 @@ const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
     "Backup Power": <PlugZap size={size} />,
     "Water Supply": <MdWaterDrop size={size} />,
   };
-
-  // Refresh state of Amenities list on toggle selection
-  useEffect(() => {
-    console.log(amenities);
-  }, [count]);
 
   return (
     <div
@@ -253,7 +244,6 @@ const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
                   } else {
                     amenities.add(n);
                   }
-                  setCount(amenities.size);
                 }}
               >
                 <span className="size-6 inline-flex items-center justify-center">
@@ -297,7 +287,7 @@ type FiltersStateType = {
   distance: string;
   priceRange: string;
   rating: string;
-  amenities: Array<string | undefined>;
+  amenities: Set<string>;
 };
 
 export default SearchFilters;

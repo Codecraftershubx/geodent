@@ -12,12 +12,13 @@ import { UseFilters } from "@/hooks/UseFilters";
 import UseDebounce from "@/hooks/UseDebounce";
 
 const Listings = () => {
+  const { theme } = UseTheme();
   const { filters } = UseFilters();
   const [filtersOpen, setFiltersOpen] = useState<boolean>(false);
   const [submitted, isSubmitted] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>("");
   const searchValue = UseDebounce<string>(searchInput, 500);
-  const { theme } = UseTheme();
+  const [listings, setListings] = useState<Record<string, any> | null>(null);
 
   /**
    * Hooks

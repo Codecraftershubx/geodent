@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useRef, useState } from "react";
 import type { FiltersStateType } from "@/components/SearchFilters";
 
 /**
@@ -10,7 +10,7 @@ const FiltersContext = createContext<FiltersContextType>({
     distance: "",
     priceRange: "",
     rating: "",
-    amenities: [],
+    amenities: new Set(),
   },
   setFilters: () => {},
 });
@@ -21,12 +21,13 @@ const FiltersContext = createContext<FiltersContextType>({
  * @returns
  */
 const FiltersProvider = ({ children }: { children: React.ReactNode }) => {
+  const amenitiesRef = useRef<Set<string>>(new Set());
   const [filters, setFilters] = useState<FiltersStateType>({
     propertyType: "",
     distance: "",
     priceRange: "",
     rating: "",
-    amenities: [],
+    amenities: amenitiesRef.current,
   });
 
   return (
