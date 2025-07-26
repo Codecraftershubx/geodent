@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import Components from "@/components/index";
 import { UseTheme } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { SlidersHorizontal } from "lucide-react";
+import { ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import SearchFilters from "@/components/SearchFilters";
@@ -60,22 +60,46 @@ const Listings = () => {
 
           {/* Filters Toggle */}
           <div>
-            <span
+            <div
               className={cn(
-                "transition-all md:m-0 duration-300 p-3 cursor-pointer inline-flex items-center gap-2",
+                "transition-all md:m-0 duration-300 p-3 flex items-center gap-2 justify-between",
                 filtersOpen
-                  ? "text-primary-800 hover:text-neutral-400 dark:text-neutral-50 dark:hover:text-neutral-600 font-semibold"
-                  : "font-medium text-neutral-400 hover:text-primary-800 dark:text-neutral-600 dark:hover:text-neutral-50/80 touch:pan-x"
+                  ? "text-primary-800 dark:text-neutral-50 font-semibold"
+                  : "font-medium text-neutral-400  dark:text-neutral-600"
               )}
-              onClick={() => setFiltersOpen(!filtersOpen)}
             >
               <span className="sr-only">Filters toggle button</span>
-              <SlidersHorizontal size="20px" strokeWidth="2.5px" />
-              <span>{filtersOpen ? "Hide" : "Show"}&nbsp;Filters</span>
-            </span>
+              <span
+                className={cn(
+                  "inline-flex items-center cursor-pointer gap-2",
+                  filtersOpen
+                    ? "hover:text-neutral-400 dark:hover:text-neutral-600"
+                    : "hover:text-primary-800 dark:hover:text-neutral-50/80"
+                )}
+                onClick={() => setFiltersOpen(!filtersOpen)}
+              >
+                <SlidersHorizontal size="20px" strokeWidth="2.5px" />
+                <span>{filtersOpen ? "Hide" : "Show"}&nbsp;Filters</span>
+              </span>
+              <span
+                className={cn(
+                  "cursor-pointer",
+                  filtersOpen
+                    ? "hover:text-neutral-400 dark:hover:text-neutral-600"
+                    : "hover:text-primary-800 dark:hover:text-neutral-50/80"
+                )}
+                onClick={() => setFiltersOpen(!filtersOpen)}
+              >
+                {filtersOpen ? (
+                  <ChevronUp size="24px" />
+                ) : (
+                  <ChevronDown size="24px" />
+                )}
+              </span>
+            </div>
             {/* Search Filters */}
             {filtersOpen && (
-              <motion.div className="shadow-md shadow-neutral-300/20 dark:shadow-black rounded-3xl bg-white/90 dark:bg-black/20 p-5 glass-blur-md glass-border border-[0.5px]">
+              <motion.div className="shadow-md shadow-neutral-300/20 dark:shadow-black rounded-3xl bg-neutral-100/50 dark:bg-black/30 p-5 glass-blur-md border-[0.5px] border-neutral-200/60 dark:border-neutral-50/20">
                 <SearchFilters />
               </motion.div>
             )}
