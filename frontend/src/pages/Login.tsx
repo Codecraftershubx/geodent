@@ -306,7 +306,7 @@ const Login: React.FC = () => {
           </p>
         </div>
         {/* Activity Area */}
-        <div className="flex flex-col items-center justify-center gap-5 justify-center">
+        <div className="flex flex-col items-center justify-center gap-5">
           {isLoading && !useCredentials && (
             <div>
               <Loader />
