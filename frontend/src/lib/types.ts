@@ -67,6 +67,7 @@ type FadeComponentPropsType = {
  */
 type ListingsStateType = {
   isLoading: boolean;
+  stdDelay: number;
 };
 
 export type {

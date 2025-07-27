@@ -433,6 +433,10 @@
 
 /* Glassmorphism  */
 @layer utilities {
+  /* disabled effect */
+  .aria-disabled[aria-disabled="true"] {
+    @apply bg-primary-600/20 cursor-not-allowed;
+  }
   /* Subtle glassmorphism for navigation */
   :where([data-theme="light"]).bg-gradient {
     background: radial-gradient(

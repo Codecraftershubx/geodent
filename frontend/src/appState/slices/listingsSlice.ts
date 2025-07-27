@@ -8,6 +8,7 @@ const listingsSlice = createSlice({
   name: "listings",
   initialState: {
     isLoading: false,
+    stdDelay: 3000,
   },
   /**
    * Reducers

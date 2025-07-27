@@ -5,9 +5,10 @@ import { ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import SearchFilters from "@/components/SearchFilters";
-import { UseTheme } from "@/hooks";
+import { useAppSelector, UseTheme } from "@/hooks";
 import UseDebounce from "@/hooks/UseDebounce";
 import UseFilters from "@/hooks/UseFilters";
+import { RootState } from "@/lib/types";
 
 export const SearchContainer: React.FC<SearchPropsType> = ({
   setSubmitted,
@@ -16,7 +17,8 @@ export const SearchContainer: React.FC<SearchPropsType> = ({
   const [filtersOpen, setFiltersOpen] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>("");
   const searchValue = UseDebounce<string>(searchInput, 500);
-  const { filters, setFilters } = UseFilters();
+  const { filters, setFilters, setResetFields } = UseFilters();
+  const { isLoading } = useAppSelector((store: RootState) => store.listings);
 
   /**
    * Hooks
@@ -24,6 +26,16 @@ export const SearchContainer: React.FC<SearchPropsType> = ({
   useEffect(() => {
     setFilters({ ...filters, query: searchValue });
   }, [searchValue]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const i: HTMLInputElement | null = document.querySelector("#search-term");
+      if (i) {
+        i.value = "";
+      }
+      setResetFields(true);
+    }
+  }, [isLoading]);
 
   return (
     <Components.Wrapper className="py-0 justify-start">
@@ -103,6 +115,7 @@ export const SearchContainer: React.FC<SearchPropsType> = ({
 
 type SearchPropsType = {
   setSubmitted: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  clearState?: () => void;
 };
 
 export default SearchContainer;

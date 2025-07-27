@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useRef, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import type { FiltersStateType } from "@/components/SearchFilters";
 
 /**
@@ -6,19 +12,23 @@ import type { FiltersStateType } from "@/components/SearchFilters";
  * across all listing child components to avoid drilling
  */
 
+const defaultFilters = {
+  query: "",
+  propertyType: "",
+  distance: "",
+  priceRange: "",
+  rating: "",
+  amenities: new Set<string>(),
+};
+
 /**
  * @name FiltersContext
  * @description The Context
  */
 const FiltersContext = createContext<FiltersContextType>({
-  filters: {
-    query: "",
-    propertyType: "",
-    distance: "",
-    priceRange: "",
-    rating: "",
-    amenities: new Set(),
-  },
+  filters: defaultFilters,
+  resetFields: false,
+  setResetFields: () => {},
   setFilters: () => {},
 });
 
@@ -29,6 +39,7 @@ const FiltersContext = createContext<FiltersContextType>({
  */
 const FiltersProvider = ({ children }: { children: React.ReactNode }) => {
   const amenitiesRef = useRef<Set<string>>(new Set());
+  const [resetFields, setResetFields] = useState<boolean>(false);
   const [filters, setFilters] = useState<FiltersStateType>({
     query: "",
     propertyType: "",
@@ -38,8 +49,21 @@ const FiltersProvider = ({ children }: { children: React.ReactNode }) => {
     amenities: amenitiesRef.current,
   });
 
+  /**
+   * Hook:
+   * Reset filters to default when required
+   */
+  useEffect(() => {
+    if (resetFields) {
+      setFilters({ ...defaultFilters });
+      setResetFields(false);
+    }
+  }, [resetFields]);
+
   return (
-    <FiltersContext.Provider value={{ filters, setFilters }}>
+    <FiltersContext.Provider
+      value={{ filters, resetFields, setFilters, setResetFields }}
+    >
       {children}
     </FiltersContext.Provider>
   );
@@ -63,6 +87,8 @@ const UseFilters = () => {
  */
 type FiltersContextType = {
   filters: FiltersStateType;
+  resetFields: boolean;
+  setResetFields: React.Dispatch<React.SetStateAction<boolean>>;
   setFilters: React.Dispatch<React.SetStateAction<FiltersStateType>>;
 };
 

@@ -43,19 +43,19 @@ const SearchFilters = () => {
   /**
    * Hook: Track changes in filters
    */
-  useEffect(() => {
-    console.log(
-      "UPDATED FILTERS:",
-      filters,
-      "selected amenities",
-      filters.amenities
-    );
-  }, [
-    filters.propertyType,
-    filters.distance,
-    filters.priceRange,
-    filters.rating,
-  ]);
+  //useEffect(() => {
+  //  console.log(
+  //    "UPDATED FILTERS:",
+  //    filters,
+  //    "selected amenities",
+  //    filters.amenities
+  //  );
+  //}, [
+  //  filters.propertyType,
+  //  filters.distance,
+  //  filters.priceRange,
+  //  filters.rating,
+  //]);
 
   return (
     <div className="flex flex-col gap-5 justify-start">
@@ -271,14 +271,18 @@ function AmenitiesFilter({
             {aValue !== "" && (
               <div className="fade-content-top fade-top-white"></div>
             )}
-            <div className="flex py-5 px-3 flex-wrap items-start gap-3 overflow-y-scroll">
+            <div
+              className="flex py-5 px-3 flex-wrap items-start gap-3 overflow-y-scroll"
+              aria-disabled={disabled}
+            >
               {Object.entries(amenitiesList).map(([name, icon], idx) => (
                 <span
                   key={idx + 1}
                   id={`amenity-${idx + 1}`}
                   data-name={name}
+                  aria-disabled={disabled}
                   className={cn(
-                    "transition-all duration-200 px-4 py-3 w-full sm:w-auto inline-flex items-center gap-2 dark:bg-dark-primary-950/90 text-dark-primary-950 glass-blur-md  rounded-full cursor-pointer border-[1.5px]",
+                    "transition-all duration-200 px-4 py-3 w-full sm:w-auto inline-flex items-center gap-2 dark:bg-dark-primary-950/90 text-dark-primary-950 glass-blur-md  rounded-full cursor-pointer border-[1.5px] aria-disabled",
                     amenities.has(name)
                       ? "text-neutral-50 dark:text-dark-primary-950 bg-primary-800 dark:bg-neutral-50/90 border-primary-50 dark:border-primary-900"
                       : "hover-glow hover:bg-primary-800/30 dark:hover:bg-neutral-100/90 dark:hover:text-dark-primary-950 border-dark-primary-950/20 bg-white dark:border-primary-900/70 dark:text-foreground/90"
@@ -286,12 +290,17 @@ function AmenitiesFilter({
                   onClick={(e) => {
                     const n = (e.target as HTMLSpanElement).dataset
                       .name as string;
-                    if (amenities.has(n)) {
-                      amenities.delete(n);
+                    if (disabled) {
+                      amenities.clear();
+                      setCount(0);
                     } else {
-                      amenities.add(n);
+                      if (amenities.has(n)) {
+                        amenities.delete(n);
+                      } else {
+                        amenities.add(n);
+                      }
+                      setCount(amenities.size);
                     }
-                    setCount(amenities.size);
                   }}
                 >
                   <span className="size-6 inline-flex items-center justify-center">

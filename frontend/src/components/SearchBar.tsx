@@ -19,6 +19,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   label,
   onChange,
   setSubmitted,
+  clearState,
 }) => {
   // Hide Search button text on screen sizes below 430
   const showSearch = !UseIsMobile(430);
@@ -53,8 +54,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
               "p-6 w-full space-20 rounded-full cursor-pointer button-effect bg-gradient-primary hover-glow text-neutral-50"
             )}
             onClick={() => {
-              console.log("submit button clicked");
               setSubmitted(true);
+              if (clearState) {
+                clearState();
+              }
             }}
           >
             {!isLoading ? (

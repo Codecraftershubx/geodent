@@ -3,7 +3,7 @@ import Components from "@/components/index";
 import Loader from "@/components/utils/Loader";
 import { useAppSelector } from "@/hooks";
 //import { UseTheme } from "@/hooks";
-import UseFilters from "@/hooks/UseFilters";
+//import UseFilters from "@/hooks/UseFilters";
 import { RootState } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -15,22 +15,22 @@ const Listings = () => {
   //const { theme } = UseTheme();
   //const [listings, setListings] = useState<Record<string, any> | null>(null);
   const [submitted, setSubmitted] = useState<boolean | undefined>(undefined);
-  const { isLoading } = useAppSelector((store: RootState) => store.listings);
+  const { isLoading, stdDelay } = useAppSelector(
+    (store: RootState) => store.listings
+  );
   const dispatch = useDispatch();
-  const { filters } = UseFilters();
+  //const { filters } = UseFilters();
 
   /**
    * Hooks
    */
   useEffect(() => {
-    console.log("LISTING - SUBMITTED:", submitted, "ISLOADING:", isLoading);
     if (submitted) {
       dispatch(setIsLoading());
-      console.log("SUBMITTED!!! VALUE ARE:\n", filters);
       setTimeout(() => {
         setSubmitted(false);
         dispatch(stopIsLoading());
-      }, 3000);
+      }, stdDelay);
     }
   }, [submitted]);
 
