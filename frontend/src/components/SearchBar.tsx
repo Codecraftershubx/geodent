@@ -3,6 +3,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Search } from "lucide-react";
 import { UseIsMobile } from "@/hooks";
+import { SearchPropsType } from "./SearchContainer";
 
 /**
  * @func SearchBar Search bar component
@@ -15,7 +16,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
   className,
   label,
   onChange,
+  setSubmitted,
 }) => {
+  // Hide Search button text on screen sizes below 430
   const showSearch = UseIsMobile(430);
 
   return (
@@ -45,6 +48,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
             className={cn(
               "p-6 w-full space-20 rounded-full cursor-pointer button-effect bg-gradient-primary hover-glow text-neutral-50"
             )}
+            onClick={() => {
+              console.log("submit button clicked");
+              setSubmitted(true);
+            }}
           >
             <span>
               <Search size="48px" strokeWidth="2.5px" />
@@ -60,7 +67,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 /**
  * Type
  */
-type SearchBarProps = {
+type SearchBarProps = SearchPropsType & {
   placeholder?: string;
   label?: string;
   className?: string;

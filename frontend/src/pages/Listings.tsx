@@ -1,20 +1,25 @@
 import Components from "@/components/index";
-import { UseTheme } from "@/hooks";
-import { useState } from "react";
+//import { UseTheme } from "@/hooks";
+import UseFilters from "@/hooks/UseFilters";
+import { useEffect, useState } from "react";
 
 /**
  * @func Listings Listings Page Component
  */
 const Listings = () => {
-  const { theme } = UseTheme();
-  const [listings, setListings] = useState<Record<string, any> | null>(null);
+  //const { theme } = UseTheme();
+  //const [listings, setListings] = useState<Record<string, any> | null>(null);
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const { filters } = UseFilters();
 
   /**
    * Hooks
    */
-  //useEffect(() => {
-  //  console.log("DEBOUNCED VALUE:", searchValue, "\nFILTERS:\n", filters);
-  //}, [searchValue]);
+  useEffect(() => {
+    if (submitted) {
+      console.log("SUBMITTED!!! VALUE ARE:\n", filters);
+    }
+  }, [submitted]);
 
   return (
     <section className="min-h-svh py-10 md:py-20 flex flex-col gap-5 justify-start">
@@ -24,7 +29,7 @@ const Listings = () => {
         body="Discover affordable housing in and around your school"
       />
       {/* Search container */}
-      <Components.SearchContainer />
+      <Components.SearchContainer setSubmitted={setSubmitted} />
     </section>
   );
 };

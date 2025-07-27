@@ -318,6 +318,7 @@ type AmenitiesFilterProps = BaseFieldType & {
 };
 
 type FiltersStateType = {
+  query: string;
   propertyType: string;
   distance: string;
   priceRange: string;

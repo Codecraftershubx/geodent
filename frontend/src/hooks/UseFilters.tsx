@@ -12,6 +12,7 @@ import type { FiltersStateType } from "@/components/SearchFilters";
  */
 const FiltersContext = createContext<FiltersContextType>({
   filters: {
+    query: "",
     propertyType: "",
     distance: "",
     priceRange: "",
@@ -29,6 +30,7 @@ const FiltersContext = createContext<FiltersContextType>({
 const FiltersProvider = ({ children }: { children: React.ReactNode }) => {
   const amenitiesRef = useRef<Set<string>>(new Set());
   const [filters, setFilters] = useState<FiltersStateType>({
+    query: "",
     propertyType: "",
     distance: "",
     priceRange: "",

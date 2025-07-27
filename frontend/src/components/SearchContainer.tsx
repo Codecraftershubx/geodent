@@ -2,27 +2,28 @@ import SearchBar from "@/components/SearchBar";
 import Components from "@/components/index";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import SearchFilters from "@/components/SearchFilters";
 import { UseTheme } from "@/hooks";
-import { UseFilters } from "@/hooks/UseFilters";
 import UseDebounce from "@/hooks/UseDebounce";
+import UseFilters from "@/hooks/UseFilters";
 
-export const SearchContainer = () => {
+export const SearchContainer: React.FC<SearchPropsType> = ({
+  setSubmitted,
+}) => {
   const { theme } = UseTheme();
-  const { filters } = UseFilters();
   const [filtersOpen, setFiltersOpen] = useState<boolean>(false);
-  const [submitted, isSubmitted] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>("");
   const searchValue = UseDebounce<string>(searchInput, 500);
+  const { filters, setFilters } = UseFilters();
 
   /**
    * Hooks
    */
   useEffect(() => {
-    console.log("DEBOUNCED VALUE:", searchValue, "\nFILTERS:\n", filters);
-  }, [searchValue, submitted]);
+    setFilters({ ...filters, query: searchValue });
+  }, [searchValue]);
 
   return (
     <Components.Wrapper className="py-0 justify-start">
@@ -42,6 +43,7 @@ export const SearchContainer = () => {
             onChange={(e) => {
               setSearchInput(e.target.value);
             }}
+            setSubmitted={setSubmitted}
           />
         </div>
 
@@ -99,4 +101,9 @@ export const SearchContainer = () => {
   );
 };
 
+type SearchPropsType = {
+  setSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
 export default SearchContainer;
+export type { SearchPropsType };
