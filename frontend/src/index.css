@@ -437,8 +437,8 @@
   :where([data-theme="light"]).bg-gradient {
     background: radial-gradient(
       ellipse farthest-side at 10% 40%,
-      var(--blue-50) 40%,
-      var(--dark-blue-50) 80%,
+      var(--blue-50) 30%,
+      var(--dark-blue-50) 70%,
       var(--dark-blue-100) 100%
     );
     background-size: 300% 100%;

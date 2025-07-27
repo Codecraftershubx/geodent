@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { UseTheme } from "@/hooks";
+import { useAppSelector, UseTheme } from "@/hooks";
 import {
   BookOpenCheck,
   Cctv,
@@ -29,6 +29,7 @@ import { MdWaterDrop } from "react-icons/md";
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import UseFilters from "@/hooks/UseFilters";
+import { RootState } from "@/lib/types";
 
 /**
  * @func SearchFilters Search filters component
@@ -37,6 +38,7 @@ import UseFilters from "@/hooks/UseFilters";
  */
 const SearchFilters = () => {
   const { filters, setFilters } = UseFilters();
+  const { isLoading } = useAppSelector((state: RootState) => state.listings);
 
   /**
    * Hook: Track changes in filters
@@ -68,6 +70,7 @@ const SearchFilters = () => {
           onValueChange={(updated) => {
             setFilters({ ...filters, propertyType: updated });
           }}
+          disabled={isLoading}
         />
         {/* Distance */}
         <SelectFilter
@@ -85,6 +88,7 @@ const SearchFilters = () => {
           onValueChange={(updated) => {
             setFilters({ ...filters, distance: updated });
           }}
+          disabled={isLoading}
         />
         {/* Price Range */}
         <SelectFilter
@@ -104,6 +108,7 @@ const SearchFilters = () => {
           onValueChange={(updated) => {
             setFilters({ ...filters, priceRange: updated });
           }}
+          disabled={isLoading}
         />
         {/* Rating */}
         <SelectFilter
@@ -114,10 +119,15 @@ const SearchFilters = () => {
           onValueChange={(updated) => {
             setFilters({ ...filters, rating: updated });
           }}
+          disabled={isLoading}
         />
       </div>
       {/* Amenities Filter */}
-      <AmenitiesFilter name="amenities" amenities={filters.amenities} />
+      <AmenitiesFilter
+        name="amenities"
+        amenities={filters.amenities}
+        disabled={isLoading}
+      />
     </div>
   );
 };
@@ -136,11 +146,16 @@ const SelectFilter: React.FC<FilterPropsType> = ({
   withLabel = true,
   label,
   onValueChange,
+  disabled,
 }) => {
   const { theme } = UseTheme();
 
   return (
-    <Select value={defaultValue || values[0]} onValueChange={onValueChange}>
+    <Select
+      value={defaultValue || values[0]}
+      onValueChange={onValueChange}
+      disabled={disabled}
+    >
       <div className="flex flex-col gap-2 w-full md:w-auto">
         {withLabel && (
           <label className="label-style" htmlFor={trigger}>
@@ -195,6 +210,7 @@ function AmenitiesFilter({
   size = "24px",
   xClassName,
   amenities,
+  disabled,
 }: AmenitiesFilterProps) {
   const { theme } = UseTheme();
   // Pre-defined amenities with their icons
@@ -238,6 +254,7 @@ function AmenitiesFilter({
         id="amenities"
         onValueChange={handleChange}
         value={aValue}
+        disabled={disabled}
       >
         <AccordionItem value={name} className="relative">
           <AccordionTrigger
@@ -302,6 +319,7 @@ type BaseFieldType = {
   withLabel?: boolean;
   label?: string;
   className?: string;
+  disabled?: boolean;
 };
 
 type FilterPropsType = BaseFieldType & {

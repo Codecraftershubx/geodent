@@ -102,7 +102,7 @@ export const SearchContainer: React.FC<SearchPropsType> = ({
 };
 
 type SearchPropsType = {
-  setSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
+  setSubmitted: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 };
 
 export default SearchContainer;

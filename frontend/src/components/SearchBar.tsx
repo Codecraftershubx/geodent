@@ -2,8 +2,10 @@ import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Search } from "lucide-react";
-import { UseIsMobile } from "@/hooks";
+import { useAppSelector, UseIsMobile } from "@/hooks";
 import { SearchPropsType } from "./SearchContainer";
+import { RootState } from "@/lib/types";
+import Loader from "./utils/Loader";
 
 /**
  * @func SearchBar Search bar component
@@ -19,7 +21,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
   setSubmitted,
 }) => {
   // Hide Search button text on screen sizes below 430
-  const showSearch = UseIsMobile(430);
+  const showSearch = !UseIsMobile(430);
+  const { isLoading } = useAppSelector((store: RootState) => store.listings);
 
   return (
     <>
@@ -40,6 +43,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             className
           )}
           onChange={onChange}
+          disabled={isLoading}
         />
         <div className="absolute z-5 right-[1px] top-[1px]">
           <Button
@@ -53,10 +57,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
               setSubmitted(true);
             }}
           >
-            <span>
-              <Search size="48px" strokeWidth="2.5px" />
-            </span>
-            {!showSearch && "Search"}
+            {!isLoading ? (
+              <>
+                <span>
+                  <Search size="48px" strokeWidth="2.5px" />
+                </span>
+                {showSearch && "Search"}
+              </>
+            ) : (
+              <Loader />
+            )}
           </Button>
         </div>
       </div>
