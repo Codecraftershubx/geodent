@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import type { AppDispatchType, MessageType } from "../../utils/types.js";
+import type { AppDispatchType, MessageType } from "../../lib/types.js";
 
 const appMessageSlice = createSlice({
   name: "appMessage",
