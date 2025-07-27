@@ -62,6 +62,13 @@ type FadeComponentPropsType = {
   className?: string;
 };
 
+/**
+ * Listings Types
+ */
+type ListingsStateType = {
+  isLoading: boolean;
+};
+
 export type {
   APIResponseType,
   AppDispatchType,
@@ -75,4 +82,5 @@ export type {
   RefreshSuccessPayloadType,
   RootState,
   UserType,
+  ListingsStateType,
 };
