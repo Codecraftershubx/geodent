@@ -16,14 +16,15 @@ const success = (
   res: Response,
   options: THandlerOptions = {
     data: [],
-    status: errors.success.statusCode || 200,
+    status: 200,
     message: "successful operation",
   }
 ): void => {
-  const resStatus = options?.status ?? errors.success.statusCode;
+  const errKey = options?.errno ?? "default";
+  const resStatus = options?.status ?? errors.success[errKey].statusCode;
   const data = options.data;
   const toDelete = ["data", "message", "status"];
-  const message = options?.message ?? errors.success.errnos.default.desc;
+  const message = options?.message ?? errors.success[errKey].desc;
   for (let key of toDelete) {
     delete (options as Record<string, any>)[key];
   }
@@ -31,7 +32,7 @@ const success = (
   const payload: TRequestResData = {
     header: {
       status: successStatus,
-      errno: errors.success.errnos.default.code,
+      errno: errors.success[errKey].code,
       message,
       ...(options as TOmitStatus),
     },
@@ -59,8 +60,10 @@ const error = (
   const toDelete = ["data", "message", "status"];
   // construct error message in the form:
   // Title: message
-  const message = errors[errType].errnos[options?.errno ?? "default"].desc;
-  const statusCode = options.status ?? errors[errType].statusCode;
+  const errKey = options?.errno ?? "default";
+  const errno = errors[errType][errKey].statusCode;
+  const message = errors[errType][errKey].desc;
+  const statusCode = options.status ?? errors[errType][errKey].statusCode;
   const data = options.data;
   const dataLength = data?.length ?? 0;
 
@@ -72,7 +75,7 @@ const error = (
   const payload: TRequestResData = {
     header: {
       status: errStatus,
-      errno: options?.errno ?? errors[errType].errnos.default.code,
+      errno,
       message,
       ...(options as TOmitStatus),
     },

@@ -36,45 +36,112 @@ if (serverPort) {
 }
 
 // Error numbers
+const defaultCodes: { [key in TErrorNumberType]: number } = {
+  authentication: 401,
+  general: 500,
+  success: 200,
+  validation: 400,
+};
 
 const errors: TErrorNumbers = {
   authentication: {
-    errnos: {
-      "3": { code: 3, desc: "ERRONEOUS RESPONSE. IGNORE" },
-      "4": { code: 4, desc: "Badly formatted auth headers" },
-      "5": { code: 5, desc: "Expired access token" },
-      "6": { code: 6, desc: "Invalid access token" },
-      "7": { code: 7, desc: "Not logged in" },
-      "8": { code: 8, desc: "Token not expired" },
-      "9": { code: 9, desc: "Refresh token expired" },
-      "10": { code: 10, desc: "Already logged in" },
-      "15": { code: 15, desc: "Missing credentials" },
-      "16": { code: 16, desc: "Unknown user" },
-      "17": { code: 17, desc: "Wrong password" },
-      default: { code: 2, desc: "Unauthorised!" },
+    "3": {
+      code: 3,
+      desc: "ERRONEOUS RESPONSE. IGNORE",
+      statusCode: defaultCodes.authentication,
     },
-    statusCode: 401,
+    "4": {
+      code: 4,
+      desc: "Badly formatted auth headers",
+      statusCode: defaultCodes.authentication,
+    },
+    "5": {
+      code: 5,
+      desc: "Expired access token",
+      statusCode: defaultCodes.authentication,
+    },
+    "6": {
+      code: 6,
+      desc: "Invalid access token",
+      statusCode: defaultCodes.authentication,
+    },
+    "7": {
+      code: 7,
+      desc: "Not logged in",
+      statusCode: defaultCodes.authentication,
+    },
+    "8": {
+      code: 8,
+      desc: "Token not expired",
+      statusCode: defaultCodes.authentication,
+    },
+    "9": {
+      code: 9,
+      desc: "Refresh token expired",
+      statusCode: defaultCodes.authentication,
+    },
+    "10": {
+      code: 10,
+      desc: "Already logged in",
+      statusCode: defaultCodes.authentication,
+    },
+    "15": {
+      code: 15,
+      desc: "Missing credentials",
+      statusCode: defaultCodes.authentication,
+    },
+    "16": {
+      code: 16,
+      desc: "Unknown user",
+      statusCode: defaultCodes.authentication,
+    },
+    "17": {
+      code: 17,
+      desc: "Wrong password",
+      statusCode: defaultCodes.authentication,
+    },
+    default: {
+      code: 2,
+      desc: "Unauthorised!",
+      statusCode: defaultCodes.authentication,
+    },
   },
   general: {
-    errnos: {
-      default: { code: 1, desc: "Internal server error" },
+    default: {
+      code: 1,
+      desc: "Internal server error",
+      statusCode: defaultCodes.general,
     },
-    statusCode: 500,
   },
   success: {
-    errnos: { default: { code: 0, desc: "Operation success" } },
-    statusCode: 200,
-  },
-
-  validation: {
-    errnos: {
-      default: { code: 11, desc: "Validation error" },
-      "12": { code: 12, desc: "No file uploaded" },
-      "13": { code: 13, desc: "Not found" },
-      "14": { code: 14, desc: "Already exists" },
-      "21": { code: 21, desc: "No auth header" },
+    default: {
+      code: 0,
+      desc: "Operation success",
+      statusCode: defaultCodes.success,
     },
-    statusCode: 400,
+  },
+  validation: {
+    default: {
+      code: 11,
+      desc: "Validation error",
+      statusCode: defaultCodes.validation,
+    },
+    "12": {
+      code: 12,
+      desc: "No file uploaded",
+      statusCode: defaultCodes.validation,
+    },
+    "13": { code: 13, desc: "Not found", statusCode: 404 },
+    "14": {
+      code: 14,
+      desc: "Already exists",
+      statusCode: defaultCodes.validation,
+    },
+    "21": {
+      code: 21,
+      desc: "No auth header",
+      statusCode: defaultCodes.validation,
+    },
   },
 };
 
@@ -121,6 +188,7 @@ type TErrorNumber = {
 type TErrnoItem = {
   code: number;
   desc: string;
+  statusCode: number;
 };
 
 type TErrNos = {
@@ -129,7 +197,7 @@ type TErrNos = {
 };
 
 type TErrorNumbers = {
-  [key in TErrorNumberType]: TErrorNumber;
+  [key in TErrorNumberType]: TErrNos;
 };
 
 export default envs;
