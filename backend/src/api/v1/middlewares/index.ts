@@ -2,6 +2,7 @@ import deleteOldSessions from "./deleteOldSessions.js";
 import easeStrictValidation from "./easeStrictValidation.js";
 import validateAuthCredentials from "./validateAuthCredentials.js";
 import validateAuthToken from "./validateAuthToken.js";
+import validateIsAdmin from "./validateIsAdmin.js";
 import validateIsLoggedIn from "./validateIsLoggedIn.js";
 import validateTokenPayload from "./validateTokenPayload.js";
 
@@ -10,6 +11,7 @@ export default {
   easeStrictValidation,
   validateAuthCredentials,
   validateAuthToken,
+  validateIsAdmin,
   validateIsLoggedIn,
   validateTokenPayload,
 };
