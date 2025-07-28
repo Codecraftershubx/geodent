@@ -3,15 +3,22 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const restore = async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params;
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
 
   // verify address exists
+  const { id } = req.params;
   const address = await db.client.client.address.findMany({
     where: { id, isDeleted: true },
   });
   if (!address.length) {
     return utils.handlers.error(req, res, "validation", {
-      status: 404,
+      errno: 13,
       message: `address not found`,
     });
   }

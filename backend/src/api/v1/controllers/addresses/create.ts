@@ -4,7 +4,17 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const create = async (req: Request, res: Response): Promise<void> => {
-  // validate sent data
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
@@ -15,7 +25,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
   }
 
-  const { data } = matchedData(req);
+  const data = matchedData(req);
   const { number, zip, street, cityId, stateId, countryId } = data;
 
   // verify flat, user, school, campus, room, block
@@ -56,7 +66,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   ) {
     return utils.handlers.error(req, res, "validation", {
       message: "owner not found",
-      status: 404,
+      errno: 13,
     });
   }
   // validate city, state, country
@@ -66,7 +76,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   if (!city) {
     return utils.handlers.error(req, res, "validation", {
       message: `city ${cityId} not found`,
-      status: 404,
+      errno: 13,
     });
   }
 
@@ -75,8 +85,8 @@ const create = async (req: Request, res: Response): Promise<void> => {
   });
   if (!state) {
     return utils.handlers.error(req, res, "validation", {
-      message: `state: ${stateId} not found or city{cityId} not in state`,
-      status: 404,
+      message: `state: ${stateId} not found or city ${cityId} not in state`,
+      errno: 13,
     });
   }
 
@@ -86,6 +96,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
   if (!country) {
     return utils.handlers.error(req, res, "validation", {
       message: `country ${countryId} not found or state ${stateId} not in country`,
+      errno: 13,
     });
   }
 
@@ -105,9 +116,8 @@ const create = async (req: Request, res: Response): Promise<void> => {
     },
   });
   if (existingAddress.length) {
-    return utils.handlers.error(req, res, "general", {
-      message: "address already exists",
-      status: 400,
+    return utils.handlers.error(req, res, "validation", {
+      errno: 14,
     });
   }
 
@@ -152,14 +162,14 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
     const filtered = await db.client.filterModels([address]);
     return utils.handlers.success(req, res, {
-      message: "address created successfully",
+      message: "address created",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
     return utils.handlers.error(req, res, "general", {
       message: err?.message ?? "some error occured",
-      data: [{ details: err }],
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };
