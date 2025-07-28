@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import utils from "../../../utils/index.js";
-import type { TErrorNumberType } from "../../../config.js";
 
 const validateIsLoggedIn = async (
   req: Request,
@@ -11,7 +10,7 @@ const validateIsLoggedIn = async (
   if (!aTData) {
     return utils.handlers.error(req, res, "authentication", {});
   }
-  // validate use is logged in
+  // validate user is logged in
   const cachedData = await utils.cache.hget(aTData.id, "data");
   //console.log("cachedData [VALIDATEISLOGGEDIN]", cachedData);
   if (!cachedData.value) {
