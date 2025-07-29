@@ -5,18 +5,28 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const create = async (req: Request, res: Response): Promise<void> => {
-  // validate sent data
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
   }
 
-  const { data } = matchedData(req);
+  const data = matchedData(req);
   const userId = data.userId;
   const connectionKeys = ["rooms", "amenities", "documents", "tags", "flats"];
   const optionalFields = ["addressId", "listingId", "isComposite"];
@@ -27,64 +37,71 @@ const create = async (req: Request, res: Response): Promise<void> => {
     type: data.type,
   };
 
-  for (let field of optionalFields) {
-    if (dataFields.includes(field)) {
-      Object.assign(whereData, { [field]: data[field] });
-      if (field === "addressId") {
-        Object.assign(blockData, { address: { connect: { id: data[field] } } });
-      } else if (field === "listingId") {
-        Object.assign(blockData, { listing: { connect: { id: data[field] } } });
-      } else {
-        Object.assign(blockData, { [field]: data[field] });
+  try {
+    for (let field of optionalFields) {
+      if (dataFields.includes(field)) {
+        Object.assign(whereData, { [field]: data[field] });
+        if (field === "addressId") {
+          Object.assign(blockData, {
+            address: { connect: { id: data[field] } },
+          });
+        } else if (field === "listingId") {
+          Object.assign(blockData, {
+            listing: { connect: { id: data[field] } },
+          });
+        } else {
+          Object.assign(blockData, { [field]: data[field] });
+        }
       }
     }
-  }
-  // avoid duplicate blocks
-  const existingBlock = await db.client.client.block.findMany({
-    where: {
-      userId,
-      ...whereData,
-      isDeleted: false,
-    },
-  });
-  if (existingBlock.length) {
-    return utils.handlers.error(req, res, "general", {
-      message: "block already exists",
-      status: 400,
+    /* -------------------- */
+    /* - avoid duplicates - */
+    /* -------------------- */
+    const existingBlock = await db.client.client.block.findMany({
+      where: {
+        userId,
+        ...whereData,
+        isDeleted: false,
+      },
     });
-  }
-  // prepare for creating new block
-  const connection = {} as Prisma.BlockCreateInput;
-  for (let key of connectionKeys) {
-    if (data[key] && data[key].length) {
-      const temp = {
-        [key]: {
-          connect: data[key].map((id: string) => {
-            return { id };
-          }),
-        },
-      };
-      Object.assign(connection, temp);
+    if (existingBlock.length) {
+      return utils.handlers.error(req, res, "validation", {
+        errno: 14,
+      });
     }
-  }
-
-  // proceed to create;
-  try {
+    /* ---------------------- */
+    /* -  proceed to create - */
+    /* ---------------------- */
+    // build connections
+    const connection = {} as Prisma.BlockCreateInput;
+    for (let key of connectionKeys) {
+      if (data[key] && data[key].length) {
+        const temp = {
+          [key]: {
+            connect: data[key].map((id: string) => {
+              return { id };
+            }),
+          },
+        };
+        Object.assign(connection, temp);
+      }
+    }
+    // create
     const block = await db.client.client.block.create({
       data: { ...blockData, ...connection },
       include: db.client.include.block,
     });
+    // filter and send result
     const filtered = await db.client.filterModels([block]);
     return utils.handlers.success(req, res, {
-      message: "block created successfully",
+      message: "block created",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
     console.error(err);
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? "some error occured",
-      data: [{ details: err }],
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };
