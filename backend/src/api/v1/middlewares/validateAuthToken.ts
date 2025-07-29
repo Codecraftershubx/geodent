@@ -50,7 +50,7 @@ const validateAuthToken = async (
     }
   } else {
     if (req.body.auth.strictMode) {
-      return utils.handlers.error(req, res, "validation", { errno: 21 });
+      return utils.handlers.error(req, res, "authentication", { errno: 3 });
     }
     next();
   }
