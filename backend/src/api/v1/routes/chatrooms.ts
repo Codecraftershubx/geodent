@@ -175,10 +175,19 @@ router.put(
   middlewares.validateIsLoggedIn,
   controllers.chatroom.connections
 );
-router.put("/:id/messages/:messageId", controllers.chatroom.messages.update);
-router.put("/:id/restore", controllers.chatroom.restore);
+router.put(
+  "/:id/messages/:messageId",
+  middlewares.validateIsLoggedIn,
+  controllers.chatroom.messages.update
+);
+router.put(
+  "/:id/restore",
+  middlewares.validateIsLoggedIn,
+  controllers.chatroom.restore
+);
 router.put(
   "/:id/messages/:messageId/restore",
+  middlewares.validateIsLoggedIn,
   controllers.chatroom.messages.restore
 );
 router.delete(
@@ -186,7 +195,11 @@ router.delete(
   middlewares.validateIsLoggedIn,
   controllers.chatroom.delete
 );
-router.delete("/:id/messages/:messageId", controllers.chatroom.messages.delete);
+router.delete(
+  "/:id/messages/:messageId",
+  middlewares.validateIsLoggedIn,
+  controllers.chatroom.messages.delete
+);
 
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This chatroom resource doesn't exist" });
