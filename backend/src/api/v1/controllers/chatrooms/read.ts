@@ -47,7 +47,7 @@ const read = async (req: Request, res: Response): Promise<void> => {
    * ------------------------------------ */
   const { profile: user } = req.body?.auth?.profile;
   if (!user || !user.isAdmin) {
-    return utils.handlers.error(req, res, "authentication", {});
+    return utils.handlers.error(req, res, "authentication", { errno: 31 });
   }
 
   const whereData = { isDeleted: false } as Record<string, any>;

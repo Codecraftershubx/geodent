@@ -39,8 +39,7 @@ const restore = async (req: Request, res: Response): Promise<void> => {
     });
     return utils.handlers.success(req, res, {
       message: `chatroom restored`,
-      count: 1,
-      status: 204,
+      errno: 44,
     });
   } catch (err: any) {
     console.log("error occured");

@@ -24,7 +24,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
@@ -45,7 +45,6 @@ const update = async (req: Request, res: Response): Promise<void> => {
     if (!chatroom) {
       return utils.handlers.error(req, res, "validation", {
         errno: 13,
-        message: `chatroom doesn't exist`,
       });
     }
     // create update data object
@@ -69,7 +68,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
       data: filtered,
     });
   } catch (err: any) {
-    console.error(err);
+    console.log("error occured");
     return utils.handlers.error(req, res, "general", {
       data: [{ details: JSON.stringify(err) }],
     });

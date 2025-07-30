@@ -51,6 +51,7 @@ const create = async (req: Request, res: Response): Promise<void> => {
       message: "chatroom created",
       data: filtered,
       status: 201,
+      count: 1,
     });
   } catch (err: any) {
     console.error(err);

@@ -42,7 +42,6 @@ const deleteChatroom = async (req: Request, res: Response): Promise<void> => {
     return utils.handlers.success(req, res, {
       message: "deleted",
       errno: 44,
-      count: 1,
     });
   } catch (err: any) {
     console.log("error occured");
