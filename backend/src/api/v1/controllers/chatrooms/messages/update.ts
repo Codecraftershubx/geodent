@@ -4,38 +4,51 @@ import db from "../../../../../db/utils/index.js";
 import utils from "../../../../../utils/index.js";
 
 const create = async (req: Request, res: Response): Promise<void> => {
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+
   const { id } = req.params;
   let filtered;
-  // verify chatroom
+  /* ---------------------------- */
+  /* - Validate Chatroom Exists - */
+  /* ---------------------------- */
   const chatroom = await db.client.client.chatroom.findUnique({
     where: { id, isDeleted: false },
     include: db.client.include.chatroom,
   });
   if (!chatroom) {
-    return utils.handlers.error(req, res, "general", {
+    return utils.handlers.error(req, res, "validation", {
       message: `chatroom not found`,
-      status: 404,
+      errno: 13,
     });
   }
-  // create chatroom message
   try {
-    // create chatroom message
-    const { data } = req.body;
+    const data = req.body;
     const { messageId } = req.params;
     const fields = ["content", "isDelivered", "isRead", "isSent"];
-
-    // validate message
+    /* --------------------------- */
+    /* - Validate Message Exists - */
+    /* --------------------------- */
     const message = chatroom.messages.filter((msg) => {
       return msg.id === messageId && !msg.isDeleted;
     });
     if (!message.length) {
       return utils.handlers.error(req, res, "validation", {
-        message: `message ${messageId} not found`,
-        status: 404,
+        errno: 13,
       });
     }
+    /* ----------------TODO---------------- */
+    /* - Validate User Posted the Message - */
+    /* ------------------------------------ */
 
-    // construct update data
+    /* ------------------ */
+    /* - Update Message - */
+    /* ------------------ */
     const updateData = {} as Prisma.MessageUpdateInput;
     for (let field of fields) {
       if (data[field]) {
@@ -44,7 +57,6 @@ const create = async (req: Request, res: Response): Promise<void> => {
         });
       }
     }
-    // update message
     const updated = await db.client.client.message.update({
       where: { id: messageId },
       data: updateData,
@@ -54,14 +66,14 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
     filtered = await db.client.filterModels([updated]);
     return utils.handlers.success(req, res, {
-      message: `message ${messageId} updated successfully`,
+      message: `update successful`,
       count: 1,
       data: filtered,
     });
   } catch (err: any) {
     console.error(err);
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? "an error occured",
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };

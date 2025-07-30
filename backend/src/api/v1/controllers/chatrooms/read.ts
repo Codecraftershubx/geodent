@@ -4,35 +4,52 @@ import utils from "../../../../utils/index.js";
 import type { ChatroomType } from "../../../../utils/types.js";
 
 const read = async (req: Request, res: Response): Promise<void> => {
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
   const { id } = req.params;
   let count;
   let filtered;
   if (id) {
-    // get chatroom by id if exists
+    /* -------------------------- *
+     * - get one chatroom by id - *
+     * -------------------------- */
     try {
       const chatroom = await db.client.client.chatroom.findUnique({
         where: { id, isDeleted: false },
         include: db.client.include.chatroom,
       });
       if (chatroom) {
-        filtered = await db.client.filterModels([chatroom]);
         return utils.handlers.success(req, res, {
           message: "query successful",
-          data: filtered,
-          count,
+          data: await db.client.filterModels([chatroom]),
+          count: 1,
         });
       }
-      return utils.handlers.error(req, res, "general", {
-        message: `chatroom not found`,
-        status: 404,
+      return utils.handlers.error(req, res, "validation", {
+        errno: 13,
       });
     } catch (err: any) {
+      console.log("error occured");
       return utils.handlers.error(req, res, "general", {
-        message: err?.message ?? "some error occured",
+        data: [{ details: JSON.stringify(err) }],
       });
     }
   }
-  // get all chatrooms
+  /* ------------------------------------ *
+   * get all chatrooms ------------------ *
+   * first validate user is admin: only - *
+   * admin can fetch all chatrooms ------ *
+   * ------------------------------------ */
+  const { profile: user } = req.body?.auth?.profile;
+  if (!user || !user.isAdmin) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+
   const whereData = { isDeleted: false } as Record<string, any>;
   if (req.query.type) {
     whereData["type"] = req.query.type as ChatroomType;
@@ -45,22 +62,15 @@ const read = async (req: Request, res: Response): Promise<void> => {
     });
     filtered = await db.client.filterModels(chatrooms);
     count = chatrooms.length;
-    if (count) {
-      return utils.handlers.success(req, res, {
-        message: "query success",
-        data: filtered,
-        count,
-      });
-    }
-    return utils.handlers.error(req, res, "general", {
-      message: "no chatroom created yet",
-      status: 404,
-      count: 0,
-      data: [],
+    return utils.handlers.success(req, res, {
+      message: count ? "query success" : "no data found",
+      data: filtered,
+      count,
     });
   } catch (err: any) {
+    console.log("error occured");
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? "some error occured",
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };

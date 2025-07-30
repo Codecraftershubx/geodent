@@ -5,106 +5,137 @@ import db from "../../../../../db/utils/index.js";
 import utils from "../../../../../utils/index.js";
 import services from "../../services/index.js";
 import type { TErrorNumberType } from "../../../../../config.js";
+import multer from "multer";
 
 const create = async (req: Request, res: Response): Promise<void> => {
-  // validate sent data
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
   }
-  const { id } = req.params;
-  let filtered;
-  // verify chatroom
-  const chatroom = await db.client.client.chatroom.findUnique({
-    where: { id, isDeleted: false },
-    include: db.client.include.chatroom,
-  });
-  if (!chatroom) {
-    return utils.handlers.error(req, res, "general", {
-      message: `chatroom not found`,
-      status: 404,
-    });
-  }
-
-  // create chatroom message
   try {
-    // create chatroom message
-    const senderId = req.body?.senderId ?? null;
-    const content = req?.body?.content ?? null;
+    const { id } = req.params;
+    let filtered;
+    /* ---------------------------- */
+    /* - Validate Chatroom Exists - */
+    /* ---------------------------- */
+    const chatroom = await db.client.client.chatroom.findUnique({
+      where: { id, isDeleted: false },
+      include: db.client.include.chatroom,
+    });
+    if (!chatroom) {
+      return utils.handlers.error(req, res, "validation", {
+        message: `chatroom doesn't exist`,
+        errno: 13,
+      });
+    }
+
+    /* ------------- TODO ---------------------- *
+     * - Validate User is chatroom participant - *
+     * ----------------------------------------- */
+
+    const senderId: string | null = req.body?.senderId ?? null;
+    const text: string | null = req?.body?.text ?? null;
     const filesArray = req?.files ?? null;
+    /* Validate text and/or files were sent in message */
     if (
-      !content &&
+      !text &&
       (!filesArray || !Array.isArray(filesArray) || !filesArray.length)
     ) {
       return utils.handlers.error(req, res, "validation", {
-        message: "message requires 'content' and/or 'files'",
+        message: "no data sent'",
+        errno: 21,
       });
     }
-    if (filesArray && (filesArray.length as number) > 1) {
-      return utils.handlers.error(req, res, "validation", {
-        message: "message document can only be 1",
-      });
-    }
+    /* ----------------------------- *
+     * - Prepare to Create Message - *
+     * ----------------------------- */
+    const filesCount = filesArray ? (filesArray.length as number) : 0;
     const createData = {
       chatroom: { connect: { id } },
       sender: { connect: { id: senderId } },
-      content: content || null,
     } as Prisma.MessageCreateInput;
-
-    // create message
-    const message = await db.client.client.$transaction(async () => {
-      const newData = [];
-      const newMessage = await db.client.client.message.create({
-        data: createData,
-        include: db.client.include.message,
-      });
-      // create document if sent
-      if (filesArray && filesArray.length) {
-        req.body.message = newMessage.id;
-        req.body.isDownloadable = "true";
-        const files = filesArray as Express.Multer.File[];
-        const document = await services.documents.create({
-          files,
-          data: req.body,
-        });
-        if (document.error || !document.details.data) {
-          throw document.details;
-        }
-        // update message document
-        const updatedMessage = await db.client.client.message.update({
-          where: { id: newMessage.id },
-          data: {
-            document: {
-              connect: {
-                id: document.details.data[0].id,
+    /*
+     * Create an array of texts that match the length of
+     * files + 1 text.
+     * The least message text is going to be 1. Other
+     * messages may not have texts, but only files.
+     */
+    const messageTexts: Array<string | null> = [text];
+    for (let i = 0; i < filesCount; i++) {
+      messageTexts.push(null);
+    }
+    let newMessage, updatedMessage, document;
+    /*
+     * Handle Message +? Document(s) creation in a transaction
+     * The whole transaction fails to commit unless all ops
+     * are successful
+     */
+    const messages = await db.client.client.$transaction(async () => {
+      const newData = messageTexts.map(
+        async (txt: string | null, idx: number) => {
+          /* -------------------- *
+           * Create new Message - *
+           * -------------------- */
+          newMessage = await db.client.client.message.create({
+            data: { ...createData, content: txt },
+            include: db.client.include.message,
+          });
+          /* -------------------------------------- *
+           * Link Message and File if file exists - *
+           * -------------------------------------- */
+          if (filesArray) {
+            req.body.message = newMessage.id;
+            req.body.isDownloadable = "true";
+            document = await services.documents.create({
+              data: req.body,
+              files: [(filesArray as Express.Multer.File[])[idx]],
+            });
+            if (document.error || !document.details.data) {
+              throw document.details;
+            }
+            updatedMessage = await db.client.client.message.update({
+              where: { id: newMessage.id },
+              data: {
+                document: {
+                  connect: {
+                    id: document.details.data[0].id,
+                  },
+                },
               },
-            },
-          },
-          include: db.client.include.message,
-        });
-        newData.push(updatedMessage);
-      }
-      if (!newData.length) {
-        newData.push(newMessage);
-      }
-      return newData;
+              include: db.client.include.message,
+            });
+            return updatedMessage;
+          } else {
+            return newMessage;
+          }
+        }
+      );
+      return await Promise.all(newData);
     });
-    // return created message with/without document
-    filtered = await db.client.filterModels(message);
+    filtered = await db.client.filterModels(messages);
+    const count = filtered.length;
     return utils.handlers.success(req, res, {
-      message: "Message created",
-      count: 1,
-      data: filtered,
+      message: `${count} message${count ? "s" : ""} created}`,
       status: 201,
     });
   } catch (err: any) {
     console.error(err);
-    // construct error response
     const errType: TErrorNumberType = err?.type ?? "general";
     const excluded = ["type"];
     const errData: Record<string, any> = {};
@@ -113,7 +144,6 @@ const create = async (req: Request, res: Response): Promise<void> => {
         errData[key] = value;
       }
     }
-    // send response data
     return utils.handlers.error(req, res, errType, errData);
   }
 };

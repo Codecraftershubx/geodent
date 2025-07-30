@@ -4,35 +4,55 @@ import { Prisma } from "@prisma/client";
 import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
+/**
+ * Manages A chatroom's connections to other entities like Documents,
+ * Participants, etc.
+ * @func updateConnections
+ * @param req[Express.Request] Request object
+ * @param res[Express.Response] Response object
+ * @returns {Promise<Record<string, any>>}
+ */
 const updateConnections = async (
   req: Request,
-  res: Response,
+  res: Response
 ): Promise<void> => {
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
   }
 
+  const data = matchedData(req);
   const { id } = req.params;
-  const { data } = matchedData(req);
+  const { extend } = req.query;
   const connections = ["documents", "participants"];
   const connectObject = {} as Prisma.ChatroomUpdateInput;
-  const { extend } = req.query;
 
-  // verify chatroom exists
   try {
+    /* ---------------------------- */
+    /* - Validate Chatroom Exists - */
+    /* ---------------------------- */
     const chatroom = await db.client.client.chatroom.findUnique({
       where: { id, isDeleted: false },
     });
     if (!chatroom) {
       return utils.handlers.error(req, res, "validation", {
-        status: 404,
-        message: `chatroom not found`,
+        errno: 13,
       });
     }
     // construct update object
@@ -76,7 +96,9 @@ const updateConnections = async (
       }
     }
 
-    // update chatroom
+    /* --------------------- */
+    /* - proceed to update - */
+    /* --------------------- */
     let updated = await db.client.client.chatroom.update({
       where: { id },
       data: { ...connectObject },
@@ -91,8 +113,7 @@ const updateConnections = async (
   } catch (err: any) {
     console.error(err);
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? err.toString(),
-      data: [{ details: err }],
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };

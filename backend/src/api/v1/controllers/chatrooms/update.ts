@@ -5,6 +5,21 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const update = async (req: Request, res: Response): Promise<void> => {
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+
+  /* ----------------------------------- */
+  /* - Validate User Owns the chatroom - */
+  /* ----------------------------------- */
+
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
@@ -18,17 +33,19 @@ const update = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { data } = matchedData(req);
   const updateData = {} as Prisma.ChatroomUpdateInput;
-  const fields = ["name", "type", "webClientId"];
+  const fields = ["name", "type"];
 
-  // verify chatroom exists
+  /* ---------------------------- */
+  /* - Validate Chatroom Exists - */
+  /* ---------------------------- */
   try {
     const chatroom = await db.client.client.chatroom.findUnique({
       where: { id, isDeleted: false },
     });
     if (!chatroom) {
       return utils.handlers.error(req, res, "validation", {
-        status: 404,
-        message: `chatroom ${id} not found`,
+        errno: 13,
+        message: `chatroom doesn't exist`,
       });
     }
     // create update data object
@@ -38,7 +55,9 @@ const update = async (req: Request, res: Response): Promise<void> => {
       }
     }
 
-    // update chatroom
+    /* ------------------- */
+    /* - Update Chatroom - */
+    /* ------------------- */
     let updated = await db.client.client.chatroom.update({
       where: { id },
       data: updateData,
@@ -52,7 +71,7 @@ const update = async (req: Request, res: Response): Promise<void> => {
   } catch (err: any) {
     console.error(err);
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? "an error occured",
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };
