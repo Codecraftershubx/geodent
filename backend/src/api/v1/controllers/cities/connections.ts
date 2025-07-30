@@ -8,35 +8,50 @@ const updateConnections = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  /* ---------------------------------------- */
+  /* - Validate User Logged In and is Admin - */
+  /* ---------------------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+  const { profile: user } = req.body?.auth?.profile;
+  if (!user || !user.isAdmin) {
+    return utils.handlers.error(req, res, "authentication", { errno: 31 });
+  }
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
   }
 
   const { id } = req.params;
-  const { data } = matchedData(req);
+  const data = matchedData(req);
   const connections = ["listings", "schools", "documents", "tags"];
   const connectObject = {} as Prisma.CityUpdateInput;
   const { extend } = req.query;
 
-  // verify city exists
+  /* ------------------------ */
+  /* - Validate City Exists - */
+  /* ------------------------ */
   const city = await db.client.client.city.findMany({
     where: { id, isDeleted: false },
   });
   if (!city.length) {
     return utils.handlers.error(req, res, "validation", {
-      status: 404,
-      message: `city not found`,
+      errno: 13,
     });
   }
   // construct update object
   for (let field of connections) {
-    // [UPDATE!!] check if each id provided is valid
+    // [TODO!!] check if each id provided is valid
     if (data[field]) {
       if (extend) {
         Object.assign(connectObject, {
@@ -57,7 +72,9 @@ const updateConnections = async (
       }
     }
   }
-  // update city
+  /* --------------- */
+  /* - Update City - */
+  /* --------------- */
   try {
     let updated = await db.client.client.city.update({
       where: { id },
@@ -76,10 +93,10 @@ const updateConnections = async (
       data: filtered,
     });
   } catch (err: any) {
-    console.log(err);
+    console.log("error occured");
     return utils.handlers.error(req, res, "general", {
       message: err?.message ?? err.toString(),
-      data: [{ details: err }],
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };

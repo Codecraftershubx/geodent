@@ -1,40 +1,48 @@
 import express, { Response, Request, Router } from "express";
 import { body, query } from "express-validator";
 import controllers from "../controllers/index.js";
+import middlewares from "../middlewares/index.js";
 
 const router: Router = express.Router();
 
-router.get("/", controllers.cities.get);
-router.get("/:id", controllers.cities.get);
+router.get(
+  "/",
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.cities.get
+);
+router.get(
+  "/:id",
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.cities.get
+);
 router.post(
   "/",
   [
-    body("data")
-      .notEmpty()
-      .withMessage("data is required")
-      .isObject()
-      .withMessage("expects an object"),
-    body(["data.name", "data.stateId"])
-      .notEmpty()
-      .withMessage("required field"),
-    body("data.aka").optional().notEmpty().withMessage("value cannot be empty"),
+    body().notEmpty().withMessage("data required"),
+    body(["name", "stateId"]).notEmpty().withMessage("required field"),
+    body("aka").optional().notEmpty().withMessage("value cannot be empty"),
   ],
-  controllers.cities.create,
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.cities.create
 );
 
 router.put(
   "/:id",
-  [
-    body("data")
-      .notEmpty()
-      .withMessage("data is required")
-      .isObject()
-      .withMessage("expects an object"),
-  ],
-  controllers.cities.update,
+  [body().notEmpty().withMessage("data required")],
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.cities.update
 );
 
-router.delete("/:id", controllers.cities.delete);
+router.delete(
+  "/:id",
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.cities.delete
+);
 router.put(
   "/:id/connections",
   [
@@ -45,11 +53,9 @@ router.put(
       .withMessage("cannot be empty")
       .isBoolean({ strict: true })
       .withMessage("expects true/false"),
-    body(["data"])
+    body()
       .notEmpty()
       .withMessage("required")
-      .isObject()
-      .withMessage("expects an object")
       .custom((value) => {
         const { listings, schools, documents, tags } = value || {};
         if (!listings && !schools && !documents && !tags) {
@@ -57,20 +63,27 @@ router.put(
         }
         return true;
       }),
-    body(["data.listings", "data.schools", "data.documents", "data.tags"])
+    body(["listings", "schools", "documents", "tags"])
       .optional()
       .notEmpty()
       .isArray({ min: 1 })
       .withMessage("expects array"),
-    body(["data.listings.*", "data.schools.*", "data.documents.*", "data.tags.*"])
+    body(["listings.*", "schools.*", "documents.*", "tags.*"])
       .notEmpty()
       .withMessage("cannot be empty")
       .isUUID()
       .withMessage("expects uuid"),
   ],
-  controllers.cities.connections,
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.cities.connections
 );
-router.put("/:id/restore", controllers.cities.restore);
+router.put(
+  "/:id/restore",
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.cities.restore
+);
 
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This city resource doesn't exist" });

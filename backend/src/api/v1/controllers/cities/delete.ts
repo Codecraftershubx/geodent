@@ -3,19 +3,33 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const deleteCity = async (req: Request, res: Response): Promise<void> => {
+  /* ---------------------------------------- */
+  /* - Validate User Logged In and is Admin - */
+  /* ---------------------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+  const { profile: user } = req.body?.auth?.profile;
+  if (!user || !user.isAdmin) {
+    return utils.handlers.error(req, res, "authentication", { errno: 31 });
+  }
   const { id } = req.params;
 
-  // verify school exists
+  /* ------------------------ */
+  /* - Validate City Exists - */
+  /* ------------------------ */
   const city = await db.client.client.city.findMany({
     where: { id, isDeleted: false },
   });
   if (!city.length) {
     return utils.handlers.error(req, res, "validation", {
-      status: 404,
-      message: `not found`,
+      errno: 13,
     });
   }
-  // delete school
+  /* --------------- */
+  /* - Delete City - */
+  /* --------------- */
   await db.client.client.city.update({
     where: { id },
     data: {
@@ -24,8 +38,9 @@ const deleteCity = async (req: Request, res: Response): Promise<void> => {
     },
   });
   return utils.handlers.success(req, res, {
-    message: "delete successful",
+    message: "delete",
     count: 1,
+    errno: 44,
   });
 };
 
