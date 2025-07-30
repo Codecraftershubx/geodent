@@ -47,7 +47,7 @@ const errors: TErrorNumbers = {
   authentication: {
     "3": {
       code: 3,
-      desc: "ERRONEOUS RESPONSE. IGNORE",
+      desc: "No Auth Headers",
       statusCode: defaultCodes.authentication,
     },
     "4": {
@@ -100,6 +100,11 @@ const errors: TErrorNumbers = {
       desc: "Wrong password",
       statusCode: defaultCodes.authentication,
     },
+    "31": {
+      code: 31,
+      desc: "Forbidden",
+      statusCode: 403,
+    },
     default: {
       code: 2,
       desc: "Unauthorised!",
@@ -119,6 +124,11 @@ const errors: TErrorNumbers = {
       desc: "Operation success",
       statusCode: defaultCodes.success,
     },
+    "44": {
+      code: 44,
+      desc: "Operation success",
+      statusCode: 204,
+    },
   },
   validation: {
     default: {
@@ -135,11 +145,11 @@ const errors: TErrorNumbers = {
     "14": {
       code: 14,
       desc: "Already exists",
-      statusCode: defaultCodes.validation,
+      statusCode: 409,
     },
     "21": {
       code: 21,
-      desc: "No auth header",
+      desc: "No data sent",
       statusCode: defaultCodes.validation,
     },
   },

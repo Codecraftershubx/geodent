@@ -101,8 +101,7 @@ const create = async ({
       details: {
         type: "validation",
         errno: 13,
-        message: `${owner} ${data[utils.text.lowerCase(owner)]} not found`,
-        status: 404,
+        message: `${data[utils.text.lowerCase(owner)]} not found`,
       },
     };
   }
@@ -110,7 +109,7 @@ const create = async ({
   try {
     const createdDocs = await db.client.client.$transaction(async () => {
       const created = [];
-      const isDownloadable = data?.isDownloadable === "true" ? true : false;
+      const isDownloadable = data?.isDownloadable === "true";
       // iterate through files and create each one
       for (let file of files) {
         const originalName = file?.originalname;
@@ -184,7 +183,9 @@ const create = async ({
 
         // update urls
         const fallbackUrl = `${config.hostname}/api/v1/documents/static/${newDocument.id}`;
-        const downloadUrl = `${fallbackUrl}?download=true`;
+        const downloadUrl = isDownloadable
+          ? `${fallbackUrl}?download=true`
+          : null;
         const updated = await db.client.client.document.update({
           where: { id: newDocument.id },
           data: { downloadUrl, fallbackUrl },
@@ -212,13 +213,10 @@ const create = async ({
       error: true,
       details: {
         type: isErr ? "validation" : "general",
-        message: err?.message ?? "An error occured",
-        data: [{ details: err }],
+        errno: isErr ? 14 : 1,
+        data: [{ details: JSON.stringify(err) }],
       },
     };
-    if (isErr) {
-      resp.details.errno = 14;
-    }
     return resp;
   }
 };
