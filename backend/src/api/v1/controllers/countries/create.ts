@@ -4,30 +4,46 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const create = async (req: Request, res: Response): Promise<void> => {
-  // validate sent data
+  /* ---------------------------------------- */
+  /* - Validate User Logged In and is Admin - */
+  /* ---------------------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+  const { profile: user } = req.body?.auth?.profile;
+  if (!user || !user.isAdmin) {
+    return utils.handlers.error(req, res, "authentication", { errno: 31 });
+  }
+  /* ---------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
   }
-  // avoid duplicate entries
-  const { data } = matchedData(req);
-  const existingCountry = await db.client.client.country.findMany({
-    where: { numericCode: data.numericCode },
-  });
-  if (existingCountry.length) {
-    return utils.handlers.error(req, res, "general", {
-      message: "country already exists",
-      status: 400,
-    });
-  }
-
-  // proceed to create;
   try {
+    /* --------------------------- */
+    /* - Avoid duplicate entries - */
+    /* --------------------------- */
+    const { data } = matchedData(req);
+    const existingCountry = await db.client.client.country.findMany({
+      where: { numericCode: data.numericCode },
+    });
+    if (existingCountry.length) {
+      return utils.handlers.error(req, res, "general", {
+        errno: 14,
+      });
+    }
+
+    /* --------------------- */
+    /* - Proceed to Create - */
+    /* --------------------- */
     const country = await db.client.client.country.create({
       data: {
         ...data,
@@ -39,14 +55,14 @@ const create = async (req: Request, res: Response): Promise<void> => {
     });
     const filtered = await db.client.filterModels([country]);
     return utils.handlers.success(req, res, {
-      message: "country created successfully",
+      message: "country created",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
+    console.error("some error occured");
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? "some error occured",
-      data: [{ details: err }],
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };

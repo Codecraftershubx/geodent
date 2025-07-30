@@ -1,47 +1,57 @@
 import express, { Response, Request, Router } from "express";
 import { body, query } from "express-validator";
 import controllers from "../controllers/index.js";
+import middlewares from "../middlewares/index.js";
 
 const router: Router = express.Router();
 
-router.get("/", controllers.countries.get);
-router.get("/:id", controllers.countries.get);
+router.get(
+  "/",
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.countries.get
+);
+router.get(
+  "/:id",
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.countries.get
+);
 router.post(
   "/",
   [
-    body("data")
-      .notEmpty()
-      .withMessage("data is required")
-      .isObject()
-      .withMessage("expects an object"),
+    body().notEmpty().withMessage("data is required"),
     body([
-      "data.name",
-      "data.alpha2Code",
-      "data.alpha3Code",
-      "data.currency",
-      "data.currencyCode",
-      "data.numericCode",
+      "name",
+      "alpha2Code",
+      "alpha3Code",
+      "currency",
+      "currencyCode",
+      "numericCode",
     ])
       .notEmpty()
       .withMessage("required field"),
-    body("data.aka").optional().notEmpty().withMessage("value cannot be empty"),
+    body("aka").optional().notEmpty().withMessage("value cannot be empty"),
   ],
-  controllers.countries.create,
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.countries.create
 );
 
 router.put(
   "/:id",
-  [
-    body("data")
-      .notEmpty()
-      .withMessage("data is required")
-      .isObject()
-      .withMessage("expects an object"),
-  ],
-  controllers.countries.update,
+  [body().notEmpty().withMessage("data is required")],
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.countries.update
 );
 
-router.delete("/:id", controllers.countries.delete);
+router.delete(
+  "/:id",
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.countries.delete
+);
 router.put(
   "/:id/connections",
   [
@@ -52,11 +62,9 @@ router.put(
       .withMessage("cannot be empty")
       .isBoolean({ strict: true })
       .withMessage("expects true/false"),
-    body(["data"])
+    body()
       .notEmpty()
       .withMessage("required")
-      .isObject()
-      .withMessage("expects an object")
       .custom((value) => {
         const { listings, documents, schools, tags } = value || {};
         if (!listings && !documents && !schools && !tags) {
@@ -65,10 +73,17 @@ router.put(
         return true;
       }),
   ],
-  controllers.countries.connections,
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.countries.connections
 );
 
-router.put("/:id/restore", controllers.countries.restore);
+router.put(
+  "/:id/restore",
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
+  controllers.countries.restore
+);
 
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This country resource doesn't exist" });
