@@ -5,15 +5,29 @@ import services from "../services/index.js";
 import type { TCreateOpRes } from "../services/index.js";
 
 const create = async (req: Request, res: Response): Promise<void> => {
-  // validate sent data
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
   }
+
+  /* --------------------- */
+  /* - Proceed to Create - */
+  /* --------------------- */
   const array = req?.files || null;
   if (!array || !Array.isArray(array) || !array.length) {
     return utils.handlers.error(req, res, "validation", { errno: 12 });

@@ -5,7 +5,7 @@ import middlewares from "../middlewares/index.js";
 
 const router: Router = express.Router();
 
-router.delete("/:id", controllers.users.delete);
+router.delete("/:id", middlewares.validateIsLoggedIn, controllers.users.delete);
 router.get(
   "/",
   [
@@ -37,15 +37,11 @@ router.get(
       ])
       .withMessage("unsupported value"),
   ],
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
   controllers.users.get
 );
-router.get(
-  "/me",
-  middlewares.validateAuthToken,
-  middlewares.validateTokenPayload,
-  middlewares.validateIsLoggedIn,
-  controllers.users.profile
-);
+router.get("/me", middlewares.validateIsLoggedIn, controllers.users.profile);
 router.get(
   "/:id",
   [
@@ -77,6 +73,8 @@ router.get(
       ])
       .withMessage("unsupported value"),
   ],
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
   controllers.users.get
 );
 router.put(
@@ -88,6 +86,8 @@ router.put(
       .isObject()
       .withMessage("expects an object"),
   ],
+  middlewares.validateIsLoggedIn,
+  middlewares.validateIsAdmin,
   controllers.users.update
 );
 router.post(
@@ -173,6 +173,7 @@ router.post(
       .isUUID()
       .withMessage("expects a uuid"),
   ],
+  middlewares.validateIsLoggedIn,
   controllers.users.like
 );
 
@@ -199,6 +200,7 @@ router.post(
       .isIn(["AGENT", "LANDLORD", "LISTING"])
       .withMessage("invalid value"),
   ],
+  middlewares.validateIsLoggedIn,
   controllers.reviews.create
 );
 
@@ -285,6 +287,7 @@ router.put(
   ],
   controllers.users.connections
 );
+
 router.put("/:id/restore", controllers.users.restore);
 
 router.use("/*", (_: Request, res: Response): void => {

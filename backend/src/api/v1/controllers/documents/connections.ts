@@ -8,18 +8,33 @@ const updateConnections = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+
+  /* ------------TODO------------------- */
+  /* - Validate User Owns the Document - */
+  /* ----------------------------------- */
+
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
   }
 
   const { id } = req.params;
-  const { data } = matchedData(req);
+  const data = matchedData(req);
   const scalarConnections = [
     "chatroom",
     "listing",
@@ -37,35 +52,39 @@ const updateConnections = async (
   const connectObject = {} as Prisma.DocumentUpdateInput;
   const { extend } = req.query;
 
-  // verify document exists
-  const document = await db.client.client.document.findMany({
-    where: { id, isDeleted: false },
-  });
-  if (!document.length) {
-    return utils.handlers.error(req, res, "validation", {
-      status: 404,
-      message: `document not found`,
+  try {
+    /* ---------------------------- */
+    /* - Validate Document Exists - */
+    /* ---------------------------- */
+    const document = await db.client.client.document.findUnique({
+      where: { id, isDeleted: false },
     });
-  }
-
-  // construct update object for vector fields
-  for (let scalarField of scalarConnections) {
-    // [UPDATE!!] check if each id provided is valid
-    if (data[scalarField]) {
-      if (extend) {
-        Object.assign(connectObject, {
-          [scalarField]: { connect: { id: data[scalarField][0] } },
-        });
-      } else {
-        Object.assign(connectObject, {
-          [scalarField]: { disconnect: { id: data[scalarField][0] } },
-        });
+    if (!document) {
+      return utils.handlers.error(req, res, "validation", {
+        errno: 13,
+      });
+    }
+    /* ------------------------------------------- */
+    /* Construct update object for vector fields - */
+    /* ------------------------------------------- */
+    //
+    for (let scalarField of scalarConnections) {
+      // [UPDATE!!] check if each id provided is valid
+      if (data[scalarField]) {
+        if (extend) {
+          Object.assign(connectObject, {
+            [scalarField]: { connect: { id: data[scalarField][0] } },
+          });
+        } else {
+          Object.assign(connectObject, {
+            [scalarField]: { disconnect: { id: data[scalarField][0] } },
+          });
+        }
       }
     }
-  }
-
-  // update document
-  try {
+    /* ------------------- */
+    /* - Update Document - */
+    /* ------------------- */
     let updated = await db.client.client.document.update({
       where: { id },
       data: { ...connectObject },
@@ -78,10 +97,9 @@ const updateConnections = async (
       data: filtered,
     });
   } catch (err: any) {
-    console.log(err);
+    console.log("error occured");
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? err.toString(),
-      data: [{ details: err }],
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };

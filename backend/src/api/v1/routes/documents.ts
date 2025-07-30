@@ -3,10 +3,38 @@ import { body, query } from "express-validator";
 import validator from "validator";
 import utils from "../../../utils/index.js";
 import controllers from "../controllers/index.js";
+import middlewares from "../middlewares/index.js";
 
 const router: Router = express.Router();
 
-router.get("/", controllers.documents.get);
+router.get(
+  "/",
+  [
+    body("ids")
+      .optional()
+      .notEmpty()
+      .withMessage("can't be empty")
+      .custom((value) => {
+        const len = value.length;
+        switch (len) {
+          case 0:
+            throw new Error("cannot be empty");
+          case 1:
+            throw new Error("expects 2+ ids. Use /:id endpoint instead");
+          default:
+            return true;
+        }
+      }),
+    body("ids.*")
+      .trim()
+      .notEmpty()
+      .withMessage("cannot be empty")
+      .isString()
+      .isUUID()
+      .withMessage("expects uuid"),
+  ],
+  controllers.documents.get
+);
 router.get("/:id", controllers.documents.get);
 router.get(
   "/static/:id",
@@ -47,16 +75,13 @@ router.post(
       return true;
     }),
   ],
+  middlewares.validateIsLoggedIn,
   controllers.documents.create
 );
 router.put(
   "/:id",
   [
-    body("data")
-      .notEmpty()
-      .withMessage("data is required")
-      .isObject()
-      .withMessage("expects an object")
+    body()
       .custom((value) => {
         const {
           chatroomId,
@@ -95,6 +120,7 @@ router.put(
       })
       .withMessage("expects ownerId"),
   ],
+  middlewares.validateIsLoggedIn,
   controllers.documents.update
 );
 router.put(
@@ -107,11 +133,9 @@ router.put(
       .withMessage("cannot be empty")
       .isBoolean({ strict: true })
       .withMessage("expects true/false"),
-    body(["data"])
+    body()
       .notEmpty()
-      .withMessage("required")
-      .isObject()
-      .withMessage("expects an object")
+      .withMessage("data required")
       .custom((value) => {
         const {
           chatroom,
@@ -149,43 +173,52 @@ router.put(
       })
       .withMessage("at least one relation needed for connection"),
     body([
-      "data.chatroom",
-      "data.listing",
-      "data.user",
-      "data.verification",
-      "data.room",
-      "data.flat",
-      "data.block",
-      "data.school",
-      "data.campus",
-      "data.city",
-      "data.country",
-      "data.state",
+      "chatroom",
+      "listing",
+      "user",
+      "verification",
+      "room",
+      "flat",
+      "block",
+      "school",
+      "campus",
+      "city",
+      "country",
+      "state",
     ])
       .optional()
       .isArray({ min: 1 })
       .withMessage("expects an array"),
     body([
-      "data.chatroom.*",
-      "data.listing.*",
-      "data.user.*",
-      "data.verification.*",
-      "data.room.*",
-      "data.flat.*",
-      "data.block.*",
-      "data.school.*",
-      "data.campus.*",
-      "data.city.*",
-      "data.country.*",
-      "data.state.*",
+      "chatroom.*",
+      "listing.*",
+      "user.*",
+      "verification.*",
+      "room.*",
+      "flat.*",
+      "block.*",
+      "school.*",
+      "campus.*",
+      "city.*",
+      "country.*",
+      "state.*",
     ])
       .isUUID()
       .withMessage("expects uuid"),
   ],
+  middlewares.validateIsLoggedIn,
   controllers.documents.connections
 );
-router.put("/:id/restore", controllers.documents.restore);
-router.delete("/:id", controllers.documents.delete);
+router.put(
+  "/:id/restore",
+  middlewares.validateIsLoggedIn,
+  controllers.documents.restore
+);
+router.delete(
+  "/:id",
+  middlewares.validateIsLoggedIn,
+  controllers.documents.delete
+);
 
 router.use("/*", (_: Request, res: Response): void => {
   res.status(404).json({ error: "This document resource doesn't exist" });
