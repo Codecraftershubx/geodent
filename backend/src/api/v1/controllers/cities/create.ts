@@ -61,9 +61,9 @@ const create = async (req: Request, res: Response): Promise<void> => {
       });
     }
 
-    /* ----------------- */
-    /* - Update Create - */
-    /* ----------------- */
+    /* --------------------- */
+    /* - Proceed to Create - */
+    /* --------------------- */
     const city = await db.client.client.city.create({
       data: {
         ...data,
@@ -75,11 +75,11 @@ const create = async (req: Request, res: Response): Promise<void> => {
     return utils.handlers.success(req, res, {
       message: "city created",
       data: filtered,
-      code: 201,
+      status: 201,
       count: 1,
     });
   } catch (err: any) {
-    console.error(err);
+    console.error("some error occured");
     return utils.handlers.error(req, res, "general", {
       data: [{ details: JSON.stringify(err) }],
     });
