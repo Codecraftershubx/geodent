@@ -8,57 +8,70 @@ const updateConnections = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
   }
 
   const { id } = req.params;
-  const { data } = matchedData(req);
+  const data = matchedData(req);
   const connections = ["rooms", "amenities", "documents", "tags"];
   const connectObject = {} as Prisma.FlatUpdateInput;
   const { extend } = req.query;
 
-  // verify block exists
-  const flat = await db.client.client.flat.findMany({
-    where: { id, isDeleted: false },
-  });
-  if (!flat.length) {
-    return utils.handlers.error(req, res, "validation", {
-      status: 404,
-      message: `flat not found`,
+  try {
+    /* ------------------------ */
+    /* - Validate Flat Exists - */
+    /* ------------------------ */
+    const flat = await db.client.client.flat.findUnique({
+      where: { id, isDeleted: false },
     });
-  }
-  // construct update object
-  for (let field of connections) {
-    // [UPDATE!!] check if each id provided is valid
-    if (data[field]) {
-      if (extend) {
-        Object.assign(connectObject, {
-          [field]: {
-            connect: data[field].map((id: string) => {
-              return { id };
-            }),
-          },
-        });
-      } else {
-        Object.assign(connectObject, {
-          [field]: {
-            disconnect: data[field].map((id: string) => {
-              return { id };
-            }),
-          },
-        });
+    if (!flat) {
+      return utils.handlers.error(req, res, "validation", {
+        errno: 13,
+      });
+    }
+    // construct update object
+    for (let field of connections) {
+      // [UPDATE!!] check if each id provided is valid
+      if (data[field]) {
+        if (extend) {
+          Object.assign(connectObject, {
+            [field]: {
+              connect: data[field].map((id: string) => {
+                return { id };
+              }),
+            },
+          });
+        } else {
+          Object.assign(connectObject, {
+            [field]: {
+              disconnect: data[field].map((id: string) => {
+                return { id };
+              }),
+            },
+          });
+        }
       }
     }
-  }
-  // update flat
-  try {
+    /* -------------- */
+    /* - Update Flat  */
+    /* -------------- */
     let updated = await db.client.client.flat.update({
       where: { id },
       data: { ...connectObject },
@@ -71,10 +84,9 @@ const updateConnections = async (
       data: filtered,
     });
   } catch (err: any) {
-    console.log(err);
+    console.log("error occured");
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? err.toString(),
-      data: [{ details: err }],
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };

@@ -3,30 +3,46 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const restoreFlat = async (req: Request, res: Response): Promise<void> => {
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
   const { id } = req.params;
-
-  // verify flag exists
-  const flat = await db.client.client.flat.findMany({
-    where: { id, isDeleted: true },
-  });
-  if (!flat.length) {
-    return utils.handlers.error(req, res, "validation", {
-      status: 404,
-      message: `flat not found`,
+  try {
+    /* --------------------------------------- */
+    /* - Validate Flat Exists and is Deleted - */
+    /* --------------------------------------- */
+    const flat = await db.client.client.flat.findUnique({
+      where: { id, isDeleted: true },
+    });
+    if (!flat) {
+      return utils.handlers.error(req, res, "validation", {
+        errno: 13,
+      });
+    }
+    /* --------------- */
+    /* - Restore Flat  */
+    /* --------------- */
+    await db.client.client.flat.update({
+      where: { id },
+      data: {
+        isDeleted: false,
+        deletedAt: null,
+      },
+    });
+    return utils.handlers.success(req, res, {
+      message: "restored",
+      errno: 44,
+    });
+  } catch (err: any) {
+    console.log("error occured");
+    return utils.handlers.error(req, res, "general", {
+      data: [{ details: JSON.stringify(err) }],
     });
   }
-  // restore tag
-  await db.client.client.flat.update({
-    where: { id },
-    data: {
-      isDeleted: false,
-      deletedAt: null,
-    },
-  });
-  return utils.handlers.success(req, res, {
-    message: "flat restored successfully",
-    count: 1,
-  });
 };
 
 export default restoreFlat;

@@ -5,18 +5,27 @@ import db from "../../../../db/utils/index.js";
 import utils from "../../../../utils/index.js";
 
 const create = async (req: Request, res: Response): Promise<void> => {
-  // validate sent data
+  /* --------------------------- */
+  /* - Validate User Logged In - */
+  /* --------------------------- */
+  const { isLoggedIn } = req.body.auth;
+  if (!isLoggedIn) {
+    return utils.handlers.error(req, res, "authentication", {});
+  }
+  /* ----------------------- */
+  /* - Validate sent data - */
+  /* ---------------------- */
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
     const validationErrors = validation.array();
     return utils.handlers.error(req, res, "validation", {
-      message: "validation error",
+      errno: 11,
       data: validationErrors,
       count: validationErrors.length,
     });
   }
 
-  const { data } = matchedData(req);
+  const data = matchedData(req);
   const userId = data.userId;
   const connectionKeys = ["rooms", "amenities", "documents", "tags"];
   const optionalFields = [
@@ -46,52 +55,54 @@ const create = async (req: Request, res: Response): Promise<void> => {
       }
     }
   }
-  // avoid duplicate flats
-  const existingFlat = await db.client.client.flat.findMany({
-    where: {
-      userId,
-      ...whereData,
-      isDeleted: false,
-    },
-  });
-  if (existingFlat.length) {
-    return utils.handlers.error(req, res, "general", {
-      message: "flat already exists",
-      status: 400,
-    });
-  }
-  // prepare for creating new flat
-  const connection = {} as Prisma.FlatCreateInput;
-  for (let key of connectionKeys) {
-    if (data[key] && data[key].length) {
-      const temp = {
-        [key]: {
-          connect: data[key].map((id: string) => {
-            return { id };
-          }),
-        },
-      };
-      Object.assign(connection, temp);
-    }
-  }
-
-  // proceed to create;
   try {
+    /* ---------------- */
+    /* Avoid duplicates */
+    /* ---------------- */
+    const existingFlat = await db.client.client.flat.findMany({
+      where: {
+        userId,
+        ...whereData,
+        isDeleted: false,
+      },
+    });
+    if (existingFlat.length) {
+      return utils.handlers.error(req, res, "validation", {
+        errno: 14,
+      });
+    }
+    // prepare for creating new flat
+    const connection = {} as Prisma.FlatCreateInput;
+    for (let key of connectionKeys) {
+      if (data[key] && data[key].length) {
+        const temp = {
+          [key]: {
+            connect: data[key].map((id: string) => {
+              return { id };
+            }),
+          },
+        };
+        Object.assign(connection, temp);
+      }
+    }
+
+    /* --------------------- */
+    /* - Proceed to Create - */
+    /* --------------------- */
     const flat = await db.client.client.flat.create({
       data: { ...flatData, ...connection },
       include: db.client.include.flat,
     });
     const filtered = await db.client.filterModels([flat]);
     return utils.handlers.success(req, res, {
-      message: "flat created successfully",
+      message: "flat created",
       data: filtered,
       status: 201,
     });
   } catch (err: any) {
-    console.error(err);
+    console.log("error occured");
     return utils.handlers.error(req, res, "general", {
-      message: err?.message ?? "some error occured",
-      data: [{ details: err }],
+      data: [{ details: JSON.stringify(err) }],
     });
   }
 };
