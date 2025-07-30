@@ -10,6 +10,7 @@ const deleteBlock = async (req: Request, res: Response): Promise<void> => {
   if (!isLoggedIn) {
     return utils.handlers.error(req, res, "authentication", {});
   }
+
   try {
     /* -------------------------- */
     /* - Validate Block Exists - */
@@ -23,6 +24,11 @@ const deleteBlock = async (req: Request, res: Response): Promise<void> => {
         errno: 13,
       });
     }
+
+    /* ------------- TODO ---------------- *
+     * - Validate User Owns the Block ---- *
+     * ----------------------------------- */
+
     /* ----------------- */
     /* - Delete Block - */
     /* ---------------- */
